@@ -1,12 +1,15 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import generics
+from django.db.models import Q
 from .models import LectureInfo
+from .serializers import LectureInfoSerializer
 from .filters import LectureInfoFilter
+
+from rest_framework import generics
+from rest_framework import exceptions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import LectureInfo
-from .serializers import LectureInfoSerializer
+
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
@@ -47,3 +50,20 @@ class LectureListView(generics.ListAPIView):
 class LectureDetailView(generics.RetrieveAPIView):
     queryset = LectureInfo.objects.all()
     serializer_class = LectureInfoSerializer
+
+    
+class LectureSearchView(generics.ListAPIView):
+    serializer_class = LectureInfoSerializer
+
+    def get_queryset(self):
+        query = self.request.query_params.get('q')
+        if not query:
+            raise exceptions.ValidationError({"detail": "검색어가 필요합니다."})
+        
+        return LectureInfo.objects.filter(
+            Q(lecture_name__icontains=query) |
+            Q(description__icontains=query) |
+            Q(what_do_i_learn__icontains=query) |
+            Q(tag__icontains=query) |
+            Q(teacher__icontains = query)
+        )
