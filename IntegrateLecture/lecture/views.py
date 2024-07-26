@@ -8,6 +8,7 @@ from rest_framework import status
 from .models import LectureInfo
 from .serializers import LectureInfoSerializer
 from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 
 class LectureListView(generics.ListAPIView):
@@ -16,6 +17,19 @@ class LectureListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_class = LectureInfoFilter
 
+    @swagger_auto_schema(
+        operation_description="강의 검색",
+        responses={200: "Success", 400: "Bad Request", 500: "Internal Server Error"},
+        manual_parameters=[
+            openapi.Parameter(
+                "q",
+                in_=openapi.IN_PATH,
+                description="sort_type",
+                type=openapi.TYPE_STRING,
+                examples="Django",
+            )
+        ],
+    )
     def get_queryset(self):
         queryset = super().get_queryset()
         sort_type = self.request.query_params.get("sort_type")
