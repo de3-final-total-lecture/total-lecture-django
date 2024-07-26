@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'lecture',
     'drf_yasg',
     'rest_framework',
+    "django_filters",
+
 ]
 
 MIDDLEWARE = [
