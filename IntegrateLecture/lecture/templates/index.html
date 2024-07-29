@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture List</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div id="app">
+        <h1>Lecture List</h1>
+        <div id="filters">
+            <select id="mainCategory">
+                <option value="">All Main Categories</option>
+            </select>
+            <select id="midCategory">
+                <option value="">All Mid Categories</option>
+            </select>
+            <select id="sortType">
+                <option value="">Sort By</option>
+                <option value="RECENT">Recent</option>
+                <option value="RECOMMEND">Recommended</option>
+            </select>
+        </div>
+        <div id="lectureList"></div>
+        <div id="pagination">
+            <button id="prevPage">Previous</button>
+            <span id="currentPage"></span>
+            <button id="nextPage">Next</button>
+        </div>
+    </div>
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>
