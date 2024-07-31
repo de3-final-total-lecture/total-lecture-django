@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.core.validators import EmailValidator
 
 
 class Category(models.Model):
@@ -69,18 +71,42 @@ class ReviewAnalysis(models.Model):
         managed = False
         db_table = "Review_analysis"
 
+# User 관리
+class UsersManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('Email 값이 없습니다.')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
 
-class Users(models.Model):
+class Users(AbstractBaseUser):
     user_id = models.AutoField(primary_key=True)
-    user_name = models.CharField(max_length=16, blank=True, null=True)
-    user_email = models.CharField(unique=True, max_length=255)
-    user_password = models.CharField(max_length=255)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
+    user_name = models.CharField(max_length=16)
+    user_email = models.EmailField(unique=True, max_length=255, validators=[EmailValidator])
+    skills = models.JSONField(default=dict, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    objects = UsersManager()
+    
+    USERNAME_FIELD = 'user_email'
+    REQUIRED_FIELDS = ['user_name']
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "Users"
+
+    def increment_skill(self, skill, increment_value=8):
+        self.skills[skill] = self.skills.get(skill, 0) + increment_value
+        self.save()
+
+    def get_top_skills(self, n=3):
+        if self.skills is None:
+            return []
+        sorted_skills = sorted(self.skills.items(), key=lambda x: x[1], reverse=True)
+        return [skill[0] for skill in sorted_skills[:n]]
 
 
 class WishList(models.Model):

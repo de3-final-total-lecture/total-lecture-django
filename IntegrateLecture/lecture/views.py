@@ -1,16 +1,24 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.forms import AuthenticationForm
 from django.db.models import Q
+from django.urls import reverse_lazy
+from django.views.generic.edit import CreateView
+
 from rest_framework import generics
 from rest_framework.pagination import PageNumberPagination
-from .models import LectureInfo
-from .serializers import LectureInfoSerializer
-from .filters import LectureInfoFilter
-
 from rest_framework import generics
 from rest_framework import exceptions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+
+from .models import LectureInfo, Users
+from .serializers import LectureInfoSerializer, SignUpSerializer
+from .forms import CustomSignUpForm
+from .filters import LectureInfoFilter
+
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -103,3 +111,29 @@ class CategoryListView(APIView):
             for main in main_categories
         }
         return Response(categorized)
+
+
+class UserList(generics.ListCreateAPIView):
+    queryset = Users.objects.all()
+    serializer_class = SignUpSerializer
+
+
+class UserDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Users.objects.all()
+    serializer_class = SignUpSerializer
+
+
+class CustomLoginView(LoginView):
+    form_class = AuthenticationForm
+    template_name = 'registration/Login.html'
+
+    # def get_success_url(self):
+    #     return reverse_lazy('stock:main_page')
+
+class CustomSignUpView(CreateView):
+    form_class = CustomSignUpForm
+    success_url = '/login/'
+    template_name = 'registration/Signup.html'
+    def get_success_url(self):
+        return reverse_lazy('login')
+# @login_required

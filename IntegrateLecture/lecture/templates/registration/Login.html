@@ -1,0 +1,49 @@
+{% extends 'user_base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block form_title %}LOGIN{% endblock %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    <div class="input-group mb-3">
+        <div class="input-group-append">
+            <span class="input-group-text"><i class="fas fa-user"></i></span>
+        </div>
+        {{ form.username }}
+    </div>
+    <div class="input-group mb-2">
+        <div class="input-group-append">
+            <span class="input-group-text"><i class="fas fa-key"></i></span>
+        </div>
+        {{ form.password }}
+    </div>
+    {% if error %}
+        <p class="text-danger">{{ error }}</p>
+    {% endif %}
+    <div class="d-flex justify-content-center mt-3 login_container">
+        <input class="btn login_btn" type="submit" value="Login">
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_links %}
+<div class="mt-4">
+    <div class="d-flex justify-content-center links">
+        Don't have an account? <a href="{% url 'signup' %}" class="ml-2">Sign Up</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    var form_fields = document.getElementsByTagName('input')
+    form_fields[1].placeholder='UserEmail..';
+    form_fields[2].placeholder='Password..';
+
+    for (var field in form_fields){
+        form_fields[field].className += ' form-control'
+    }
+</script>
+{% endblock %}
