@@ -19,6 +19,7 @@ class LectureInfo(models.Model):
     price = models.IntegerField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     tag = models.CharField(max_length=255, blank=True, null=True)
+    what_do_i_learn = models.TextField(blank=True, null=True)
     level = models.CharField(max_length=255, blank=True, null=True)
     teacher = models.CharField(max_length=255, blank=True, null=True)
     scope = models.FloatField(blank=True, null=True)
@@ -44,7 +45,7 @@ class CategoryConn(models.Model):
     )
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "Category_conn"
 
 

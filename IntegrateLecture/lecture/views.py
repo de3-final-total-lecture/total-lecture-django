@@ -1,6 +1,9 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
-from .models import LectureInfo
+from django.shortcuts import render, get_object_or_404
+from django.views import View
+
+from .models import LectureInfo, CategoryConn, Category
 from .serializers import LectureInfoSerializer
 from .filters import LectureInfoFilter
 
@@ -20,19 +23,6 @@ class LectureListView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_class = LectureInfoFilter
 
-    @swagger_auto_schema(
-        operation_description="강의 검색",
-        responses={200: "Success", 400: "Bad Request", 500: "Internal Server Error"},
-        manual_parameters=[
-            openapi.Parameter(
-                "q",
-                in_=openapi.IN_PATH,
-                description="sort_type",
-                type=openapi.TYPE_STRING,
-                examples="Django",
-            )
-        ],
-    )
     def get_queryset(self):
         queryset = super().get_queryset()
         sort_type = self.request.query_params.get("sort_type")
@@ -45,13 +35,12 @@ class LectureListView(generics.ListAPIView):
             pass
 
         return queryset
-
-
+    
 class LectureDetailView(generics.RetrieveAPIView):
     queryset = LectureInfo.objects.all()
     serializer_class = LectureInfoSerializer
 
-    
+
 class LectureSearchView(generics.ListAPIView):
     serializer_class = LectureInfoSerializer
 
@@ -67,3 +56,12 @@ class LectureSearchView(generics.ListAPIView):
             Q(tag__icontains=query) |
             Q(teacher__icontains = query)
         )
+
+    
+class LectureDetailTemplateView(View):
+    def get(self, request, pk):
+        lecture = get_object_or_404(LectureInfo, pk=pk)
+        category_ids = CategoryConn.objects.filter(lecture=lecture).values_list('category_id', flat=True)
+        categories = Category.objects.filter(category_id__in=category_ids)
+        
+        return render(request, 'detail.html', {'lecture': lecture, 'categories': categories})
