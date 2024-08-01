@@ -1,0 +1,93 @@
+/* 공통 스타일 */
+header {
+    background: #fff; 
+    color: #000;
+    padding: 20px 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #c4c2c2;
+}
+
+.header-container {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-container {
+    flex: 2;
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+}
+
+.search-container {
+    flex: 6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.search-container input {
+    width: 80%;
+    padding: 15px;
+    border: 1px solid #e1e1e1;
+    background-color: #f7f7f7;
+    border-radius: 10px;
+    margin-right: 10px;
+}
+
+.search-container button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 5px;
+}
+
+.icon-container {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.icon-container button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    border : 1.5px solid #e5e5e5;
+    border-radius: 5px;
+    font-size: 15px;
+    padding : 10px;
+    margin: 0px 10px;
+}
+
+main {
+    display: flex;
+    flex-direction: row;
+    padding: 20px;
+    box-sizing: border-box;
+    flex-wrap: wrap; /*화면 크기에 따라 줄바꿈 되도록 설정 */
+}
+
+body, h1, h2, h3, p, div, button, input {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #fff;
+    color: #000;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+

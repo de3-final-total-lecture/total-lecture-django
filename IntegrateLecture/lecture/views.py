@@ -1,8 +1,10 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
-from rest_framework import generics
-from rest_framework.pagination import PageNumberPagination
-from .models import LectureInfo
+from django.shortcuts import render, get_object_or_404
+from django.views import View
+from django.views.generic import TemplateView
+
+from .models import LectureInfo, CategoryConn, Category
 from .serializers import LectureInfoSerializer
 from .filters import LectureInfoFilter
 
@@ -11,6 +13,7 @@ from rest_framework import exceptions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -29,19 +32,6 @@ class LectureListView(generics.ListAPIView):
     filterset_class = LectureInfoFilter
     pagination_class = LecturePagination  # 페이징 클래스 추가
 
-    @swagger_auto_schema(
-        operation_description="강의 검색",
-        responses={200: "Success", 400: "Bad Request", 500: "Internal Server Error"},
-        manual_parameters=[
-            openapi.Parameter(
-                "q",
-                in_=openapi.IN_PATH,
-                description="sort_type",
-                type=openapi.TYPE_STRING,
-                examples="Django",
-            )
-        ],
-    )
     def get_queryset(self):
         queryset = super().get_queryset()
         sort_type = self.request.GET.get("sort_type")
@@ -52,8 +42,7 @@ class LectureListView(generics.ListAPIView):
             queryset = queryset.order_by("-is_recommend")
 
         return queryset
-
-
+    
 class LectureDetailView(generics.RetrieveAPIView):
     queryset = LectureInfo.objects.all()
     serializer_class = LectureInfoSerializer
@@ -74,21 +63,21 @@ class LectureSearchView(generics.ListAPIView):
             | Q(tag__icontains=query)
             | Q(teacher__icontains=query)
         )
-
-
-from django.views.generic import TemplateView
-
-
-class LectureListPageView(TemplateView):
+      
+class LectureDetailTemplateView(View):
+    def get(self, request, pk):
+        lecture = get_object_or_404(LectureInfo, pk=pk)
+        category_ids = CategoryConn.objects.filter(lecture=lecture).values_list('category_id', flat=True)
+        categories = Category.objects.filter(category_id__in=category_ids)
+        
+        return render(request, 'detail.html', {'lecture': lecture, 'categories': categories})
+      
+      
+ class LectureListPageView(TemplateView):
     template_name = "index.html"
-
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .models import Category
-
-
-class CategoryListView(APIView):
+      
+      
+ class CategoryListView(APIView):
     def get(self, request):
         categories = Category.objects.values(
             "main_category_name", "mid_category_name"

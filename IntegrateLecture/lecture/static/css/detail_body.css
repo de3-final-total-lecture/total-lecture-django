@@ -1,0 +1,329 @@
+/*************************************************************/
+/* 텝 섹션 */
+.tab-container {
+    display: flex;
+    justify-content: center;
+    position: sticky;
+    top: 0; /* tab-container를 상단에 고정 */
+    background: #f3f3f3;
+    z-index: 1000;
+    border-bottom: 2px solid #ddd;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 10px 20px;
+    cursor: pointer;
+    background: #fff;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.tab-button:hover,
+.tab-button.active {
+    border-bottom: 3px solid #424769;
+}
+
+/*************************************************************/
+/* 강의 정보 요약 섹션 */
+.lecture-summary {
+    display: flex;
+    position: absolute;
+    top: 80px;
+    left: 0;
+    flex-direction: row;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(to right, #23273e, #646883); /* 연한 네이비색 그라데이션 */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.summary-info {
+    display: flex;
+    flex-direction: column;
+    flex: 2;
+    margin-top : 45px;
+    margin-left: 100px;
+    margin-right: 50px;
+    margin-bottom: 80px;
+
+}
+
+.summary-info h1 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #fff; /* 하얀색 글씨 */
+}
+
+.summary-info p {
+    margin-bottom: 10px;
+    line-height: 1.5; /* 줄 간격 증가 */
+    color: #fff; /* 하얀색 글씨 */
+}
+
+.summary-info ul {
+    list-style: none; /* 기본 리스트 스타일 제거 */
+    padding: 0;
+}
+
+.summary-info ul li {
+    color: #fff; /* 하얀색 글씨 */
+}
+
+/*************************************************************/
+/* 별점 아이콘 스타일 */
+.rating-stars {
+    font-size: 1.0rem; /* 별 크기 조정 */
+}
+
+.rating-stars .fa-star,
+.rating-stars .fa-star-half-stroke {
+    color: #FFD700; /* 채워진 별의 색상: 노란색 */
+}
+
+.rating-stars .fa-star-regular {
+    color: #cdcdcd; /* 빈 별의 색상: 회색 */
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px; /* 버튼 간 간격 조절 */
+    margin-top: 10px; /* 상단 여백 추가 */
+}
+
+.tags button {
+    background: #001f3f;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.tags button:hover {
+    background: #00132e;
+}
+
+/*************************************************************/
+/* 썸네일 섹션 */
+.lecture-thumbnail {
+    flex: 1.2;
+    text-align: center;
+}
+
+.lecture-thumbnail img {
+    width: 90%;
+    height: auto;
+    margin-top : 40px;
+    margin-right: 40px;
+    margin-bottom: 40px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+
+/*************************************************************/
+/* 세부정보 + 스티키 카드 컨테이너*/
+.lecture-content {
+    display: flex;
+    margin-top: 350px; 
+    right: 0;
+    width: 100%;
+    background: #fff;
+}
+/* 강의 세부 정보 섹션 */
+.lecture-detail {
+    margin: 20px;
+    width: 65%; /* 화면의 2/3 */
+    padding: 20px 80px; /* 여백 추가 */
+    box-sizing: border-box;
+    display: block;
+   
+}
+
+.lecture-description, .lecture-review, .lecture-price-history, .lecture-whatlearn{
+    margin: 20px 0px;
+    border-bottom: 4px solid #ededed;
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+#what-do-i-learn-container .item {
+    margin-bottom: 15px;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    background-color: #f2f6ff;
+}
+
+
+/*************************************************************/
+/* 따라오는 카드 정보 섹션 */
+.sticky-container {
+    position: sticky; /* 표준 브라우저 */
+    width: 28%; 
+    height: 440px;
+    display: block;
+    top: 50px;
+    margin-right: 20px;
+}
+
+.sticky-title {
+    background: #f74e6a;
+    padding: 10px;
+    border-radius: 15px 15px 0px 0px;
+    width: 100%; 
+    height: 10%;
+    display: block;
+    top: 50px;
+    text-align: center;
+}
+
+.sticky-text {
+    padding: 10px;
+    border: 1.5px solid #e7e7e7;
+    background-color: #f3f3f3;
+    width: 100%; 
+    height: 43%;
+    display: block;
+    font-size : 15px
+    
+}
+
+.info-discript {
+    display: flex;
+    align-items: center; /* 수직 가운데 정렬 */
+    justify-content: space-between; /* 공간 분배 */
+    font-size: small; /* 글씨 크기 조정 */
+    padding: 20px 10px;
+}
+.price {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+#heart-icon,
+#sticky-heart-icon,
+#header-heart-icon {
+    font-size: 24px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+#heart-icon.liked,
+#sticky-heart-icon.liked,
+#header-heart-icon.liked {
+    color: #f92929;
+}
+
+
+.sticky-text .info {
+    color: #6e6e6e;
+    padding: 10px;
+}
+
+.sticky-button {
+    display: flex;
+    flex-direction:column;
+    padding : 20px;
+    width: 100%;
+    height: 60%;
+    border: 1.5px solid #e7e7e7;
+    background-color: #ffffff;
+    border-radius: 0px 0px 8px 8px;
+    align-items: center;
+    justify-content: center; /* 수평 가운데 정렬 */
+
+}
+
+.sticky-button .num1 {
+    display: block;
+    width: 80%;
+    height: 30%;
+    margin: 10px;
+    background: #424769;
+    border: 1.5px solid #424769;
+    color: white;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.sticky-button .num2 {
+    display: block;
+    width: 80%;
+    height: 30%;
+    margin: 10px;
+    background: #ffffff;
+    border: 1.5px solid #424769;
+    color: #1b1b1b;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+
+.sticky-button .num1:hover {
+    background: #00132e;
+}
+.sticky-button .num2:hover {
+    background: #d1d2e0;
+}
+
+
+/*************************************************************/
+/* 하단 고정 버튼 */
+.fixed-card {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    border-top: 1px solid #ddd;
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+    padding: 10px;
+    box-sizing: border-box;
+    z-index: 1000;
+    text-align: center;
+}
+
+.fixed-card button {
+    background: #424769;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    margin: 10px 30px;
+    transition: background 0.3s;
+}
+
+.fixed-buttons button:hover {
+    background: #00132e;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+    .lecture-detail, .sticky-container {
+        width: 100%;
+    }
+    
+    .sticky-container {
+        display: none; /* 화면이 줄어들면 숨김 */
+    }
+    
+    .fixed-card {
+        display: block; /* 하단 고정 버튼 표시 */
+    }
+}
+
+
