@@ -73,11 +73,11 @@ class LectureDetailTemplateView(View):
         return render(request, 'detail.html', {'lecture': lecture, 'categories': categories})
       
       
- class LectureListPageView(TemplateView):
+class LectureListPageView(TemplateView):
     template_name = "index.html"
       
       
- class CategoryListView(APIView):
+class CategoryListView(APIView):
     def get(self, request):
         categories = Category.objects.values(
             "main_category_name", "mid_category_name"
