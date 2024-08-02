@@ -143,6 +143,7 @@ class LoginView(LoginView):
     form_class = UserLoginForm
     template_name = 'registration/Login.html'
 
+
 class CustomLoginView(LoginView):
     form_class = AuthenticationForm
     template_name = 'registration/Login.html'

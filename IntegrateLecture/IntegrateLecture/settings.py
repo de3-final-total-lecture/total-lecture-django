@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = "lecture.Users"
 LOGIN_URL = 'login'
-# LOGIN_REDIRECT_URL = 'home'
+# LOGIN_REDIRECT_URL = 'index'
 # Application definition
 
 INSTALLED_APPS = [
