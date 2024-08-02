@@ -5,6 +5,9 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.db.models import Q
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
+from django.views.generic import TemplateView
+from django.shortcuts import render, redirect
+from django.contrib.auth import login
 
 from rest_framework import generics
 from rest_framework.pagination import PageNumberPagination
@@ -14,11 +17,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import LectureInfo, Users
+from .models import LectureInfo, Category, Users
 from .serializers import LectureInfoSerializer, SignUpSerializer
 from .forms import CustomSignUpForm
 from .filters import LectureInfoFilter
-
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -84,16 +86,9 @@ class LectureSearchView(generics.ListAPIView):
         )
 
 
-from django.views.generic import TemplateView
-
-
+# @login_required
 class LectureListPageView(TemplateView):
     template_name = "index.html"
-
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .models import Category
 
 
 class CategoryListView(APIView):
@@ -113,27 +108,34 @@ class CategoryListView(APIView):
         return Response(categorized)
 
 
-class UserList(generics.ListCreateAPIView):
-    queryset = Users.objects.all()
-    serializer_class = SignUpSerializer
-
-
-class UserDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Users.objects.all()
-    serializer_class = SignUpSerializer
-
-
 class CustomLoginView(LoginView):
     form_class = AuthenticationForm
     template_name = 'registration/Login.html'
+    success_url = reverse_lazy('index')
 
-    # def get_success_url(self):
-    #     return reverse_lazy('stock:main_page')
-
-class CustomSignUpView(CreateView):
-    form_class = CustomSignUpForm
-    success_url = '/login/'
-    template_name = 'registration/Signup.html'
     def get_success_url(self):
-        return reverse_lazy('login')
-# @login_required
+        return self.success_url
+
+
+# class CustomSignupView(CreateView):
+#     form_class = CustomSignUpForm
+#     template_name = 'registration/Signup.html'
+#     success_url = reverse_lazy('login')
+#
+#     def form_valid(self, form):
+#         user = form.save()
+#         login(self.request, user)
+#         return super().form_valid(form)
+#
+#     def get_success_url(self):
+#         return self.success_url
+class CustomSignupView(CreateView):
+    form_class = CustomSignUpForm
+    template_name = 'registration/Signup.html'
+    success_url = reverse_lazy('login')
+
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user)
+        print(f"User created: {user.user_name}, Email: {user.user_email}, Skills: {user.skills}")
+        return super().form_valid(form)

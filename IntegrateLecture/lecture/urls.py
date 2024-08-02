@@ -7,11 +7,10 @@ urlpatterns = [
     path("search/", LectureSearchView.as_view(), name="lecture_search"),
     path("api/lecture/", LectureListView.as_view(), name="lecture_list_api"),
     path("api/categories/", CategoryListView.as_view(), name="category_list_api"),
-    path("main/", LectureListPageView.as_view(), name="lecture_list_page"),
+    # path("main/", LectureListPageView.as_view(), name="lecture_list_page"),
 
-    path('users/', UserList.as_view(), name="user_list"),
-    path('users/<int:pk>/', UserDetail.as_view(), name="user_detail"),
-    
-    path('login/', views.CustomLoginView.as_view(template_name='registration/Login.html'), name='login'),
-    path('signup/', views.CustomSignUpView.as_view(), name='signup'),
+    path("index/", LectureListPageView.as_view(), name='index'),
+
+    path('login/', views.CustomLoginView.as_view(), name='login'),
+    path('signup/', views.CustomSignupView.as_view(), name='signup'),
 ]
