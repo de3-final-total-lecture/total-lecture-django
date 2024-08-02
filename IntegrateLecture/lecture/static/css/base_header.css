@@ -68,7 +68,6 @@ header {
 main {
     display: flex;
     flex-direction: row;
-    padding: 20px;
     box-sizing: border-box;
     flex-wrap: wrap; /*화면 크기에 따라 줄바꿈 되도록 설정 */
 }

@@ -23,6 +23,15 @@ class LecturePagination(PageNumberPagination):
     page_size = 20  # 페이지당 항목 수
     page_size_query_param = "page_size"
     max_page_size = 100  # 최대 페이지당 항목 수
+    
+    def get_paginated_response(self, data):
+        return Response({
+            'results': data,
+            'total_pages': self.page.paginator.num_pages,
+            'current_page': self.page.number,
+            'previous': self.get_previous_link(),
+            'next': self.get_next_link(),
+        })
 
 
 class LectureListView(generics.ListAPIView):
