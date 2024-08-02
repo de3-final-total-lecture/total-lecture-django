@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.validators import EmailValidator
+from django.utils.translation import gettext_lazy as _
 
 
 class Category(models.Model):
@@ -73,52 +74,53 @@ class ReviewAnalysis(models.Model):
 
 
 # User 관리
-class UsersManager(BaseUserManager):
-    def create_user(self, user_email, password=None, **extra_fields):
-        if not user_email:
-            raise ValueError('Email 주소는 필수입니다.')
-        user_email = self.normalize_email(user_email)
-        user = self.model(user_email=user_email, **extra_fields)
+class UserManager(BaseUserManager):
+    def create_user(self, email, user_name, password=None, **extra_fields):
+        if not email:
+            raise ValueError(_('The Email field must be set'))
+        email = self.normalize_email(email)
+        user = self.model(user_email=email, user_name=user_name, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, user_email, password=None, **extra_fields):
+    def create_superuser(self, email, user_name, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-        return self.create_user(user_email, password, **extra_fields)
+
+        return self.create_user(email, user_name, password, **extra_fields)
 
 
 class Users(AbstractBaseUser):
     user_id = models.AutoField(primary_key=True)
     user_name = models.CharField(max_length=4)
-    user_email = models.EmailField(unique=True, max_length=25, validators=[EmailValidator])
-    password = models.CharField(max_length=16)
+    user_email = models.EmailField(unique=True, max_length=254)
+    password = models.CharField(max_length=256)  # Password hashing 사용
     skills = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
-    objects = UsersManager()
-
     USERNAME_FIELD = 'user_email'
     REQUIRED_FIELDS = ['user_name']
+
+    objects = UserManager()
 
     class Meta:
         managed = True
         db_table = "lecture_users"
 
     def __str__(self):
-        return self.user_name
+        return f'{self.user_name} ({self.user_email})'
 
-    def increment_skill(self, skill, increment_value=8):
-        self.skills[skill] = self.skills.get(skill, 0) + increment_value
-        self.save()
+#     def increment_skill(self, skill, increment_value=8):
+#         self.skills[skill] = self.skills.get(skill, 0) + increment_value
+#         self.save()
 
-    def get_top_skills(self, n=3):
-        sorted_skills = sorted(self.skills.items(), key=lambda x: x[1], reverse=True)
-        return [skill[0] for skill in sorted_skills[:n]]
+#     def get_top_skills(self, n=3):
+#         sorted_skills = sorted(self.skills.items(), key=lambda x: x[1], reverse=True)
+#         return [skill[0] for skill in sorted_skills[:n]]
 
 
 class WishList(models.Model):

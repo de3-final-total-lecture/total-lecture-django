@@ -7,7 +7,8 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
+from django.views import View
 
 from rest_framework import generics
 from rest_framework.pagination import PageNumberPagination
@@ -18,8 +19,8 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import LectureInfo, Category, Users
-from .serializers import LectureInfoSerializer, SignUpSerializer
-from .forms import CustomSignUpForm
+from .serializers import LectureInfoSerializer, UserCreationSerializer, UserListSerializer
+from .forms import CustomSignUpForm, UserLoginForm
 from .filters import LectureInfoFilter
 
 from drf_yasg.utils import swagger_auto_schema
@@ -107,6 +108,40 @@ class CategoryListView(APIView):
         }
         return Response(categorized)
 
+# User 관리
+
+class UserSignupView(generics.CreateAPIView):
+    serializer_class = UserCreationSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+
+class UserListView(generics.ListAPIView):
+    queryset = Users.objects.all()
+    serializer_class = UserListSerializer
+
+class SignUpView(View):
+    def get(self, request):
+        form = CustomSignUpForm()
+        return render(request, 'registration/Signup.html', {'form': form})
+
+    def post(self, request):
+        form = CustomSignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('login')
+        return render(request, 'registration/Signup.html', {'form': form})
+
+
+class LoginView(LoginView):
+    form_class = UserLoginForm
+    template_name = 'registration/Login.html'
 
 class CustomLoginView(LoginView):
     form_class = AuthenticationForm
@@ -115,27 +150,3 @@ class CustomLoginView(LoginView):
 
     def get_success_url(self):
         return self.success_url
-
-
-# class CustomSignupView(CreateView):
-#     form_class = CustomSignUpForm
-#     template_name = 'registration/Signup.html'
-#     success_url = reverse_lazy('login')
-#
-#     def form_valid(self, form):
-#         user = form.save()
-#         login(self.request, user)
-#         return super().form_valid(form)
-#
-#     def get_success_url(self):
-#         return self.success_url
-class CustomSignupView(CreateView):
-    form_class = CustomSignUpForm
-    template_name = 'registration/Signup.html'
-    success_url = reverse_lazy('login')
-
-    def form_valid(self, form):
-        user = form.save()
-        login(self.request, user)
-        print(f"User created: {user.user_name}, Email: {user.user_email}, Skills: {user.skills}")
-        return super().form_valid(form)

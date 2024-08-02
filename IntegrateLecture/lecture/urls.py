@@ -11,6 +11,9 @@ urlpatterns = [
 
     path("index/", LectureListPageView.as_view(), name='index'),
 
-    path('login/', views.CustomLoginView.as_view(), name='login'),
-    path('signup/', views.CustomSignupView.as_view(), name='signup'),
+    path('login/', LoginView.as_view(), name='login'),
+    path('signup/', SignUpView.as_view(), name='signup'),
+
+    path('api/signup/', UserSignupView.as_view(), name='user-signup'),
+    path('api/users/', UserListView.as_view(), name='user-list'),
 ]
