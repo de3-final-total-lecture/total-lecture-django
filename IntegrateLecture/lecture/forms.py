@@ -60,3 +60,9 @@ class CustomSignUpForm(forms.ModelForm):
 class UserLoginForm(AuthenticationForm):
     username = forms.EmailField(widget=forms.EmailInput(attrs={'placeholder': 'Email', 'class': 'form-control'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password', 'class': 'form-control'}))
+
+
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Users
+        fields = ['user_name'] # 이후 선별하여 추가 예정

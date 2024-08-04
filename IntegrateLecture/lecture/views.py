@@ -1,14 +1,12 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView, LogoutView
-from django.contrib.auth.forms import AuthenticationForm
 from django.db.models import Q
 from django.urls import reverse_lazy
-from django.views.generic.edit import CreateView
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView, UpdateView
+from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
-from django.views import View
 
 from rest_framework import generics
 from rest_framework.pagination import PageNumberPagination
@@ -20,7 +18,7 @@ from rest_framework import status
 
 from .models import LectureInfo, Category, Users
 from .serializers import LectureInfoSerializer, UserCreationSerializer, UserListSerializer
-from .forms import CustomSignUpForm, UserLoginForm
+from .forms import CustomSignUpForm, UserLoginForm, UserUpdateForm
 from .filters import LectureInfoFilter
 
 from drf_yasg.utils import swagger_auto_schema
@@ -109,8 +107,8 @@ class CategoryListView(APIView):
         return Response(categorized)
 
 # User 관리
-
-class UserSignupView(generics.CreateAPIView):
+# DRF-API
+class APIUserSignupView(generics.CreateAPIView):
     serializer_class = UserCreationSerializer
 
     def post(self, request, *args, **kwargs):
@@ -121,10 +119,15 @@ class UserSignupView(generics.CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
 
-class UserListView(generics.ListAPIView):
+class APIUserListView(generics.ListAPIView):
     queryset = Users.objects.all()
     serializer_class = UserListSerializer
 
+
+class APIUserDetailView(generics.RetrieveAPIView):
+    queryset = Users.objects.all()
+    serializer_class = UserListSerializer
+# Web
 class SignUpView(View):
     def get(self, request):
         form = CustomSignUpForm()
@@ -143,11 +146,25 @@ class LoginView(LoginView):
     form_class = UserLoginForm
     template_name = 'registration/Login.html'
 
+    def get_success_url(self):
+        user = self.request.user
+        if user.is_authenticated:
+            return reverse_lazy('user_detail', kwargs={'pk': user.pk})
+        return reverse_lazy('login')
 
-class CustomLoginView(LoginView):
-    form_class = AuthenticationForm
-    template_name = 'registration/Login.html'
-    success_url = reverse_lazy('index')
+
+class UserDetailView(DetailView):
+    model = Users
+    template_name = 'user_detail/user_description.html'
+    context_object_name = 'user'
+    pk_url_kwarg = 'pk'
+
+
+class UserUpdateView(UpdateView):
+    model = Users
+    form_class = UserUpdateForm
+    template_name = 'user_detail/user_update.html'
+    pk_url_kwarg = 'pk'
 
     def get_success_url(self):
-        return self.success_url
+        return reverse_lazy('user_detail', kwargs={'pk': self.object.pk})

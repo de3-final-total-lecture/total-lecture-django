@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update {{ user.user_name }}'s Profile</title>
+    <style>
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #007bff; /* Bootstrap의 기본 버튼 색상 */
+            border: none;
+            border-radius: 5px;
+            text-decoration: none; /* 링크의 기본 밑줄 제거 */
+            text-align: center;
+        }
+        
+        .button:hover {
+            background-color: #0056b3; /* Hover 시 색상 변경 */
+        }
+    </style>
+</head>
+<body>
+    <h1>Update {{ user.user_name }}'s Profile</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Update</button>
+    </form>
+    <a class="button" href="{% url 'user_detail' user.pk %}">취소</a>
+</body>
+</html>

@@ -31,8 +31,10 @@ ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = "lecture.Users"
 LOGIN_URL = 'login'
-# LOGIN_REDIRECT_URL = 'index'
+LOGIN_REDIRECT_URL = 'user'
 # Application definition
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 INSTALLED_APPS = [
     "django.contrib.admin",
