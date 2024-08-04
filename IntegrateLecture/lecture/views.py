@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from django.views.generic import TemplateView, DetailView, UpdateView
 from django.views import View
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 
 from rest_framework import generics
 from rest_framework.pagination import PageNumberPagination
@@ -151,6 +151,12 @@ class LoginView(LoginView):
         if user.is_authenticated:
             return reverse_lazy('user_detail', kwargs={'pk': user.pk})
         return reverse_lazy('login')
+    
+
+class CustomLogoutView(View):
+    def post(self, request):
+        logout(request)
+        return redirect('home')
 
 
 class UserDetailView(DetailView):
