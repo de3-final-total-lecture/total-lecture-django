@@ -28,6 +28,7 @@ class LectureInfo(models.Model):
     scope = models.FloatField(blank=True, null=True)
     review_count = models.IntegerField(blank=True, null=True)
     lecture_time = models.CharField(max_length=255, blank=True, null=True)
+    like_count = models.IntegerField(null=True)
     thumbnail_url = models.CharField(max_length=511, blank=True, null=True)
     is_new = models.IntegerField(blank=True, null=True)
     is_recommend = models.IntegerField(blank=True, null=True)
@@ -35,7 +36,7 @@ class LectureInfo(models.Model):
     updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "Lecture_info"
 
 
@@ -125,14 +126,18 @@ class Users(AbstractBaseUser):
 
 
 class WishList(models.Model):
-    lecture_id = models.CharField(primary_key=True, max_length=255)
-    user_id = models.IntegerField(blank=True, null=True)
+    lecture = models.ForeignKey(LectureInfo, on_delete=models.CASCADE, related_name='wishlists', db_column='lecture_id')
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='wishlists', db_column='user_id')
     lecture_name = models.CharField(max_length=255, blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        managed = False
-        db_table = "Wish_list"
+        managed = True
+        db_table = "wish_list"
+        unique_together = ('lecture', 'user')
+
+    def __str__(self):
+        return f"{self.user.user_name}'s wishlist: {self.lecture_name}"
 #
 #
 # class AuthGroup(models.Model):
