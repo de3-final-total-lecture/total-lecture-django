@@ -2,8 +2,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.views import LoginView
 from django.db.models import Q
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, DetailView, UpdateView
-from django.views import View, ListView
+from django.views.generic import TemplateView, DetailView, UpdateView, ListView
+from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -70,7 +70,7 @@ class LectureSearchView(generics.ListAPIView):
             | Q(teacher__icontains=query)
         )
 
-      
+
 class LectureDetailTemplateView(View):
     def get(self, request, pk):
         lecture = get_object_or_404(LectureInfo, pk=pk)
@@ -78,11 +78,11 @@ class LectureDetailTemplateView(View):
         categories = Category.objects.filter(category_id__in=category_ids)
         
         return render(request, 'detail.html', {'lecture': lecture, 'categories': categories})
-      
-      
+
+
 class LectureListPageView(TemplateView):
     template_name = "index.html"
-      
+
 
 class CategoryListView(APIView):
     def get(self, request):
@@ -178,3 +178,4 @@ class WishListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['user_id'] = Users.objects.get(pk=self.kwargs['pk'])
         return context
+    

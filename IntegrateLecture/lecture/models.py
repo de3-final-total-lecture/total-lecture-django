@@ -12,7 +12,7 @@ class Category(models.Model):
     updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "Category"
 
 
@@ -59,7 +59,7 @@ class LecturePriceHistory(models.Model):
     created_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "Lecture_price_history"
 
 
@@ -71,7 +71,7 @@ class ReviewAnalysis(models.Model):
     updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "Review_analysis"
 
 
