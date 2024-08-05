@@ -1,12 +1,13 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from django.contrib.auth.views import LoginView
 from django.db.models import Q
-from django.shortcuts import render, get_object_or_404
+from django.urls import reverse_lazy
+from django.views.generic import TemplateView, DetailView, UpdateView
 from django.views import View
-from django.views.generic import TemplateView
-
-from .models import LectureInfo, CategoryConn, Category
-from .serializers import LectureInfoSerializer
-from .filters import LectureInfoFilter
+from django.shortcuts import render, redirect
+from django.contrib.auth import login
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render, get_object_or_404
 
 from rest_framework import generics
 from rest_framework import exceptions
@@ -14,6 +15,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
+
+from .models import LectureInfo, CategoryConn, Category, Users
+from .serializers import LectureInfoSerializer, UserCreationSerializer, UserListSerializer
+from .forms import CustomSignUpForm, UserLoginForm, UserUpdateForm
+from .filters import LectureInfoFilter
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -63,6 +69,7 @@ class LectureSearchView(generics.ListAPIView):
             | Q(tag__icontains=query)
             | Q(teacher__icontains=query)
         )
+
       
 class LectureDetailTemplateView(View):
     def get(self, request, pk):
@@ -76,7 +83,7 @@ class LectureDetailTemplateView(View):
 class LectureListPageView(TemplateView):
     template_name = "index.html"
       
-      
+
 class CategoryListView(APIView):
     def get(self, request):
         categories = Category.objects.values(
@@ -92,3 +99,67 @@ class CategoryListView(APIView):
             for main in main_categories
         }
         return Response(categorized)
+
+# User 관리
+# DRF-API
+class APIUserSignupView(generics.CreateAPIView):
+    serializer_class = UserCreationSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+
+class APIUserListView(generics.ListAPIView):
+    queryset = Users.objects.all()
+    serializer_class = UserListSerializer
+
+
+class APIUserDetailView(generics.RetrieveAPIView):
+    queryset = Users.objects.all()
+    serializer_class = UserListSerializer
+# Web
+class SignUpView(View):
+    def get(self, request):
+        form = CustomSignUpForm()
+        return render(request, 'registration/Signup.html', {'form': form})
+
+    def post(self, request):
+        form = CustomSignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('login')
+        return render(request, 'registration/Signup.html', {'form': form})
+
+
+class LoginView(LoginView):
+    form_class = UserLoginForm
+    template_name = 'registration/Login.html'
+
+    def get_success_url(self):
+        user = self.request.user
+        if user.is_authenticated:
+            return reverse_lazy('user_detail', kwargs={'pk': user.pk})
+        return reverse_lazy('login')
+    
+
+
+class UserDetailView(LoginRequiredMixin,DetailView):
+    model = Users
+    template_name = 'user_detail/user_description.html'
+    context_object_name = 'user'
+    pk_url_kwarg = 'pk'
+
+
+class UserUpdateView(LoginRequiredMixin, UpdateView):
+    model = Users
+    form_class = UserUpdateForm
+    template_name = 'user_detail/user_update.html'
+    pk_url_kwarg = 'pk'
+
+    def get_success_url(self):
+        return reverse_lazy('user_detail', kwargs={'pk': self.object.pk})
