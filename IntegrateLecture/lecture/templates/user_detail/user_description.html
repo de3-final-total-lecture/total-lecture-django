@@ -35,5 +35,9 @@
         {% endfor %}
     </ul>
     <a class="button" href="{% url 'user_update' user.pk %}">개인정보-변경</a>
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">로그아웃</button>
+    </form>
 </body>
 </html> 

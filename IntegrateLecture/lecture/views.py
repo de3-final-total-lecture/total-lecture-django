@@ -7,6 +7,7 @@ from django.views.generic import TemplateView, DetailView, UpdateView
 from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from rest_framework import generics
 from rest_framework.pagination import PageNumberPagination
@@ -85,7 +86,6 @@ class LectureSearchView(generics.ListAPIView):
         )
 
 
-# @login_required
 class LectureListPageView(TemplateView):
     template_name = "index.html"
 
@@ -153,20 +153,15 @@ class LoginView(LoginView):
         return reverse_lazy('login')
     
 
-class CustomLogoutView(View):
-    def post(self, request):
-        logout(request)
-        return redirect('home')
 
-
-class UserDetailView(DetailView):
+class UserDetailView(LoginRequiredMixin,DetailView):
     model = Users
     template_name = 'user_detail/user_description.html'
     context_object_name = 'user'
     pk_url_kwarg = 'pk'
 
 
-class UserUpdateView(UpdateView):
+class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = Users
     form_class = UserUpdateForm
     template_name = 'user_detail/user_update.html'
