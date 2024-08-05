@@ -1,23 +1,22 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView
 from django.db.models import Q
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, DetailView, UpdateView
 from django.views import View
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render, get_object_or_404
 
-from rest_framework import generics
-from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics
 from rest_framework import exceptions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
 
-from .models import LectureInfo, Category, Users
+from .models import LectureInfo, CategoryConn, Category, Users
 from .serializers import LectureInfoSerializer, UserCreationSerializer, UserListSerializer
 from .forms import CustomSignUpForm, UserLoginForm, UserUpdateForm
 from .filters import LectureInfoFilter
@@ -39,19 +38,6 @@ class LectureListView(generics.ListAPIView):
     filterset_class = LectureInfoFilter
     pagination_class = LecturePagination  # 페이징 클래스 추가
 
-    @swagger_auto_schema(
-        operation_description="강의 검색",
-        responses={200: "Success", 400: "Bad Request", 500: "Internal Server Error"},
-        manual_parameters=[
-            openapi.Parameter(
-                "q",
-                in_=openapi.IN_PATH,
-                description="sort_type",
-                type=openapi.TYPE_STRING,
-                examples="Django",
-            )
-        ],
-    )
     def get_queryset(self):
         queryset = super().get_queryset()
         sort_type = self.request.GET.get("sort_type")
@@ -62,8 +48,7 @@ class LectureListView(generics.ListAPIView):
             queryset = queryset.order_by("-is_recommend")
 
         return queryset
-
-
+    
 class LectureDetailView(generics.RetrieveAPIView):
     queryset = LectureInfo.objects.all()
     serializer_class = LectureInfoSerializer
@@ -85,10 +70,19 @@ class LectureSearchView(generics.ListAPIView):
             | Q(teacher__icontains=query)
         )
 
-
+      
+class LectureDetailTemplateView(View):
+    def get(self, request, pk):
+        lecture = get_object_or_404(LectureInfo, pk=pk)
+        category_ids = CategoryConn.objects.filter(lecture=lecture).values_list('category_id', flat=True)
+        categories = Category.objects.filter(category_id__in=category_ids)
+        
+        return render(request, 'detail.html', {'lecture': lecture, 'categories': categories})
+      
+      
 class LectureListPageView(TemplateView):
     template_name = "index.html"
-
+      
 
 class CategoryListView(APIView):
     def get(self, request):

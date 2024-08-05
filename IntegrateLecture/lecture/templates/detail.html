@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ lecture.lecture_name }} - 강의 상세 정보</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/detail_body.css' %}">
+    <link rel="stylesheet" href="{% static 'css/detail_header.css' %}">
+    <link rel="stylesheet" href="{% static 'css/review.css' %}">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo-container">
+                <p> 사이트 로고 </p>
+            <div class="search-container">
+                <input type="text" placeholder="원하는 강의를 검색해보세요." id="searchInput">
+                <button onclick="searchLecture()">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+            <div class="icon-container">
+                {% comment %} <button><i id="heart-icon" class="fa-regular fa-heart"></i></button> {% endcomment %}
+                <button><a> 찜 목록 </a></button>
+                <button><a> 내 정보 </a></button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="lecture-summary">
+            <div class="summary-info">
+                <ul>
+                    {% for category in categories %}
+                        <li>{{ category.main_category_name }} / {{ category.mid_category_name }}</li>
+                    {% endfor %}
+                </ul>
+                <h1>{{ lecture.lecture_name }}</h1>
+                <br>
+                <p><i class="fa-solid fa-user-tie"></i> : {{ lecture.teacher }}</p>
+                <p class="lecture-rating" data-rating="{{ lecture.scope }}">
+                    <span id="rating-stars" class="rating-stars"></span> 
+                    ({{ lecture.scope }}) 수강평 {{ lecture.review_count }} 개
+                </p>
+                <div class="tags" data-contents="{{ lecture.tag }}">
+                    <!-- 버튼은 jQuery에서 동적으로 생성될 예정 -->
+                </div>
+            </div>
+            <div class="lecture-thumbnail">
+                <img src="{{ lecture.thumbnail_url }}" alt="썸네일">
+            </div>
+        </div>
+
+        <div class="lecture-content">
+            <div class="lecture-detail">
+                 <!-- 탭 버튼 -->
+                <div class="tab-container">
+                    <button class="tab-button" data-target="lecture-description">강의 소개</button>
+                    <button class="tab-button" data-target="lecture-whatlearn">이런걸 배워요</button>
+                    <button class="tab-button" data-target="lecture-review">리뷰 분석</button>
+                    <button class="tab-button" data-target="lecture-price-history">가격 히스토리</button>
+                </div>
+                <div id="lecture-description" class="lecture-description">
+                    <h2>강의 소개</h2>
+                    <br>
+                    <p style="line-height: 1.8;">{{ lecture.description }}</p>
+
+                </div>
+                <br>
+                <div id="lecture-whatlearn" class="lecture-whatlearn" data-contents="{{ lecture.what_do_i_learn }}">
+                    <h2>이런걸 배워요</h2>
+                    <br>
+                    <div id="what-do-i-learn-container"></div>
+                    <!-- 리스트는 jQuery에서 동적으로 생성될 예정 -->
+                </div>
+                <br>
+                <div id="lecture-review" class="lecture-review">
+                    <h2>리뷰 분석 결과 데이터</h2>  
+                    <br> 
+                    <div class="review-container"> 
+                        <!-- 별점 평균 및 리뷰 수 -->
+                        <div class="review-summary">
+                            <h3>별점 평균</h3>
+                            <p>4.5 / 5</p>
+                            <h3>총 리뷰 수</h3>
+                            <p>120개</p>
+                        </div>
+                        
+                        <!-- 리뷰 트렌드 그래프 (예시로 간단히 막대 그래프 형태로) -->
+                        <div class="review-trends">
+                            <h3>리뷰 트렌드</h3>
+                            <div class="bar-graph">
+                                <div class="bar" style="height: 80%; background-color: #4CAF50;"></div>
+                                <div class="bar" style="height: 60%; background-color: #2196F3;"></div>
+                                <div class="bar" style="height: 40%; background-color: #FF9800;"></div>
+                                <div class="bar" style="height: 20%; background-color: #F44336;"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 주요 키워드 -->
+                        <div class="review-keywords">
+                            <h3>주요 키워드</h3>
+                            <ul>
+                                <li>유익하다</li>
+                                <li>쉽다</li>
+                                <li>실용적</li>
+                                <li>친절하다</li>
+                                <li>전문적</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- 감정 분석 -->
+                        <div class="review-sentiment">
+                            <h3>감정 분석</h3>
+                            <p>긍정적: 70%</p>
+                            <p>부정적: 20%</p>
+                            <p>중립적: 10%</p>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div id="lecture-price-history" class="lecture-price-history">
+                    <h2>가격 히스토리</h2>
+                    <br>
+                    <!-- 가격 히스토리를 여기에 표시 -->
+                </div>
+            </div>
+            <div class="sticky-container">
+                <div class="sticky-title">
+                    <h3>Inflearn</h3>
+                </div>
+                <div class="sticky-text">
+                    <div class="info-discript">
+                        <span class="price">{{ lecture.price }}원</span>
+                        <a><i id="heart-icon" class="fa-regular fa-heart"></i>(1,345)</a>
+                    </div>
+                    <br>
+                    <a class="info"> 강의 레벨   </a> 
+                    <a>{{lecture.level}}</a>
+                </br></br>
+                    <a class="info"> 총 강의 시간   </a>
+                    <a>{{lecture.lecture_time}}</a>
+                </div>
+                <div class="sticky-button">
+                    <button class="num1">수강하러 가기</button>
+                    <button class="num2">장바구니 담기</button>
+                    <button class="num2">알림 설정하기</button>
+                </div>
+            </div>
+            <div class="fixed-card">
+                <button>수강하러 가기</button>
+                <button>강의 찜하기</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/detail.js"></script>
+</body>
+</html>
