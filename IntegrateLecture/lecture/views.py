@@ -2,7 +2,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.views import LoginView
 from django.db.models import Q
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, DetailView, UpdateView, ListView
+from django.views.generic import TemplateView, DetailView, UpdateView, ListView, CreateView
 from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
@@ -179,3 +179,32 @@ class WishListView(LoginRequiredMixin, ListView):
         context['user_id'] = Users.objects.get(pk=self.kwargs['pk'])
         return context
     
+
+class WishListCreateView(LoginRequiredMixin, CreateView):
+    model = WishList
+    fields = ['lecture']
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.instance.lecture_name = form.instance.lecture.lecture_name
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('user_wishlist', kwargs={'pk': self.request.user.pk})
+    
+    def get_template_names(self):
+        if '/lecture/detail/' in self.request.path:
+            return ['lecture_detail_template.html']
+        return ['lecture_main_page_template.html']
+
+    '''
+    사용법
+    {% block content %}
+    <h2>Add to Wishlist</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Add to Wishlist</button>
+    </form>
+    {% endblock %}
+    '''
