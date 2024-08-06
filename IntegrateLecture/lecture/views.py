@@ -2,7 +2,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.views import LoginView
 from django.db.models import Q
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, DetailView, UpdateView
+from django.views.generic import TemplateView, DetailView, UpdateView, ListView, CreateView, DeleteView
 from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
@@ -16,14 +16,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 
-from .models import LectureInfo, CategoryConn, Category, Users
+from .models import LectureInfo, CategoryConn, Category, Users, WishList
 from .serializers import LectureInfoSerializer, UserCreationSerializer, UserListSerializer
 from .forms import CustomSignUpForm, UserLoginForm, UserUpdateForm
 from .filters import LectureInfoFilter
-
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
-
 
 class LecturePagination(PageNumberPagination):
     page_size = 20  # 페이지당 항목 수
@@ -70,7 +66,7 @@ class LectureSearchView(generics.ListAPIView):
             | Q(teacher__icontains=query)
         )
 
-      
+
 class LectureDetailTemplateView(View):
     def get(self, request, pk):
         lecture = get_object_or_404(LectureInfo, pk=pk)
@@ -78,11 +74,11 @@ class LectureDetailTemplateView(View):
         categories = Category.objects.filter(category_id__in=category_ids)
         
         return render(request, 'detail.html', {'lecture': lecture, 'categories': categories})
-      
-      
+
+
 class LectureListPageView(TemplateView):
     template_name = "index.html"
-      
+
 
 class CategoryListView(APIView):
     def get(self, request):
@@ -163,3 +159,57 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('user_detail', kwargs={'pk': self.object.pk})
+    
+
+class WishListView(LoginRequiredMixin, ListView):
+    model = WishList
+    template_name = 'user_detail/user_wishlist.html'
+    context_object_name = 'wishlist_items'
+
+    def get_queryset(self):
+        user_id = Users.objects.get(pk=self.kwargs['pk'])
+        return WishList.objects.filter(user_id=user_id)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user_id'] = Users.objects.get(pk=self.kwargs['pk'])
+        return context
+    
+
+class WishListCreateView(LoginRequiredMixin, CreateView):
+    model = WishList
+    fields = ['lecture']
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.instance.lecture_name = form.instance.lecture.lecture_name
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('user_wishlist', kwargs={'pk': self.request.user.pk})
+    
+    def get_template_names(self):
+        if '/lecture/detail/' in self.request.path:
+            return ['lecture_detail_template.html']
+        return ['lecture_main_page_template.html']
+
+    '''
+    사용법
+    {% block content %}
+    <h2>Add to Wishlist</h2>
+    <form method="post" action="{% url 'wishlist_add' %}>
+        {% csrf_token %}
+        <input type="hidden" name="lecture" value="{{ lecture.id }}">
+        {{ form.as_p }}
+        <button type="submit">Add to Wishlist</button>
+    </form>
+    {% endblock %}
+    '''
+
+class WIshListDeleteView(LoginRequiredMixin, DeleteView):
+    model = WishList
+    fields = ['lecture']
+    
+    def get_success_url(self):
+        return reverse_lazy('user_wishlist', kwargs={'pk': self.request.user.pk})
+        
