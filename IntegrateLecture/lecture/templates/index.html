@@ -4,41 +4,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lecture List</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <title>메인 화면</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/all_lec_body.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base_header.css' %}">
 </head>
 <body>
-    <div id="app">
-        <header>
-            <h1>Lecture List</h1>
-            {% if user.is_authenticated %}
-                <form method="post" action="{% url 'logout' %}?next={{ request.path }}">
-                    {% csrf_token %}
-                    <button type="submit">Logout</button>
-            {% else %}
-                <a href="{%url 'login' %}">Login</a>
-            {% endif %}
-        </hedaer>
-        <div id="filters">
-            <select id="mainCategory">
-                <option value="">All Main Categories</option>
-            </select>
-            <select id="midCategory">
-                <option value="">All Mid Categories</option>
-            </select>
-            <select id="sortType">
-                <option value="">Sort By</option>
-                <option value="RECENT">Recent</option>
-                <option value="RECOMMEND">Recommended</option>
-            </select>
+    <header>
+        <div class="header-container">
+            <div class="logo-container">
+                <p>사이트 로고</p>
+            </div>
+            <div class="search-container" id="searchContainer">
+                <input class="searchInput" type="text" placeholder="원하는 강의를 검색해보세요." id="searchInput">
+                <button id="searchButton" onclick="toggleSearch()">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+            <div class="icon-container" id="iconContainer">
+                {% comment %} <button><i id="heart-icon" class="fa-regular fa-heart"></i></button> {% endcomment %}
+                {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'logout' %}?next={{ request.path }}">
+                        {% csrf_token %}
+                        <button type="submit">Logout</button>
+                {% else %}
+                    <a href="{%url 'login' %}">Login</a>
+                {% endif %}
+                <button><a>회원가입</a></button>
+            </div>
+
         </div>
-        <div id="lectureList"></div>
-        <div id="pagination">
-            <button id="prevPage">Previous</button>
-            <span id="currentPage"></span>
-            <button id="nextPage">Next</button>
+    </header>
+    <main>
+        <div class="banner-container">
+            <p> 광고 비스무리한거 삽입 예정 </p>
         </div>
-    </div>
-    <script src="{% static 'js/script.js' %}"></script>
+        <div class="lec-container">
+            <div class="filters-container">
+                <div class="category-container">
+                    <select id="mainCategory">
+                        <option value="">분야 선택</option>
+                    </select>
+                    <select id="midCategory">
+                        <option value="">기술 선택</option>
+                    </select>
+                </div>
+                <div class = "sory-container">
+                    <select id="sortType">
+                        <option value="RECENT">최신순</option>
+                        <option value="RECOMMEND">추천순</option>
+                    </select>
+                    <select id="levelSelect">
+                        <option value="">난이도</option>
+                        <option value="입문">입문</option>
+                        <option value="초급">초급</option>
+                        <option value="중급이상">중급이상</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="tags-container" id="tagsContainer">
+                <!--js에서 생성되서 삽입됨-->
+            </div>
+            <div class="lecture-container" id="lectureList">
+                <!--js에서 생성되서 삽입됨-->
+            </div>
+            <div class="pagination">
+                <button id="prevPage">＜</button>
+                <span id="pageNumbers"></span>
+                <button id="nextPage">＞</button>
+            </div>
+        </div>
+    </main>
+    <script src="{% static 'js/all_lec.js' %}"></script>
 </body>
 </html>

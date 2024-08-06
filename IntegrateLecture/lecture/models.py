@@ -32,6 +32,7 @@ class LectureInfo(models.Model):
     thumbnail_url = models.CharField(max_length=511, blank=True, null=True)
     is_new = models.IntegerField(blank=True, null=True)
     is_recommend = models.IntegerField(blank=True, null=True)
+    like_count = models.IntegerField(default=0, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
@@ -254,3 +255,4 @@ class WishList(models.Model):
 #     class Meta:
 #         managed = False
 #         db_table = "django_session"
+

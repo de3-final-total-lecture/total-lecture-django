@@ -21,51 +21,6 @@ from .serializers import LectureInfoSerializer, UserCreationSerializer, UserList
 from .forms import CustomSignUpForm, UserLoginForm, UserUpdateForm
 from .filters import LectureInfoFilter
 
-class LecturePagination(PageNumberPagination):
-    page_size = 20  # 페이지당 항목 수
-    page_size_query_param = "page_size"
-    max_page_size = 100  # 최대 페이지당 항목 수
-
-
-class LectureListView(generics.ListAPIView):
-    queryset = LectureInfo.objects.all()
-    serializer_class = LectureInfoSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = LectureInfoFilter
-    pagination_class = LecturePagination  # 페이징 클래스 추가
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        sort_type = self.request.GET.get("sort_type")
-
-        if sort_type == "RECENT":
-            queryset = queryset.order_by("-is_new")
-        elif sort_type == "RECOMMEND":
-            queryset = queryset.order_by("-is_recommend")
-
-        return queryset
-    
-class LectureDetailView(generics.RetrieveAPIView):
-    queryset = LectureInfo.objects.all()
-    serializer_class = LectureInfoSerializer
-
-
-class LectureSearchView(generics.ListAPIView):
-    serializer_class = LectureInfoSerializer
-
-    def get_queryset(self):
-        query = self.request.query_params.get("q")
-        if not query:
-            raise exceptions.ValidationError({"detail": "검색어가 필요합니다."})
-
-        return LectureInfo.objects.filter(
-            Q(lecture_name__icontains=query)
-            | Q(description__icontains=query)
-            | Q(what_do_i_learn__icontains=query)
-            | Q(tag__icontains=query)
-            | Q(teacher__icontains=query)
-        )
-
 
 class LectureDetailTemplateView(View):
     def get(self, request, pk):
@@ -74,12 +29,65 @@ class LectureDetailTemplateView(View):
         categories = Category.objects.filter(category_id__in=category_ids)
         
         return render(request, 'detail.html', {'lecture': lecture, 'categories': categories})
-
-
+      
+      
 class LectureListPageView(TemplateView):
     template_name = "index.html"
 
 
+class LecturePagination(PageNumberPagination):
+    page_size = 20  # 페이지당 항목 수
+    page_size_query_param = "page_size"
+    max_page_size = 100  # 최대 페이지당 항목 수
+    
+    def get_paginated_response(self, data):
+        return Response({
+            'results': data,
+            'total_pages': self.page.paginator.num_pages,
+            'current_page': self.page.number,
+            'previous': self.get_previous_link(),
+            'next': self.get_next_link(),
+        })
+
+
+class LectureListView(generics.ListAPIView):
+    serializer_class = LectureInfoSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = LectureInfoFilter
+    pagination_class = LecturePagination  # 페이징 클래스 추가
+
+    def get_queryset(self):
+        queryset = LectureInfo.objects.all()
+        sort_type = self.request.GET.get("sort_type")
+        query = self.request.GET.get("q")
+        level = self.request.GET.get("level")
+
+        if sort_type == "RECENT":
+            queryset = queryset.order_by("-is_new")
+        elif sort_type == "RECOMMEND":
+            queryset = queryset.order_by("-is_recommend")
+
+        if query:
+            queryset = queryset.filter(
+                Q(lecture_name__icontains=query)
+                | Q(description__icontains=query)
+                | Q(what_do_i_learn__icontains=query)
+                | Q(tag__icontains=query)
+                | Q(teacher__icontains=query)
+            )
+
+        if level:
+            queryset = queryset.filter(level=level)
+
+    
+        return queryset
+    
+    
+class LectureDetailView(generics.RetrieveAPIView):
+    queryset = LectureInfo.objects.all()
+    serializer_class = LectureInfoSerializer
+
+    
 class CategoryListView(APIView):
     def get(self, request):
         categories = Category.objects.values(
@@ -95,6 +103,7 @@ class CategoryListView(APIView):
             for main in main_categories
         }
         return Response(categorized)
+
 
 # User 관리
 # DRF-API
