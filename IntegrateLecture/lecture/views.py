@@ -2,7 +2,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.views import LoginView
 from django.db.models import Q
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, DetailView, UpdateView, ListView, CreateView
+from django.views.generic import TemplateView, DetailView, UpdateView, ListView, CreateView, DeleteView
 from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
@@ -197,10 +197,19 @@ class WishListCreateView(LoginRequiredMixin, CreateView):
     사용법
     {% block content %}
     <h2>Add to Wishlist</h2>
-    <form method="post">
+    <form method="post" action="{% url 'wishlist_add' %}>
         {% csrf_token %}
+        <input type="hidden" name="lecture" value="{{ lecture.id }}">
         {{ form.as_p }}
         <button type="submit">Add to Wishlist</button>
     </form>
     {% endblock %}
     '''
+
+class WIshListDeleteView(LoginRequiredMixin, DeleteView):
+    model = WishList
+    fields = ['lecture']
+    
+    def get_success_url(self):
+        return reverse_lazy('user_wishlist', kwargs={'pk': self.request.user.pk})
+        
