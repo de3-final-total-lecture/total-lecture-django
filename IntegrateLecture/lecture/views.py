@@ -15,8 +15,17 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
+class LectureDetailTemplateView(View):
+    def get(self, request, pk):
+        lecture = get_object_or_404(LectureInfo, pk=pk)
+        category_ids = CategoryConn.objects.filter(lecture=lecture).values_list('category_id', flat=True)
+        categories = Category.objects.filter(category_id__in=category_ids)
+        
+        return render(request, 'detail.html', {'lecture': lecture, 'categories': categories})
+      
+      
+class LectureListPageView(TemplateView):
+    template_name = "index.html"
 
 
 class LecturePagination(PageNumberPagination):
@@ -35,55 +44,41 @@ class LecturePagination(PageNumberPagination):
 
 
 class LectureListView(generics.ListAPIView):
-    queryset = LectureInfo.objects.all()
     serializer_class = LectureInfoSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = LectureInfoFilter
     pagination_class = LecturePagination  # 페이징 클래스 추가
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = LectureInfo.objects.all()
         sort_type = self.request.GET.get("sort_type")
+        query = self.request.GET.get("q")
+        level = self.request.GET.get("level")
 
         if sort_type == "RECENT":
             queryset = queryset.order_by("-is_new")
         elif sort_type == "RECOMMEND":
             queryset = queryset.order_by("-is_recommend")
 
+        if query:
+            queryset = queryset.filter(
+                Q(lecture_name__icontains=query)
+                | Q(description__icontains=query)
+                | Q(what_do_i_learn__icontains=query)
+                | Q(tag__icontains=query)
+                | Q(teacher__icontains=query)
+            )
+
+        if level:
+            queryset = queryset.filter(level=level)
+
+    
         return queryset
+    
     
 class LectureDetailView(generics.RetrieveAPIView):
     queryset = LectureInfo.objects.all()
     serializer_class = LectureInfoSerializer
-
-
-class LectureSearchView(generics.ListAPIView):
-    serializer_class = LectureInfoSerializer
-
-    def get_queryset(self):
-        query = self.request.query_params.get("q")
-        if not query:
-            raise exceptions.ValidationError({"detail": "검색어가 필요합니다."})
-
-        return LectureInfo.objects.filter(
-            Q(lecture_name__icontains=query)
-            | Q(description__icontains=query)
-            | Q(what_do_i_learn__icontains=query)
-            | Q(tag__icontains=query)
-            | Q(teacher__icontains=query)
-        )
-      
-class LectureDetailTemplateView(View):
-    def get(self, request, pk):
-        lecture = get_object_or_404(LectureInfo, pk=pk)
-        category_ids = CategoryConn.objects.filter(lecture=lecture).values_list('category_id', flat=True)
-        categories = Category.objects.filter(category_id__in=category_ids)
-        
-        return render(request, 'detail.html', {'lecture': lecture, 'categories': categories})
-      
-      
-class LectureListPageView(TemplateView):
-    template_name = "index.html"
       
       
 class CategoryListView(APIView):
@@ -101,3 +96,22 @@ class CategoryListView(APIView):
             for main in main_categories
         }
         return Response(categorized)
+
+
+class UpdateLikeCountView(APIView):
+    def post(self, request):
+        lecture_id = request.data.get('lecture_id')
+        is_liked = request.data.get('is_liked')
+
+        print(f"Received request to update like count: lecture_id={lecture_id}, is_liked={is_liked}")
+        try:
+            lecture = LectureInfo.objects.get(pk=lecture_id)
+            if is_liked:
+                lecture.like_count += 1
+            else:
+                lecture.like_count -= 1
+            lecture.save()
+            print(f"Successfully updated like count: lecture_id={lecture_id}, like_count={lecture.like_count}")
+            return Response({'success': True, 'like_count': lecture.like_count})
+        except LectureInfo.DoesNotExist:
+            return Response({'success': False, 'error': 'Lecture not found'}, status=status.HTTP_404_NOT_FOUND)

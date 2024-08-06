@@ -35,26 +35,29 @@
     left: 0;
     flex-direction: row;
     width: 100%;
-    height: 50%;
-    background: linear-gradient(to right, #23273e, #646883); /* 연한 네이비색 그라데이션 */
-    padding: 20px;
+    height: 45%;
+    background: #001123;
+    /* background: linear-gradient(to right, #23273e, #646883); */
+    padding: 20px 40px;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 .summary-info {
     display: flex;
     flex-direction: column;
     flex: 2;
-    margin-top : 45px;
-    margin-left: 100px;
+    margin-top : 20px;
+    margin-left: 90px;
     margin-right: 50px;
     margin-bottom: 80px;
 
 }
 
 .summary-info h1 {
-    font-size: 28px;
-    margin-bottom: 20px;
+    font-size: 35px;
+    font-weight: 650;
+    margin-bottom: 15px;
     color: #fff; /* 하얀색 글씨 */
 }
 
@@ -91,12 +94,12 @@
 .tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 7px; /* 버튼 간 간격 조절 */
+    gap: 8px; /* 버튼 간 간격 조절 */
     margin-top: 10px; /* 상단 여백 추가 */
 }
 
 .tags button {
-    background: #001f3f;
+    background: #1f3458;
     color: white;
     border: none;
     padding: 5px 10px;
@@ -106,7 +109,7 @@
 }
 
 .tags button:hover {
-    background: #00132e;
+    background: #7d8ea4;
 }
 
 /*************************************************************/
@@ -117,13 +120,13 @@
 }
 
 .lecture-thumbnail img {
-    width: 90%;
+    width: 82%;
     height: auto;
-    margin-top : 40px;
+    margin-top : 25px;
     margin-right: 40px;
     margin-bottom: 40px;
     border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0px 0px 300px 40px #2f3a4e;
 }
 
 
@@ -131,7 +134,7 @@
 /* 세부정보 + 스티키 카드 컨테이너*/
 .lecture-content {
     display: flex;
-    margin-top: 350px; 
+    margin-top: 330px; 
     right: 0;
     width: 100%;
     background: #fff;
@@ -165,7 +168,7 @@
 /* 따라오는 카드 정보 섹션 */
 .sticky-container {
     position: sticky; /* 표준 브라우저 */
-    width: 28%; 
+    width: 26%; 
     height: 440px;
     display: block;
     top: 50px;
@@ -173,7 +176,7 @@
 }
 
 .sticky-title {
-    background: #f74e6a;
+    background: #e84e68;
     padding: 10px;
     border-radius: 15px 15px 0px 0px;
     width: 100%; 
@@ -181,6 +184,7 @@
     display: block;
     top: 50px;
     text-align: center;
+    color: #fff;
 }
 
 .sticky-text {
@@ -203,7 +207,7 @@
 }
 .price {
     font-size: 30px;
-    font-weight: bold;
+    font-weight: 580;
 }
 
 #heart-icon,
@@ -246,7 +250,7 @@
     height: 30%;
     margin: 10px;
     background: #424769;
-    border: 1.5px solid #424769;
+    border: 1.0px solid #424769;
     color: white;
     border-radius: 30px;
     font-weight: 600;
@@ -261,7 +265,7 @@
     height: 30%;
     margin: 10px;
     background: #ffffff;
-    border: 1.5px solid #424769;
+    border: 1.0px solid #424769;
     color: #1b1b1b;
     border-radius: 30px;
     font-weight: 600;
@@ -325,5 +329,7 @@
         display: block; /* 하단 고정 버튼 표시 */
     }
 }
+
+
 
 

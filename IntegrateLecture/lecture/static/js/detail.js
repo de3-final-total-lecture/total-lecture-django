@@ -34,14 +34,14 @@ $(document).ready(function() {
     learns.forEach(function(learn) {
         learn_html += '<div class="item"> # ' + learn + '</div>';
     });
-    $('#what-do-i-learn-container').html(learn_html);
+    $('what-do-i-learn-container').html(learn_html);
 
     // tag 구분자 제거
     var tagData = $('.tags').data('contents');
     var tags = tagData.split('|');
     var tag_html = '';
     tags.forEach(function(tag) {
-        tag_html += '<button>' + '#'+tag + '</button>';
+        tag_html += '<button class="tag-item" data-tag="{{ tag }}">' + '#'+tag + '</button>';
     });
     $('.tags').html(tag_html);
 
@@ -63,14 +63,16 @@ $(document).ready(function() {
         $(this).text(formattedPrice + '원');
     });
 
+    $(document).on('click', '.num1', function() {
+        var lectureId = $(this).data('lectureid');
+        var lectureURL = base62Decode(lectureId);
+
+        window.location.href = lectureURL;
+    });
+
 });
 
-function searchLecture() {
-    const query = encodeURIComponent(document.getElementById('searchInput').value.trim());
-    if (query) {
-        window.location.href = `/api/search/?q=${query}`;
-    }
-}
+
 
 function getStarRatingHtml(rating) {
     const fullStar = '<i class="fa-solid fa-star"></i>';

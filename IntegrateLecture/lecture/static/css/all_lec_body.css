@@ -11,6 +11,7 @@
 .lec-container {
     display: flex;
     flex-direction: row;
+    width: 100%;
     margin: 10px 50px;
     padding: 10px 10px;
     box-sizing: border-box;
@@ -38,11 +39,11 @@
 }
 
 .filters-container select {
-    width: 120px;
-    height: 35px;
+    width: 110px;
+    height: 50px;
     font-size: 0.9em;
     font-weight: 450;
-    border: 1px solid #9b9b9b;
+    border: 1.5px solid #b9b9b9;
     color: #1f1f1f; 
     padding: 5px 30px 5px 5px;    
     border-radius: 5px; 
@@ -69,7 +70,7 @@
 /*************************************************************************************************/
 .lecture-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(235px,235px));
     gap: 20px;
     width: 100%;
 }
@@ -239,7 +240,7 @@ p.price {
 }
 
 .pagination .page-number.active {
-    background-color: #646883;
+    background-color: #424769;
     color: #ffffff;
     border: none
 }

@@ -5,9 +5,29 @@ const mainCategorySelect = document.getElementById('mainCategory');
 const midCategorySelect = document.getElementById('midCategory');
 const sortTypeSelect = document.getElementById('sortType');
 const pageNumbersElement = document.getElementById('pageNumbers');
+const searchButton = document.getElementById('searchButton');
+const searchInput = document.getElementById('searchInput');
+const levelSelect = document.getElementById('levelSelect');
+
+
+mainCategorySelect.addEventListener('change', (e) => {
+    populateMidCategories(e.target.value);
+    loadPage(1);
+});
+midCategorySelect.addEventListener('change', () => loadPage(1));
+sortTypeSelect.addEventListener('change', () => loadPage(1));
+levelSelect.addEventListener('change', () => loadPage(1));
+searchButton.addEventListener('click', () => loadPage(1));
+searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        loadPage(1);
+    }
+});
+
 
 let currentPage = 1;
 let categories = {};
+
 
 
 async function fetchCategories() {
@@ -38,19 +58,31 @@ function populateMidCategories(main) {
     }
 }
 
+function toggleSearch() {
+    const searchElement = document.getElementById('searchContainer');
+    if (searchElement) {
+        searchElement.classList.toggle('hidden');
+    }
+}
+
 async function fetchLectures(page) {
     const mainCategory = mainCategorySelect.value;
     const midCategory = midCategorySelect.value;
     const sortType = sortTypeSelect.value;
+    const level = levelSelect.value;
+    const searchQuery = searchInput.value.trim();
     
+    console.log(searchInput)
+
     let url = `/api/lecture/?page=${page}`;
     if (mainCategory) url += `&main_category=${encodeURIComponent(mainCategory)}`;
     if (midCategory) url += `&mid_category=${encodeURIComponent(midCategory)}`;
     if (sortType) url += `&sort_type=${sortType}`;
+    if (searchQuery) url += `&q=${encodeURIComponent(searchQuery)}`;
+    if (level) url += `&level=${level}`;
 
     const response = await fetch(url);
     const data = await response.json();
-    console.log(data);
     return data;
 }
 
@@ -85,9 +117,11 @@ function renderLectures(lectures) {
     // 하트 아이콘 클릭 이벤트 추가
     document.querySelectorAll('.heart-icon').forEach(icon => {
         icon.addEventListener('click', () => {
+            event.stopPropagation(); // 이벤트 전파를 막아 강의 세부 페이지로 이동하지 않음
             icon.classList.toggle('active');
         });
     });
+    
 
     document.querySelectorAll('.lecture-item').forEach(item => {
         item.addEventListener('click', () => {
@@ -96,20 +130,6 @@ function renderLectures(lectures) {
         });
     });
 }
-
-mainCategorySelect.addEventListener('change', (e) => {
-    populateMidCategories(e.target.value);
-    loadPage(1);
-});
-midCategorySelect.addEventListener('change', () => loadPage(1));
-sortTypeSelect.addEventListener('change', () => loadPage(1));
-
-
-// function updatePagination(data) {
-//     prevPageButton.disabled = !data.previous;
-//     nextPageButton.disabled = !data.next;
-//     currentPageSpan.textContent = `Page ${currentPage}`;
-// }
 
 function updatePagination(data) {
     prevPageButton.disabled = !data.previous;
@@ -173,13 +193,6 @@ async function loadPage(page) {
     }
 }
 
-document.getElementById('mainCategory').addEventListener('change', (e) => {
-    populateMidCategories(e.target.value);
-    loadPage(1);
-});
-
-document.getElementById('midCategory').addEventListener('change', () => loadPage(1));
-document.getElementById('sortType').addEventListener('change', () => loadPage(1));
 
 prevPageButton.addEventListener('click', () => {
     if (currentPage > 1) {
