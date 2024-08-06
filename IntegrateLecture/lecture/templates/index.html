@@ -24,9 +24,16 @@
             </div>
             <div class="icon-container" id="iconContainer">
                 {% comment %} <button><i id="heart-icon" class="fa-regular fa-heart"></i></button> {% endcomment %}
-                <button><a>로그인</a></button>
+                {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'logout' %}?next={{ request.path }}">
+                        {% csrf_token %}
+                        <button type="submit">Logout</button>
+                {% else %}
+                    <a href="{%url 'login' %}">Login</a>
+                {% endif %}
                 <button><a>회원가입</a></button>
             </div>
+
         </div>
     </header>
     <main>

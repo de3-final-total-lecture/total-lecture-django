@@ -1,12 +1,13 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from django.contrib.auth.views import LoginView
 from django.db.models import Q
-from django.shortcuts import render, get_object_or_404
+from django.urls import reverse_lazy
+from django.views.generic import TemplateView, DetailView, UpdateView, ListView, CreateView, DeleteView
 from django.views import View
-from django.views.generic import TemplateView
-
-from .models import LectureInfo, CategoryConn, Category
-from .serializers import LectureInfoSerializer
-from .filters import LectureInfoFilter
+from django.shortcuts import render, redirect
+from django.contrib.auth import login
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render, get_object_or_404
 
 from rest_framework import generics
 from rest_framework import exceptions
@@ -14,6 +15,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
+
+from .models import LectureInfo, CategoryConn, Category, Users, WishList
+from .serializers import LectureInfoSerializer, UserCreationSerializer, UserListSerializer
+from .forms import CustomSignUpForm, UserLoginForm, UserUpdateForm
+from .filters import LectureInfoFilter
+
 
 class LectureDetailTemplateView(View):
     def get(self, request, pk):
@@ -79,8 +86,8 @@ class LectureListView(generics.ListAPIView):
 class LectureDetailView(generics.RetrieveAPIView):
     queryset = LectureInfo.objects.all()
     serializer_class = LectureInfoSerializer
-      
-      
+
+    
 class CategoryListView(APIView):
     def get(self, request):
         categories = Category.objects.values(
@@ -98,20 +105,120 @@ class CategoryListView(APIView):
         return Response(categorized)
 
 
-class UpdateLikeCountView(APIView):
-    def post(self, request):
-        lecture_id = request.data.get('lecture_id')
-        is_liked = request.data.get('is_liked')
+# User 관리
+# DRF-API
+class APIUserSignupView(generics.CreateAPIView):
+    serializer_class = UserCreationSerializer
 
-        print(f"Received request to update like count: lecture_id={lecture_id}, is_liked={is_liked}")
-        try:
-            lecture = LectureInfo.objects.get(pk=lecture_id)
-            if is_liked:
-                lecture.like_count += 1
-            else:
-                lecture.like_count -= 1
-            lecture.save()
-            print(f"Successfully updated like count: lecture_id={lecture_id}, like_count={lecture.like_count}")
-            return Response({'success': True, 'like_count': lecture.like_count})
-        except LectureInfo.DoesNotExist:
-            return Response({'success': False, 'error': 'Lecture not found'}, status=status.HTTP_404_NOT_FOUND)
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+
+class APIUserListView(generics.ListAPIView):
+    queryset = Users.objects.all()
+    serializer_class = UserListSerializer
+
+
+class APIUserDetailView(generics.RetrieveAPIView):
+    queryset = Users.objects.all()
+    serializer_class = UserListSerializer
+# Web
+class SignUpView(View):
+    def get(self, request):
+        form = CustomSignUpForm()
+        return render(request, 'registration/Signup.html', {'form': form})
+
+    def post(self, request):
+        form = CustomSignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('login')
+        return render(request, 'registration/Signup.html', {'form': form})
+
+
+class LoginView(LoginView):
+    form_class = UserLoginForm
+    template_name = 'registration/Login.html'
+
+    def get_success_url(self):
+        user = self.request.user
+        if user.is_authenticated:
+            return reverse_lazy('user_detail', kwargs={'pk': user.pk})
+        return reverse_lazy('login')
+    
+
+
+class UserDetailView(LoginRequiredMixin,DetailView):
+    model = Users
+    template_name = 'user_detail/user_description.html'
+    context_object_name = 'user'
+    pk_url_kwarg = 'pk'
+
+
+class UserUpdateView(LoginRequiredMixin, UpdateView):
+    model = Users
+    form_class = UserUpdateForm
+    template_name = 'user_detail/user_update.html'
+    pk_url_kwarg = 'pk'
+
+    def get_success_url(self):
+        return reverse_lazy('user_detail', kwargs={'pk': self.object.pk})
+    
+
+class WishListView(LoginRequiredMixin, ListView):
+    model = WishList
+    template_name = 'user_detail/user_wishlist.html'
+    context_object_name = 'wishlist_items'
+
+    def get_queryset(self):
+        user_id = Users.objects.get(pk=self.kwargs['pk'])
+        return WishList.objects.filter(user_id=user_id)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user_id'] = Users.objects.get(pk=self.kwargs['pk'])
+        return context
+    
+
+class WishListCreateView(LoginRequiredMixin, CreateView):
+    model = WishList
+    fields = ['lecture']
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.instance.lecture_name = form.instance.lecture.lecture_name
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('user_wishlist', kwargs={'pk': self.request.user.pk})
+    
+    def get_template_names(self):
+        if '/lecture/detail/' in self.request.path:
+            return ['lecture_detail_template.html']
+        return ['lecture_main_page_template.html']
+
+    '''
+    사용법
+    {% block content %}
+    <h2>Add to Wishlist</h2>
+    <form method="post" action="{% url 'wishlist_add' %}>
+        {% csrf_token %}
+        <input type="hidden" name="lecture" value="{{ lecture.id }}">
+        {{ form.as_p }}
+        <button type="submit">Add to Wishlist</button>
+    </form>
+    {% endblock %}
+    '''
+
+class WIshListDeleteView(LoginRequiredMixin, DeleteView):
+    model = WishList
+    fields = ['lecture']
+    
+    def get_success_url(self):
+        return reverse_lazy('user_wishlist', kwargs={'pk': self.request.user.pk})
+        
