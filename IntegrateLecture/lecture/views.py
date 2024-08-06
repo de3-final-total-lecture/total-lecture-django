@@ -21,10 +21,6 @@ from .serializers import LectureInfoSerializer, UserCreationSerializer, UserList
 from .forms import CustomSignUpForm, UserLoginForm, UserUpdateForm
 from .filters import LectureInfoFilter
 
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
-
-
 class LecturePagination(PageNumberPagination):
     page_size = 20  # 페이지당 항목 수
     page_size_query_param = "page_size"
