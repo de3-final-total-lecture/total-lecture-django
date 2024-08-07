@@ -136,8 +136,8 @@ class SignUpView(View):
     def post(self, request):
         form = CustomSignUpForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
+            form.save()
+            # login(request, user)
             return redirect('login')
         return render(request, 'registration/Signup.html', {'form': form})
 
