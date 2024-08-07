@@ -100,6 +100,8 @@ class Users(AbstractBaseUser):
     user_email = models.EmailField(unique=True, max_length=254)
     password = models.CharField(max_length=256)  # Password hashing 사용
     skills = models.JSONField(default=dict, blank=True)
+    github_url = models.URLField(max_length=255, blank=True, null=True)
+    linkedin_url = models.URLField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_staff = models.BooleanField(default=False)

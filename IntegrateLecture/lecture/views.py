@@ -176,7 +176,7 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
 
 class WishListView(LoginRequiredMixin, ListView):
     model = WishList
-    # template_name = 'user_detail.html'
+    template_name = 'user_detail.html'
     context_object_name = 'wishlist_items'
 
     def get_queryset(self):
