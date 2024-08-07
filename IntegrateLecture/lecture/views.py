@@ -8,6 +8,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404
+from django.conf import settings
 
 from rest_framework import generics
 from rest_framework import exceptions
@@ -29,8 +30,8 @@ class LectureDetailTemplateView(View):
         categories = Category.objects.filter(category_id__in=category_ids)
         
         return render(request, 'detail.html', {'lecture': lecture, 'categories': categories})
-      
-      
+
+
 class LectureListPageView(TemplateView):
     template_name = "index.html"
 
@@ -140,17 +141,20 @@ class SignUpView(View):
             return redirect('login')
         return render(request, 'registration/Signup.html', {'form': form})
 
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect(settings.LOGIN_REDIRECT_URL)
+        return super().dispatch(request, *args, **kwargs)
+
 
 class LoginView(LoginView):
     form_class = UserLoginForm
     template_name = 'registration/Login.html'
 
-    # def get_success_url(self):
-    #     user = self.request.user
-    #     if user.is_authenticated:
-    #         return reverse_lazy('user_detail', kwargs={'pk': user.pk})
-    #     return reverse_lazy('login')
-    
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect(settings.LOGIN_REDIRECT_URL)
+        return super().dispatch(request, *args, **kwargs)
 
 
 class UserDetailView(LoginRequiredMixin,DetailView):
@@ -158,6 +162,15 @@ class UserDetailView(LoginRequiredMixin,DetailView):
     template_name = 'user_detail/user_detail.html'
     context_object_name = 'user'
     pk_url_kwarg = 'pk'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        user = self.get_object()
+        skills = user.skills
+        
+        context['skills'] = [{'name': name, 'value': value} for name, value in skills.items()]
+        
+        return context
 
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
@@ -221,4 +234,3 @@ class WIshListDeleteView(LoginRequiredMixin, DeleteView):
     
     def get_success_url(self):
         return reverse_lazy('user_wishlist', kwargs={'pk': self.request.user.pk})
-        
