@@ -1,37 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Update {{ user.user_name }}'s Profile</title>
-    <style>
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
-            color: white;
-            background-color: #007bff; /* Bootstrap의 기본 버튼 색상 */
-            border: none;
-            border-radius: 5px;
-            text-decoration: none; /* 링크의 기본 밑줄 제거 */
-            text-align: center;
-        }
-        
-        .button:hover {
-            background-color: #0056b3; /* Hover 시 색상 변경 */
-        }
-    </style>
-</head>
-<body>
-    <h1>Update {{ user.user_name }}'s Profile</h1>
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Update</button>
-    </form>
-    <a class="button" href="{% url 'user_detail' user.pk %}">취소</a>
-</body>
-</html>
-{% comment %} 
-<div class="col-sm-2">
-    <input type="button" class="btn btn-primary px-4" value="Save">
-</div> {% endcomment %}
+{% extends 'user_base.html' %}
+
+{% block title %}Edit User Profile{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'user_detail' pk=user.pk %}">User Profile</a></li>
+<li class="breadcrumb-item active" aria-current="page">User Edit</li>
+{% endblock %}
+
+{% block content %}
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-3">
+                        <h6 class="mb-0">Name</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                        {{ form.user_name }}
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <form id="myForm">
+                        <div class="col-sm-0"></div><button type="submit" class="btn btn-info">Save</button>
+                    </form>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
