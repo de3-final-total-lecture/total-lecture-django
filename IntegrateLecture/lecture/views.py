@@ -224,4 +224,4 @@ class WIshListDeleteView(LoginRequiredMixin, DeleteView):
     fields = ['lecture']
     
     def get_success_url(self):
-        return reverse_lazy('user_wishlist', kwargs={'pk': self.request.user.pk})
+        return reverse_lazy('user_detail', kwargs={'pk': self.request.user.pk})

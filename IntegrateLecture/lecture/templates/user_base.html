@@ -6,6 +6,7 @@
     <title>{% block title %}User Profile{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <style type="text/css">
         body {
             margin-top: 20px;
@@ -70,6 +71,13 @@
         a {
             color: black;
             text-decoration: none;
+        }
+        .delete-icon {
+            display: none;
+            cursor: pointer;
+        }
+        .wishlist-item:hover .delete-icon {
+            display: inline;
         }
     </style>
     <script> // User_detail의 내용을 바꿀 때 Enter 키를 사용하면 수정 버튼이 클릭 되도록 기능 추가
@@ -161,13 +169,18 @@
                             <div class="card h-100">
                                 <div class="card-body">
                                     <h6 class="d-flex align-items-center mb-3">
-                                        <iclass="material-icons text-info mr-2">Wish List</iclass=></h6>
+                                        <iclass="material-icons text-info mr-2">Wish List</iclass=>
+                                    </h6>
+                                    <ul class="wishlist-items">
                                         {% for item in wishlist_items %}
-                                            <small> - {{ item }}</small>
-                                            <div class="progress mb-3" style="height: 5px"></div>
+                                            <li class="wishlist-item">
+                                                <span>{{ item }}</span>
+                                                <a href="{% url 'wishlist_delete' item.pk %}" class="delete-icon material-icons">close</a>
+                                            </li>
                                         {% empty %}
-                                            <small>No Wish Lecture added yet.</small>
+                                            <li>No Wish Lecture added yet.</li>
                                         {% endfor %}
+                                    </ul>
                                 </div>
                             </div>
                         </div>
