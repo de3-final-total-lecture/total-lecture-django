@@ -11,7 +11,7 @@ urlpatterns = [
     path("api/lecture/", LectureListView.as_view(), name="lecture_list_api"),
     path("api/categories/", CategoryListView.as_view(), name="category_list_api"),
 
-    path("index/", LectureListPageView.as_view(), name='index'),
+    # path("index/", LectureListPageView.as_view(), name='index'),
 
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),

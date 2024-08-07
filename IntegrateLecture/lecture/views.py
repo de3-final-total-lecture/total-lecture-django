@@ -145,17 +145,17 @@ class LoginView(LoginView):
     form_class = UserLoginForm
     template_name = 'registration/Login.html'
 
-    def get_success_url(self):
-        user = self.request.user
-        if user.is_authenticated:
-            return reverse_lazy('user_detail', kwargs={'pk': user.pk})
-        return reverse_lazy('login')
+    # def get_success_url(self):
+    #     user = self.request.user
+    #     if user.is_authenticated:
+    #         return reverse_lazy('user_detail', kwargs={'pk': user.pk})
+    #     return reverse_lazy('login')
     
 
 
 class UserDetailView(LoginRequiredMixin,DetailView):
     model = Users
-    template_name = 'user_detail/user_description.html'
+    template_name = 'user_detail/user_detail.html'
     context_object_name = 'user'
     pk_url_kwarg = 'pk'
 
@@ -172,7 +172,7 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
 
 class WishListView(LoginRequiredMixin, ListView):
     model = WishList
-    template_name = 'user_detail/user_wishlist.html'
+    template_name = 'user_detail.html'
     context_object_name = 'wishlist_items'
 
     def get_queryset(self):
