@@ -162,15 +162,6 @@ class UserDetailView(LoginRequiredMixin,DetailView):
     template_name = 'user_detail/user_detail.html'
     context_object_name = 'user'
     pk_url_kwarg = 'pk'
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        
-        user = self.get_object()
-        skills = user.skills
-        
-        context['skills'] = [{'name': name, 'value': value} for name, value in skills.items()]
-        
-        return context
 
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
@@ -185,7 +176,7 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
 
 class WishListView(LoginRequiredMixin, ListView):
     model = WishList
-    template_name = 'user_detail.html'
+    # template_name = 'user_detail.html'
     context_object_name = 'wishlist_items'
 
     def get_queryset(self):
