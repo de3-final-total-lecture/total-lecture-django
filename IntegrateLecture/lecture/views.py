@@ -127,6 +127,8 @@ class APIUserListView(generics.ListAPIView):
 class APIUserDetailView(generics.RetrieveAPIView):
     queryset = Users.objects.all()
     serializer_class = UserListSerializer
+    
+    
 # Web
 class SignUpView(View):
     def get(self, request):
@@ -172,7 +174,16 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('user_detail', kwargs={'pk': self.object.pk})
+
+
+class UserDeleteView(LoginRequiredMixin, DeleteView):
+    model = Users
+    template_name = 'user_detail/user_detail.html'
+    pk_url_kwarg = 'pk'
     
+    def get_success_url(self):
+        return reverse_lazy('lecture_list_page')
+
 
 class WishListView(LoginRequiredMixin, ListView):
     model = WishList
@@ -219,7 +230,7 @@ class WishListCreateView(LoginRequiredMixin, CreateView):
     {% endblock %}
     '''
 
-class WIshListDeleteView(LoginRequiredMixin, DeleteView):
+class WishListDeleteView(LoginRequiredMixin, DeleteView):
     model = WishList
     fields = ['lecture']
     
