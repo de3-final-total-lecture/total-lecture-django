@@ -173,13 +173,13 @@ class LoginView(LoginView):
     def get_success_url(self):
         user = self.request.user
         if user.is_authenticated:
-            return reverse_lazy("user_detail", kwargs={"pk": user.pk})
+            return reverse_lazy("lecture_list_page")
         return reverse_lazy("login")
 
 
 class UserDetailView(LoginRequiredMixin, DetailView):
     model = Users
-    template_name = "user_detail/user_description.html"
+    template_name = "user_detail/user_detail.html"
     context_object_name = "user"
     pk_url_kwarg = "pk"
 
@@ -192,6 +192,15 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse_lazy("user_detail", kwargs={"pk": self.object.pk})
+
+
+class UserDeleteView(LoginRequiredMixin, DeleteView):
+    model = Users
+    template_name = "user_detail/user_detail.html"
+    pk_url_kwarg = "pk"
+
+    def get_success_url(self):
+        return reverse_lazy("lecture_list_page")
 
 
 class WishListView(LoginRequiredMixin, ListView):

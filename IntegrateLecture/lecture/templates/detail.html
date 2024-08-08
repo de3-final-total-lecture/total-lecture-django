@@ -24,9 +24,16 @@
                 </button>
             </div>
             <div class="icon-container" id="iconContainer">
-                {% comment %} <button><i id="heart-icon" class="fa-regular fa-heart"></i></button> {% endcomment %}
-                <button><a>찜 목록</a></button>
-                <button><a>내 정보</a></button>
+                {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'logout' %}?next={{ request.path }}">
+                        {% csrf_token %}
+                        <button type="submit">Logout</button>
+                    </form>
+                    <button><a href="{% url 'user_detail' pk=user.pk %}">내정보</a></button>  
+                {% else %}
+                    <button><a href="{% url 'login' %}">Login</a></button>
+                    <button><a href="{% url 'signup' %}">Signup</a></button>
+                {% endif %}
             </div>
         </div>
     </header>
