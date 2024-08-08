@@ -73,8 +73,9 @@ jobs:
           ssh -f -N -M -S my-cicd-socket -o StrictHostKeyChecking=no -i team_jun_1.pem -L 2222:${{ steps.get-instance-ips.outputs.django_ip }}:22 ubuntu@${{ steps.get-instance-ips.outputs.bastion_host_ip}}
           ssh -o StrictHostKeyChecking=no -i team_jun_1.pem -p 2222 ubuntu@localhost << 'EOF'
             echo "Connected to Private Subnet Airflow SAeerver via SSH Tunneling"
-            source ~/django_env/lib/activate
+            source ~/django_env/bin/activate
             cd ${{ vars.DJANGO_DIR }}
+            pip install -r requirements.txt
             git config --global credential.helper store
             echo "https://${{ secrets.GIT_AUTH_TOKEN }}:@github.com" > ~/.git-credentials
             git pull origin main
