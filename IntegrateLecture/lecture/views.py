@@ -18,6 +18,7 @@ from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
+from django.conf import settings
 
 from rest_framework import generics
 from rest_framework import exceptions
@@ -150,7 +151,6 @@ class APIUserDetailView(generics.RetrieveAPIView):
     queryset = Users.objects.all()
     serializer_class = UserListSerializer
 
-
 # Web
 class SignUpView(View):
     def get(self, request):
@@ -160,28 +160,32 @@ class SignUpView(View):
     def post(self, request):
         form = CustomSignUpForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect("login")
-        return render(request, "registration/Signup.html", {"form": form})
+            form.save()
+            # login(request, user)
+            return redirect('login')
+        return render(request, 'registration/Signup.html', {'form': form})
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect(settings.LOGIN_REDIRECT_URL)
+        return super().dispatch(request, *args, **kwargs)
 
 
 class LoginView(LoginView):
     form_class = UserLoginForm
     template_name = "registration/Login.html"
 
-    def get_success_url(self):
-        user = self.request.user
-        if user.is_authenticated:
-            return reverse_lazy("user_detail", kwargs={"pk": user.pk})
-        return reverse_lazy("login")
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect(settings.LOGIN_REDIRECT_URL)
+        return super().dispatch(request, *args, **kwargs)
 
 
 class UserDetailView(LoginRequiredMixin, DetailView):
     model = Users
-    template_name = "user_detail/user_description.html"
-    context_object_name = "user"
-    pk_url_kwarg = "pk"
+    template_name = 'user_detail/user_detail.html'
+    context_object_name = 'user'
+    pk_url_kwarg = 'pk'
 
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
@@ -191,13 +195,22 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
     pk_url_kwarg = "pk"
 
     def get_success_url(self):
-        return reverse_lazy("user_detail", kwargs={"pk": self.object.pk})
+        return reverse_lazy('user_detail', kwargs={'pk': self.object.pk})
+
+
+class UserDeleteView(LoginRequiredMixin, DeleteView):
+    model = Users
+    template_name = 'user_detail/user_detail.html'
+    pk_url_kwarg = 'pk'
+    
+    def get_success_url(self):
+        return reverse_lazy('lecture_list_page')
 
 
 class WishListView(LoginRequiredMixin, ListView):
     model = WishList
-    template_name = "user_detail/user_wishlist.html"
-    context_object_name = "wishlist_items"
+    template_name = 'user_detail.html'
+    context_object_name = 'wishlist_items'
 
     def get_queryset(self):
         user_id = Users.objects.get(pk=self.kwargs["pk"])
@@ -236,20 +249,6 @@ class WishListCreateView(LoginRequiredMixin, View):
         return JsonResponse(
             {"success": True, "message": "Lecture added to wishlist successfully."}
         )
-
-    """
-    사용법
-    {% block content %}
-    <h2>Add to Wishlist</h2>
-    <form method="post" action="{% url 'wishlist_add' %}>
-        {% csrf_token %}
-        <input type="hidden" name="lecture" value="{{ lecture.id }}">
-        {{ form.as_p }}
-        <button type="submit">Add to Wishlist</button>
-    </form>
-    {% endblock %}
-    """
-
 
 @method_decorator(csrf_exempt, name="dispatch")
 class WishListRemoveView(LoginRequiredMixin, View):

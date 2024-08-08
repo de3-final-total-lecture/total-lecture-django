@@ -21,8 +21,8 @@ class LectureInfo(models.Model):
     lecture_name = models.CharField(max_length=255, blank=True, null=True)
     price = models.IntegerField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    tag = models.CharField(max_length=255, blank=True, null=True)
     what_do_i_learn = models.TextField(blank=True, null=True)
+    tag = models.CharField(max_length=255, blank=True, null=True)
     level = models.CharField(max_length=255, blank=True, null=True)
     teacher = models.CharField(max_length=255, blank=True, null=True)
     scope = models.FloatField(blank=True, null=True)
@@ -100,6 +100,8 @@ class Users(AbstractBaseUser):
     user_email = models.EmailField(unique=True, max_length=254)
     password = models.CharField(max_length=256)  # Password hashing 사용
     skills = models.JSONField(default=dict, blank=True)
+    github_url = models.URLField(max_length=255, blank=True, null=True)
+    linkedin_url = models.URLField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_staff = models.BooleanField(default=False)
@@ -128,15 +130,10 @@ class Users(AbstractBaseUser):
 
 
 class WishList(models.Model):
-    lecture = models.ForeignKey(
-        LectureInfo,
-        on_delete=models.CASCADE,
-        related_name="wishlists",
-        db_column="lecture_id",
-    )
+    lecture = models.ForeignKey(LectureInfo, on_delete=models.CASCADE, related_name='wishlists', db_column='lecture_id', null=False)
     user = models.ForeignKey(
-        Users, on_delete=models.CASCADE, related_name="wishlists", db_column="user_id"
-    )
+            Users, on_delete=models.CASCADE, related_name="wishlists", db_column="user_id"
+        )
     lecture_name = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

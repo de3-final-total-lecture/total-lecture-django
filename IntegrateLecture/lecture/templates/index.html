@@ -29,10 +29,11 @@
                         {% csrf_token %}
                         <button type="submit">Logout</button>
                     </form>
+                    <button><a href="{% url 'user_detail' pk=user.pk %}">내정보</a></button>  
                 {% else %}
-                    <a href="{%url 'login' %}">Login</a>
+                    <button><a href="{% url 'login' %}">Login</a></button>
+                    <button><a href="{% url 'signup' %}">Signup</a></button>
                 {% endif %}
-                <button><a>회원가입</a></button>
             </div>
         </div>
     </header>
