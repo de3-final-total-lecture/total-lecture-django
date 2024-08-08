@@ -35,7 +35,6 @@
                     <button><a href="{% url 'signup' %}">Signup</a></button>
                 {% endif %}
             </div>
-
         </div>
     </header>
     <main>
@@ -79,6 +78,13 @@
             </div>
         </div>
     </main>
+    <script>
+        {% if user.is_authenticated %}
+            window.currentUserId = "{{ user.user_id }}";
+        {% else %}
+            window.currentUserId = null;
+        {% endif %}
+    </script>
     <script src="{% static 'js/all_lec.js' %}"></script>
 </body>
 </html>

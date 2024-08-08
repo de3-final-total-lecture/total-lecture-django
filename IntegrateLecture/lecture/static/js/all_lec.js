@@ -86,6 +86,74 @@ async function fetchLectures(page) {
     return data;
 }
 
+
+function toggleWishlist(lectureId, icon) {
+    const csrftoken = getCookie('csrftoken');
+    const userId = window.currentUserId;
+
+    if (!userId) {
+        alert('로그인이 필요한 서비스입니다.');
+        return;
+    }
+
+    const isAdding = !icon.classList.contains('active');
+    const url = isAdding 
+        ? `/user/${userId}/wishlist/add/`
+        : `/user/${userId}/wishlist/remove/`;
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({
+            lecture: lectureId
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else if (response.status === 403) {
+            throw new Error('로그인이 필요합니다.');
+        } else {
+            throw new Error(isAdding ? '위시리스트 추가 실패' : '위시리스트 제거 실패');
+        }
+    })
+    .then(data => {
+        if (data.success) {
+            icon.classList.toggle('active');
+        } else {
+            throw new Error(data.message || (isAdding ? '위시리스트 추가 실패' : '위시리스트 제거 실패'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        if (error.message === '로그인이 필요합니다.') {
+            alert('로그인이 필요한 서비스입니다.');
+            window.location.href = '/login/';
+        } else {
+            alert(isAdding ? '위시리스트 추가 중 오류가 발생했습니다.' : '위시리스트 제거 중 오류가 발생했습니다.');
+        }
+    });
+}
+
+// CSRF 토큰을 쿠키에서 가져오는 함수
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 function renderLectures(lectures) {
     lectureListElement.innerHTML = '';
     lectures.forEach(lecture => {
@@ -116,9 +184,11 @@ function renderLectures(lectures) {
 
     // 하트 아이콘 클릭 이벤트 추가
     document.querySelectorAll('.heart-icon').forEach(icon => {
-        icon.addEventListener('click', () => {
-            event.stopPropagation(); // 이벤트 전파를 막아 강의 세부 페이지로 이동하지 않음
-            icon.classList.toggle('active');
+        icon.addEventListener('click', (event) => {
+            console.log('Heart icon clicked');
+            event.stopPropagation();
+            const lectureId = icon.closest('.lecture-item').dataset.lectureId;
+            toggleWishlist(lectureId, icon);
         });
     });
     
