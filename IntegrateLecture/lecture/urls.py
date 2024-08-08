@@ -36,4 +36,5 @@ urlpatterns = [
     path("api/signup/", APIUserSignupView.as_view(), name="user_signup_api"),
     path("api/users/", APIUserListView.as_view(), name="user_list_api"),
     path("api/users/<str:pk>", APIUserDetailView.as_view(), name="user_detail_api"),
+
 ]

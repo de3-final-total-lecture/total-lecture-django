@@ -66,8 +66,26 @@
             </div>
 
             <div class="tags-container" id="tagsContainer">
-                <!--js에서 생성되서 삽입됨-->
+                <div class="search-container2" id="searchContainer2">
+                    <input class="searchInput2" type="text" placeholder="요즘 많이 찾는 기술들을 학습해봐요" id="searchInput2">
+                    <button id="searchButton2" onclick="toggleSearch()">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+                <div class="tags-grid">
+                    <div class="tags-row">
+                        {% for tag in tags_row1 %}
+                            <div class="tag-box"># {{ tag }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="tags-row">
+                        {% for tag in tags_row2 %}
+                            <div class="tag-box"># {{ tag }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
+            
             <div class="lecture-container" id="lectureList">
                 <!--js에서 생성되서 삽입됨-->
             </div>

@@ -5,8 +5,12 @@ const mainCategorySelect = document.getElementById('mainCategory');
 const midCategorySelect = document.getElementById('midCategory');
 const sortTypeSelect = document.getElementById('sortType');
 const pageNumbersElement = document.getElementById('pageNumbers');
+
 const searchButton = document.getElementById('searchButton');
-const searchInput = document.getElementById('searchInput');
+const searchInput = document.getElementById('searchInput');  
+const searchButton2 = document.getElementById('searchButton2');
+const searchInput2 = document.getElementById('searchInput2'); 
+ 
 const levelSelect = document.getElementById('levelSelect');
 
 
@@ -19,12 +23,12 @@ sortTypeSelect.addEventListener('change', () => loadPage(1));
 levelSelect.addEventListener('change', () => loadPage(1));
 searchButton.addEventListener('click', () => loadPage(1));
 searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        loadPage(1);
-    }
+    if (e.key === 'Enter') {loadPage(1);}
 });
-
-
+searchButton2.addEventListener('click', () => loadPage(1));
+searchInput2.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {loadPage(1);}
+});
 let currentPage = 1;
 let categories = {};
 
@@ -70,7 +74,7 @@ async function fetchLectures(page) {
     const midCategory = midCategorySelect.value;
     const sortType = sortTypeSelect.value;
     const level = levelSelect.value;
-    const searchQuery = searchInput.value.trim();
+    const searchQuery = searchInput.value.trim() || searchInput2.value.trim();;
     
     console.log(searchInput)
 
@@ -164,10 +168,7 @@ function renderLectures(lectures) {
             <div>
                 <img src="${lecture.thumbnail_url}">
                 <div class="info-container">
-                    <div class="name-container">
-                        <p class="lecture-name">${lecture.lecture_name}</p>
-                        <i class="fa fa-heart heart-icon"></i>
-                    </div>
+                    <p class="lecture-name">${lecture.lecture_name}</p>
                     <p class="teacher">${lecture.teacher}</p>
                     <p class="price">₩${lecture.price}</p>
                     <div class="review-container">
@@ -182,16 +183,6 @@ function renderLectures(lectures) {
         lectureListElement.appendChild(lectureElement);
     });
 
-    // 하트 아이콘 클릭 이벤트 추가
-    document.querySelectorAll('.heart-icon').forEach(icon => {
-        icon.addEventListener('click', (event) => {
-            console.log('Heart icon clicked');
-            event.stopPropagation();
-            const lectureId = icon.closest('.lecture-item').dataset.lectureId;
-            toggleWishlist(lectureId, icon);
-        });
-    });
-    
 
     document.querySelectorAll('.lecture-item').forEach(item => {
         item.addEventListener('click', () => {
@@ -253,14 +244,12 @@ function addEllipsis() {
 }
 
 async function loadPage(page) {
-    try {
-        const data = await fetchLectures(page);
-        renderLectures(data.results);
-        updatePagination(data);
-        currentPage = page;
-    } catch (error) {
-        console.error('Error loading lectures:', error);
-    }
+    
+    const data = await fetchLectures(page);
+    renderLectures(data.results);
+    updatePagination(data);
+    currentPage = page;
+    
 }
 
 

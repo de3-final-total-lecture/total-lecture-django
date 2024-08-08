@@ -28,12 +28,8 @@ from rest_framework.pagination import PageNumberPagination
 import json
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import LectureInfo, CategoryConn, Category, Users, WishList
-from .serializers import (
-    LectureInfoSerializer,
-    UserCreationSerializer,
-    UserListSerializer,
-)
+from .models import LectureInfo, CategoryConn, Category, Users, WishList, ReviewAnalysis
+from .serializers import LectureInfoSerializer, UserCreationSerializer, UserListSerializer, ReviewAnalysisSerializer
 from .forms import CustomSignUpForm, UserLoginForm, UserUpdateForm
 from .filters import LectureInfoFilter
 
@@ -46,13 +42,43 @@ class LectureDetailTemplateView(View):
         )
         categories = Category.objects.filter(category_id__in=category_ids)
 
-        return render(
-            request, "detail.html", {"lecture": lecture, "categories": categories}
-        )
+        review_analysis = ReviewAnalysis.objects.filter(lecture=lecture).first()
+        
+        review_analysis = ReviewAnalysis.objects.get(lecture=lecture)
+        total_count=review_analysis.positive_count + review_analysis.negative_count + review_analysis.neutral_count
+        positive_percentage = (review_analysis.positive_count / total_count) * 100 if total_count else 0
+        negative_percentage = (review_analysis.negative_count / total_count) * 100 if total_count else 0
+        neutral_percentage = (review_analysis.neutral_count / total_count) * 100 if total_count else 0
 
-
+        context = {
+            'lecture': lecture,
+            'categories': categories,
+            'review_analysis': review_analysis,
+            'positive_percentage': positive_percentage,
+            'negative_percentage': negative_percentage,
+            'neutral_percentage': neutral_percentage,
+        }
+        
+        return render(request, 'detail.html', context)
+      
 class LectureListPageView(TemplateView):
     template_name = "index.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        top_lectures = LectureInfo.objects.filter(platform_name='Inflearn').order_by('-review_count')[:10]
+        
+        tags = set()
+        for lecture in top_lectures:
+            tags.update(tag.strip() for tag in lecture.what_do_i_learn.split('|'))
+        tags = list(tags)[:11]
+        
+        context['tags_row1'] = tags[:6]
+        context['tags_row2'] = tags[6:]
+        
+        context['tags'] = list(tags)
+        return context
 
 
 class LecturePagination(PageNumberPagination):
@@ -150,8 +176,6 @@ class APIUserDetailView(generics.RetrieveAPIView):
     queryset = Users.objects.all()
     serializer_class = UserListSerializer
 
-
-# Web
 class SignUpView(View):
     def get(self, request):
         form = CustomSignUpForm()
@@ -176,8 +200,8 @@ class LoginView(LoginView):
             return reverse_lazy("lecture_list_page")
         return reverse_lazy("login")
 
-
 class UserDetailView(LoginRequiredMixin, DetailView):
+
     model = Users
     template_name = "user_detail/user_detail.html"
     context_object_name = "user"

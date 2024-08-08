@@ -5,11 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ lecture.lecture_name }} - 강의 상세 정보</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/detail_body.css' %}">
     <link rel="stylesheet" href="{% static 'css/base_header.css' %}">
-    <link rel="stylesheet" href="{% static 'css/review.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const positivePercentage = {{ positive_percentage|floatformat:2 }};
+        const negativePercentage = {{ negative_percentage|floatformat:2 }};
+        const neutralPercentage = {{ neutral_percentage|floatformat:2 }};
+        const avgSentiment = {{ review_analysis.avg_sentiment|floatformat:2 }};
+    </script>
+    <script src="{% static 'js/detail.js' %}"></script>
+    <script src="{% static 'js/all_lec.js' %}"></script>
+    <script src="{% static 'js/chart.js' %}"></script>
+    
 </head>
 <body>
     <header>
@@ -47,9 +57,9 @@
                         </li>
                     {% endfor %}
                 </ul>
-                <h1>{{ lecture.lecture_name }}</h1>
+                <h1>{{ lecture.lecture_name }} </h1>
                 <br>
-                <p class="teacher-item" data-teacher="{{ lecture.teacher|default:"-" }}">
+                <p class="teacher-item" data-teacher="{{ lecture.teacher }}">
                     <i class="fa-solid fa-user-tie"></i> : {{ lecture.teacher|default:"-" }}
                 </p>
                 <p class="lecture-rating" data-rating="{{ lecture.scope|default:"0" }}">
@@ -76,81 +86,84 @@
                 </div>
                 <div id="lecture-description" class="lecture-description">
                     <h2>강의 소개</h2>
-                    <br>
+                    <hr class="custom-hr"/> 
                     <p style="line-height: 1.8;">{{ lecture.description }}</p>
 
                 </div>
                 <br>
-                <div id="lecture-whatlearn" class="lecture-whatlearn" data-contents="{{ lecture.what_do_i_learn| default:""}}">
+                <div id="lecture-whatlearn" class="lecture-whatlearn" data-contents="{{ lecture.what_do_i_learn}}">
                     <h2>이런걸 배워요</h2>
-                    <br>
+                    <hr class="custom-hr"/>
                     <div id="what-do-i-learn-container"></div>
                     <!-- 리스트는 jQuery에서 동적으로 생성될 예정 -->
                 </div>
                 <br>
                 <div id="lecture-review" class="lecture-review">
-                    <h2>리뷰 분석 결과 데이터</h2>  
-                    <br> 
-                    <div class="review-container"> 
-                        <!-- 별점 평균 및 리뷰 수 -->
-                        <div class="review-summary">
-                            <h3>별점 평균</h3>
-                            <p>4.5 / 5</p>
-                            <h3>총 리뷰 수</h3>
-                            <p>120개</p>
-                        </div>
-                        
-                        <!-- 주요 키워드 -->
-                        <div class="review-keywords">
-                            <h3>주요 키워드</h3>
-                            <ul>
-                                <li>유익하다</li>
-                                <li>쉽다</li>
-                                <li>실용적</li>
-                                <li>친절하다</li>
-                                <li>전문적</li>
-                            </ul>
-                        </div>
-                        
-                        <!-- 감정 분석 -->
-                        <div class="review-sentiment">
-                            <h3>감정 분석</h3>
-                            <p>긍정적: 70%</p>
-                            <p>부정적: 20%</p>
-                            <p>중립적: 10%</p>
-                        </div>
+                    <h2>해당 강의의 리뷰 분석</h2>
+                    <hr class="custom-hr"/> 
+                    <div id="review-content">
+                        {% if review_analysis %}
+                            <div class="reivew-text">
+                                <h3>별점 평균</h3>
+                                <p>{{ lecture.scope }} / 5</p></br>
+                                <h3>총 리뷰 수</h3>
+                                <p>{{ lecture.review_count }}개</p></br>
+                            </div>
+                            <div class="avg-sentiment-container">
+                                <h3>강의평의 평균적인 분위기</h3>
+                                <div class="horizontal-bar-container">
+                                    <div class="horizontal-bar avg-sentiment"></div>
+                                </div>
+                                <div class="bar-label">
+                                    <p >부정적</p>
+                                    <p >긍정적</p>
+                                </div>
+                            </div></br>
+                            <!-- 감정 분석 -->
+                            <div class="review-percent">
+                                <h3>강의평의 비율</h3>
+                                <div class="chart-container">
+                                    <canvas id="sentimentChart"></canvas>
+                                </div>
+                            </div></br>
+                            
+                            <div class="review-summary">
+                                <h3>강의평 요약</h3>
+                                <p>{{ review_analysis.summary }}</p>
+                            </div>
+                        {% else %}
+                            <p>리뷰가 존재하지 않는 강의에요😅</p>
+                        {% endif %}
                     </div>
-                </div>
+                </div></br>
                 <br>
                 <div id="lecture-price-history" class="lecture-price-history">
                     <h2>가격 히스토리</h2>
-                    <br>
+                    <hr class="custom-hr"/>
                     <!-- 가격 히스토리를 여기에 표시 -->
                 </div>
             </div>
             <div class="sticky-container">
                 <div class="sticky-title">
-                    <h3>Inflearn</h3>
+                    <h3>{{lecture.platform_name}}</h3>
                 </div>
                 <div class="sticky-text">
                     <div class="info-discript">
+
                         <span class="price">{{ lecture.price|default:"-" }}원</span>
                         <div>
                             <i id="heart-icon" class="fa-regular fa-heart", data-lecture-id="{{ lecture.lecture_id }}"></i>
                             ({{ lecture.like_count |default:'0'}})
                         </div>
                     </div>
-    
-                    <br>
                     <a class="info"> 강의 레벨   </a> 
                     <a>{{lecture.level|default:"-"}}</a>
-                </br></br>
+                </br>
                     <a class="info"> 총 강의 시간   </a>
                     <a>{{lecture.lecture_time|default:"-"}}</a>
                 </div>
                 <div class="sticky-button">
                     <button id="num1" class="num1" data-lectureid="{{ lecture.lecture_id }}">수강하러 가기</button>
-                    <button class="num2">장바구니 담기</button>
                     <button class="num2">알림 설정하기</button>
                 </div>
             </div>
@@ -160,7 +173,6 @@
             </div>
         </div>
     </main>
-
     <script src="/static/js/detail.js"></script>
     <script src="{% static 'js/all_lec.js' %}"></script>
 
@@ -172,6 +184,6 @@
         {% endif %}
     </script>
     
-    
+
 </body>
 </html>
