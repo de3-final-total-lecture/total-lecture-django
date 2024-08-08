@@ -65,4 +65,8 @@ class UserLoginForm(AuthenticationForm):
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = Users
-        fields = ['user_name'] # 이후 선별하여 추가 예정
+        fields = ['user_name', 'github_url', 'linkedin_url'] # 이후 선별하여 추가 예정
+        widgets = {
+            'github_url': forms.URLInput(attrs={'required': False}),
+            'linkedin_url': forms.URLInput(attrs={'required': False}),
+        }

@@ -2,12 +2,22 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.views import LoginView
 from django.db.models import Q
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, DetailView, UpdateView, ListView, CreateView, DeleteView
+from django.views.generic import (
+    TemplateView,
+    DetailView,
+    UpdateView,
+    ListView,
+    CreateView,
+    DeleteView,
+)
 from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+from django.utils.decorators import method_decorator
 
 from rest_framework import generics
 from rest_framework import exceptions
@@ -15,6 +25,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
+import json
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import LectureInfo, CategoryConn, Category, Users, WishList, ReviewAnalysis
 from .serializers import LectureInfoSerializer, UserCreationSerializer, UserListSerializer, ReviewAnalysisSerializer
@@ -25,8 +37,11 @@ from .filters import LectureInfoFilter
 class LectureDetailTemplateView(View):
     def get(self, request, pk):
         lecture = get_object_or_404(LectureInfo, pk=pk)
-        category_ids = CategoryConn.objects.filter(lecture=lecture).values_list('category_id', flat=True)
+        category_ids = CategoryConn.objects.filter(lecture=lecture).values_list(
+            "category_id", flat=True
+        )
         categories = Category.objects.filter(category_id__in=category_ids)
+
         review_analysis = ReviewAnalysis.objects.filter(lecture=lecture).first()
         
         review_analysis = ReviewAnalysis.objects.get(lecture=lecture)
@@ -45,7 +60,6 @@ class LectureDetailTemplateView(View):
         }
         
         return render(request, 'detail.html', context)
-      
       
 class LectureListPageView(TemplateView):
     template_name = "index.html"
@@ -71,15 +85,17 @@ class LecturePagination(PageNumberPagination):
     page_size = 20  # 페이지당 항목 수
     page_size_query_param = "page_size"
     max_page_size = 100  # 최대 페이지당 항목 수
-    
+
     def get_paginated_response(self, data):
-        return Response({
-            'results': data,
-            'total_pages': self.page.paginator.num_pages,
-            'current_page': self.page.number,
-            'previous': self.get_previous_link(),
-            'next': self.get_next_link(),
-        })
+        return Response(
+            {
+                "results": data,
+                "total_pages": self.page.paginator.num_pages,
+                "current_page": self.page.number,
+                "previous": self.get_previous_link(),
+                "next": self.get_next_link(),
+            }
+        )
 
 
 class LectureListView(generics.ListAPIView):
@@ -111,15 +127,14 @@ class LectureListView(generics.ListAPIView):
         if level:
             queryset = queryset.filter(level=level)
 
-    
         return queryset
-    
-    
+
+
 class LectureDetailView(generics.RetrieveAPIView):
     queryset = LectureInfo.objects.all()
     serializer_class = LectureInfoSerializer
 
-    
+
 class CategoryListView(APIView):
     def get(self, request):
         categories = Category.objects.values(
@@ -147,8 +162,10 @@ class APIUserSignupView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-    
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
+
 
 class APIUserListView(generics.ListAPIView):
     queryset = Users.objects.all()
@@ -158,83 +175,104 @@ class APIUserListView(generics.ListAPIView):
 class APIUserDetailView(generics.RetrieveAPIView):
     queryset = Users.objects.all()
     serializer_class = UserListSerializer
-    
 
 class SignUpView(View):
     def get(self, request):
         form = CustomSignUpForm()
-        return render(request, 'registration/Signup.html', {'form': form})
+        return render(request, "registration/Signup.html", {"form": form})
 
     def post(self, request):
         form = CustomSignUpForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('login')
-        return render(request, 'registration/Signup.html', {'form': form})
+            form.save()
+            # login(request, user)
+            return redirect("login")
+        return render(request, "registration/Signup.html", {"form": form})
 
 
 class LoginView(LoginView):
     form_class = UserLoginForm
-    template_name = 'registration/Login.html'
+    template_name = "registration/Login.html"
 
     def get_success_url(self):
         user = self.request.user
         if user.is_authenticated:
-            return reverse_lazy('user_detail', kwargs={'pk': user.pk})
-        return reverse_lazy('login')
-    
+            return reverse_lazy("lecture_list_page")
+        return reverse_lazy("login")
 
-class UserDetailView(LoginRequiredMixin,DetailView):
+class UserDetailView(LoginRequiredMixin, DetailView):
+
     model = Users
-    template_name = 'user_detail/user_description.html'
-    context_object_name = 'user'
-    pk_url_kwarg = 'pk'
+    template_name = "user_detail/user_detail.html"
+    context_object_name = "user"
+    pk_url_kwarg = "pk"
 
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = Users
     form_class = UserUpdateForm
-    template_name = 'user_detail/user_update.html'
-    pk_url_kwarg = 'pk'
+    template_name = "user_detail/user_update.html"
+    pk_url_kwarg = "pk"
 
     def get_success_url(self):
-        return reverse_lazy('user_detail', kwargs={'pk': self.object.pk})
-    
+        return reverse_lazy("user_detail", kwargs={"pk": self.object.pk})
+
+
+class UserDeleteView(LoginRequiredMixin, DeleteView):
+    model = Users
+    template_name = "user_detail/user_detail.html"
+    pk_url_kwarg = "pk"
+
+    def get_success_url(self):
+        return reverse_lazy("lecture_list_page")
+
 
 class WishListView(LoginRequiredMixin, ListView):
     model = WishList
-    template_name = 'user_detail/user_wishlist.html'
-    context_object_name = 'wishlist_items'
+    template_name = "user_detail/user_wishlist.html"
+    context_object_name = "wishlist_items"
 
     def get_queryset(self):
-        user_id = Users.objects.get(pk=self.kwargs['pk'])
+        user_id = Users.objects.get(pk=self.kwargs["pk"])
         return WishList.objects.filter(user_id=user_id)
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['user_id'] = Users.objects.get(pk=self.kwargs['pk'])
+        context["user_id"] = Users.objects.get(pk=self.kwargs["pk"])
         return context
-    
 
-class WishListCreateView(LoginRequiredMixin, CreateView):
-    model = WishList
-    fields = ['lecture']
 
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        form.instance.lecture_name = form.instance.lecture.lecture_name
-        return super().form_valid(form)
+@method_decorator(csrf_exempt, name="dispatch")
+@method_decorator(require_POST, name="dispatch")
+class WishListCreateView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        data = json.loads(request.body)
+        lecture_id = data.get("lecture")
+        lecture = get_object_or_404(LectureInfo, pk=lecture_id)
+        user = self.request.user
 
-    def get_success_url(self):
-        return reverse_lazy('user_wishlist', kwargs={'pk': self.request.user.pk})
-    
-    def get_template_names(self):
-        if '/lecture/detail/' in self.request.path:
-            return ['lecture_detail_template.html']
-        return ['lecture_main_page_template.html']
+        # 중복 확인
+        if WishList.objects.filter(user=user, lecture=lecture).exists():
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": "This lecture is already in your wishlist.",
+                },
+                status=400,
+            )
 
-    '''
+        # 새로운 위시리스트 항목 생성
+        WishList.objects.create(
+            user=user, lecture=lecture, lecture_name=lecture.lecture_name
+        )
+        lecture.like_count += 1
+        lecture.save()
+
+        return JsonResponse(
+            {"success": True, "message": "Lecture added to wishlist successfully."}
+        )
+
+    """
     사용법
     {% block content %}
     <h2>Add to Wishlist</h2>
@@ -245,12 +283,41 @@ class WishListCreateView(LoginRequiredMixin, CreateView):
         <button type="submit">Add to Wishlist</button>
     </form>
     {% endblock %}
-    '''
+    """
 
-class WIshListDeleteView(LoginRequiredMixin, DeleteView):
-    model = WishList
-    fields = ['lecture']
-    
-    def get_success_url(self):
-        return reverse_lazy('user_wishlist', kwargs={'pk': self.request.user.pk})
-        
+
+@method_decorator(csrf_exempt, name="dispatch")
+class WishListRemoveView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        data = json.loads(request.body)
+        lecture_id = data.get("lecture")
+        lecture = get_object_or_404(LectureInfo, pk=lecture_id)
+        user = self.request.user
+
+        wishlist_item = WishList.objects.filter(user=user, lecture=lecture).first()
+        if wishlist_item:
+            wishlist_item.delete()
+            if lecture.like_count > 0:
+                lecture.like_count -= 1
+                lecture.save()
+            return JsonResponse(
+                {
+                    "success": True,
+                    "message": "Lecture removed from wishlist successfully.",
+                }
+            )
+        else:
+            return JsonResponse(
+                {"success": False, "message": "Lecture not found in wishlist."},
+                status=400,
+            )
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class WishListStatusView(LoginRequiredMixin, View):
+    def get(self, request, lecture_id, *args, **kwargs):
+        user = request.user
+        is_in_wishlist = WishList.objects.filter(
+            user=user, lecture_id=lecture_id
+        ).exists()
+        return JsonResponse({"is_in_wishlist": is_in_wishlist})

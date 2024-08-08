@@ -32,8 +32,8 @@ ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = "lecture.Users"
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'index'
-LOGOUT_REDIRECT_URL = 'index'
+LOGIN_REDIRECT_URL = 'lecture_list_page'
+LOGOUT_REDIRECT_URL = 'lecture_list_page'
 
 # Application definition
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
@@ -123,12 +123,12 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "en-us" # 'ko-kr'
 
-TIME_ZONE = "UTC"
+TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
 
 

@@ -54,13 +54,77 @@ $(document).ready(function() {
     var rating = parseFloat($('.lecture-rating').data('rating')); // rating 값을 data-attribute에서 가져옴
     $('#rating-stars').html(getStarRatingHtml(rating));
 
-    $('#heart-icon, #sticky-heart-icon, #header-heart-icon').on('click', function() {
-        $(this).toggleClass('liked');
-        if ($(this).hasClass('liked')) {
-            $(this).removeClass('fa-regular fa-heart').addClass('fa-solid fa-heart');
-        } else {
-            $(this).removeClass('fa-solid fa-heart').addClass('fa-regular fa-heart');
+    $('#heart-icon, #sticky-heart-icon, #header-heart-icon').each(function() {
+        const lectureId = $(this).data('lecture-id');
+        const userId = window.currentUserId;
+
+        console.log('Lecture ID:', lectureId); // 디버깅을 위한 로그
+
+        // 로그인 여부와 관계없이 기본적으로 빈 하트를 설정
+        $(this).removeClass('fa-solid fa-heart').addClass('fa-regular fa-heart');
+
+        if (userId && lectureId) {
+            // 사용자의 위시리스트에 강의가 있는지 확인
+            $.ajax({
+                url: `/wishlist/status/${lectureId}/`, // 실제 엔드포인트로 교체하세요.
+                method: 'GET',
+                success: function(response) {
+                    console.log('Response:', response); // 서버로부터의 응답을 로깅
+
+                    if (response.is_in_wishlist) {
+                        $(this).removeClass('fa-regular fa-heart').addClass('fa-solid fa-heart liked');
+                    } else {
+                        // 빈 하트를 명시적으로 설정
+                        $(this).removeClass('fa-solid fa-heart').addClass('fa-regular fa-heart');
+                    }
+                }.bind(this), // 현재 요소에 'this'를 바인딩
+                error: function(error) {
+                    console.error('위시리스트 상태 확인 중 오류 발생:', error);
+                }
+            });
         }
+    });
+
+    $('#heart-icon, #sticky-heart-icon, #header-heart-icon').on('click', function() {
+        const lectureId = $(this).data('lecture-id');
+        const userId = window.currentUserId;
+
+        if (!userId) {
+            alert('로그인이 필요한 서비스입니다.');
+            return;
+        }
+
+        const isLiked = $(this).hasClass('liked');
+        const url = isLiked 
+            ? `/user/${userId}/wishlist/remove/` 
+            : `/user/${userId}/wishlist/add/`;
+
+        // AJAX 요청을 통해 위시리스트 상태를 토글
+        $.ajax({
+            url: url,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken') // CSRF 토큰을 가져오는 함수 사용
+            },
+            data: JSON.stringify({ lecture: lectureId }),
+            success: function(response) {
+                if (response.success) {
+                    $(this).toggleClass('liked');
+                    if ($(this).hasClass('liked')) {
+                        $(this).removeClass('fa-regular fa-heart').addClass('fa-solid fa-heart');
+                    } else {
+                        $(this).removeClass('fa-solid fa-heart').addClass('fa-regular fa-heart');
+                    }
+                } else {
+                    alert(response.message || '위시리스트 업데이트 중 오류가 발생했습니다.');
+                }
+            }.bind(this), // 현재 요소에 'this'를 바인딩
+            error: function(error) {
+                console.error('위시리스트 상태 업데이트 중 오류 발생:', error);
+                alert('위시리스트 업데이트 중 오류가 발생했습니다.');
+            }
+        });
     });
 
     $('.price').each(function() {
@@ -104,3 +168,69 @@ function getStarRatingHtml(rating) {
     return starsHtml;
 }
 
+function toggleWishlist(lectureId, icon) {
+    const csrftoken = getCookie('csrftoken');
+    const userId = window.currentUserId;
+
+    if (!userId) {
+        alert('로그인이 필요한 서비스입니다.');
+        return;
+    }
+
+    const isAdding = !icon.classList.contains('active');
+    const url = isAdding 
+        ? `/user/${userId}/wishlist/add/`
+        : `/user/${userId}/wishlist/remove/`;
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({
+            lecture: lectureId
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else if (response.status === 403) {
+            throw new Error('로그인이 필요합니다.');
+        } else {
+            throw new Error(isAdding ? '위시리스트 추가 실패' : '위시리스트 제거 실패');
+        }
+    })
+    .then(data => {
+        if (data.success) {
+            icon.classList.toggle('active');
+        } else {
+            throw new Error(data.message || (isAdding ? '위시리스트 추가 실패' : '위시리스트 제거 실패'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        if (error.message === '로그인이 필요합니다.') {
+            alert('로그인이 필요한 서비스입니다.');
+            window.location.href = '/login/';
+        } else {
+            alert(isAdding ? '위시리스트 추가 중 오류가 발생했습니다.' : '위시리스트 제거 중 오류가 발생했습니다.');
+        }
+    });
+}
+
+// CSRF 토큰을 쿠키에서 가져오는 함수
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
