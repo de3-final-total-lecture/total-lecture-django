@@ -28,11 +28,10 @@ class LectureInfo(models.Model):
     scope = models.FloatField(blank=True, null=True)
     review_count = models.IntegerField(blank=True, null=True)
     lecture_time = models.CharField(max_length=255, blank=True, null=True)
-    like_count = models.IntegerField(null=True)
     thumbnail_url = models.CharField(max_length=511, blank=True, null=True)
     is_new = models.IntegerField(blank=True, null=True)
     is_recommend = models.IntegerField(blank=True, null=True)
-    like_count = models.IntegerField(default=0, null=True)
+    platform_name = models.CharField(max_length=255, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
@@ -56,7 +55,7 @@ class CategoryConn(models.Model):
 
 class LecturePriceHistory(models.Model):
     lecture_id = models.CharField(max_length=255, blank=True, null=True)
-    price = models.IntegerField(blank=True, null=True)
+    price = models.IntegerField(blank=True, null=True,default=0)
     created_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
@@ -65,9 +64,13 @@ class LecturePriceHistory(models.Model):
 
 
 class ReviewAnalysis(models.Model):
-    lecture_id = models.CharField(max_length=255, blank=True, null=True)
+    lecture = models.ForeignKey(LectureInfo, on_delete=models.CASCADE, db_column="lecture_id")
     lecture_name = models.CharField(max_length=255, blank=True, null=True)
-    result = models.CharField(max_length=1023, blank=True, null=True)
+    summary = models.CharField(max_length=1024, blank=True, null=True)
+    negative_count =  models.IntegerField(blank=True, null=True, default=0)
+    neutral_count = models.IntegerField(blank=True, null=True, default=0)
+    positive_count = models.IntegerField(blank=True, null=True, default=0)
+    avg_sentiment = models.FloatField(blank=True, null=True, default=0.0)
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 

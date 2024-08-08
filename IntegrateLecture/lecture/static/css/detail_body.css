@@ -1,4 +1,4 @@
-/*************************************************************/
+/******************************************************************************************************/
 /* 텝 섹션 */
 .tab-container {
     display: flex;
@@ -26,7 +26,7 @@
     border-bottom: 3px solid #424769;
 }
 
-/*************************************************************/
+/******************************************************************************************************/
 /* 강의 정보 요약 섹션 */
 .lecture-summary {
     display: flex;
@@ -35,7 +35,7 @@
     left: 0;
     flex-direction: row;
     width: 100%;
-    height: 45%;
+    height: 46%;
     background: #001123;
     /* background: linear-gradient(to right, #23273e, #646883); */
     padding: 20px 40px;
@@ -47,11 +47,9 @@
     display: flex;
     flex-direction: column;
     flex: 2;
-    margin-top : 20px;
     margin-left: 90px;
     margin-right: 50px;
-    margin-bottom: 80px;
-
+    justify-content: center; /* 수평 중앙 정렬 */
 }
 
 .summary-info h1 {
@@ -63,7 +61,6 @@
 
 .summary-info p {
     margin-bottom: 10px;
-    line-height: 1.5; /* 줄 간격 증가 */
     color: #fff; /* 하얀색 글씨 */
 }
 
@@ -76,7 +73,7 @@
     color: #fff; /* 하얀색 글씨 */
 }
 
-/*************************************************************/
+/******************************************************************************************************/
 /* 별점 아이콘 스타일 */
 .rating-stars {
     font-size: 1.0rem; /* 별 크기 조정 */
@@ -112,25 +109,25 @@
     background: #7d8ea4;
 }
 
-/*************************************************************/
+/******************************************************************************************************/
 /* 썸네일 섹션 */
 .lecture-thumbnail {
     flex: 1.2;
-    text-align: center;
+    vertical-align: center;
 }
 
 .lecture-thumbnail img {
-    width: 82%;
-    height: auto;
-    margin-top : 25px;
+    width: 370px; 
+    height: 240px; 
+    margin-top : 30px;
     margin-right: 40px;
     margin-bottom: 40px;
     border-radius: 10px;
-    box-shadow: 0px 0px 300px 40px #2f3a4e;
+    box-shadow: 0px 0px 300px 50px #36445e;
 }
 
 
-/*************************************************************/
+/******************************************************************************************************/
 /* 세부정보 + 스티키 카드 컨테이너*/
 .lecture-content {
     display: flex;
@@ -149,12 +146,21 @@
    
 }
 
+.custom-hr {
+    width: 100%;
+    border : 0px;
+    border-top: 4px solid #e84e6865;
+    border-radius: 10px;
+    margin:20px 0px;
+}
+
 .lecture-description, .lecture-review, .lecture-price-history, .lecture-whatlearn{
     margin: 20px 0px;
-    border-bottom: 4px solid #ededed;
+    border: none;
     padding-top: 30px;
     padding-bottom: 30px;
 }
+
 #what-do-i-learn-container .item {
     margin-bottom: 15px;
     padding: 15px;
@@ -164,11 +170,11 @@
 }
 
 
-/*************************************************************/
+/******************************************************************************************************/
 /* 따라오는 카드 정보 섹션 */
 .sticky-container {
     position: sticky; /* 표준 브라우저 */
-    width: 26%; 
+    width: 25%; 
     height: 440px;
     display: block;
     top: 50px;
@@ -178,7 +184,7 @@
 .sticky-title {
     background: #e84e68;
     padding: 10px;
-    border-radius: 15px 15px 0px 0px;
+    border-radius: 10px 10px 0px 0px;
     width: 100%; 
     height: 10%;
     display: block;
@@ -192,9 +198,10 @@
     border: 1.5px solid #e7e7e7;
     background-color: #f3f3f3;
     width: 100%; 
-    height: 43%;
+    height: 180px;
     display: block;
-    font-size : 15px
+    font-size : 15px;
+    gap: 10px;
     
 }
 
@@ -204,6 +211,7 @@
     justify-content: space-between; /* 공간 분배 */
     font-size: small; /* 글씨 크기 조정 */
     padding: 20px 10px;
+    box-sizing: border-box;
 }
 .price {
     font-size: 30px;
@@ -235,7 +243,7 @@
     flex-direction:column;
     padding : 20px;
     width: 100%;
-    height: 60%;
+    height: 200px;
     border: 1.5px solid #e7e7e7;
     background-color: #ffffff;
     border-radius: 0px 0px 8px 8px;
@@ -283,7 +291,7 @@
 }
 
 
-/*************************************************************/
+/******************************************************************************************************/
 /* 하단 고정 버튼 */
 .fixed-card {
     display: none;
@@ -331,5 +339,62 @@
 }
 
 
+/******************************************************************************************************/
+.review-container {
+    padding: 20px;
+}
 
+.review-text {
+    margin: 10px;
+}
 
+.avg-sentiment-container{
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    margin-top: 10px;
+}
+
+.horizontal-bar-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background-color: #e0e0e0;
+    height: 30px;
+    border-radius: 20px;
+    margin-top: 10px;
+    overflow: hidden; 
+}
+
+.horizontal-bar {
+    height: 100%;
+    text-align: start;
+    padding-left: 15px;
+    line-height: 30px;
+    color: white;
+    font-weight: bold;
+    border-radius: 20px;
+    background-color: #424769; 
+}
+
+.bar-label {
+    display: flex;
+    margin-top: 5px;
+    font-weight:400;
+    font-size: 0.9em;
+    justify-content: space-between; /* 공간 분배 */
+    color: #b3b3b3;
+}
+
+.review-percent {
+    margin-top: 10px;
+}
+
+.chart-container {
+    width: 50%;
+    margin: 20px auto;
+}
+
+.review-summary {
+    margin-top: 10px;
+}

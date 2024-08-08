@@ -1,6 +1,5 @@
 django
 django-filter
-drf-yasg
 pymysql
 django-environ
 mysqlclient

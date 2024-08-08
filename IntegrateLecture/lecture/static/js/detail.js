@@ -34,16 +34,22 @@ $(document).ready(function() {
     learns.forEach(function(learn) {
         learn_html += '<div class="item"> # ' + learn + '</div>';
     });
-    $('what-do-i-learn-container').html(learn_html);
+    $('.what-do-i-learn-container').html(learn_html);
 
     // tag 구분자 제거
     var tagData = $('.tags').data('contents');
-    var tags = tagData.split('|');
-    var tag_html = '';
-    tags.forEach(function(tag) {
-        tag_html += '<button class="tag-item" data-tag="{{ tag }}">' + '#'+tag + '</button>';
-    });
-    $('.tags').html(tag_html);
+    if (tagData && tagData.trim() !== '') {
+        var tags = tagData.split('|');
+        var tag_html = '';
+        tags.forEach(function(tag) {
+            if (tag.trim() !== '') { // 태그 값이 빈 문자열이 아닌 경우에만 처리
+                tag_html += '<button class="tag-item" data-tag="' + tag + '">' + '#' + tag + '</button>';
+            }
+        });
+        $('.tags').html(tag_html);
+    } else {
+        $('.tags').html(''); // 태그 값이 없으면 HTML을 비움
+    }
 
     var rating = parseFloat($('.lecture-rating').data('rating')); // rating 값을 data-attribute에서 가져옴
     $('#rating-stars').html(getStarRatingHtml(rating));
@@ -71,8 +77,6 @@ $(document).ready(function() {
     });
 
 });
-
-
 
 function getStarRatingHtml(rating) {
     const fullStar = '<i class="fa-solid fa-star"></i>';
