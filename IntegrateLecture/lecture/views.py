@@ -18,7 +18,6 @@ from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
-from django.conf import settings
 
 from rest_framework import generics
 from rest_framework import exceptions
@@ -151,6 +150,7 @@ class APIUserDetailView(generics.RetrieveAPIView):
     queryset = Users.objects.all()
     serializer_class = UserListSerializer
 
+
 # Web
 class SignUpView(View):
     def get(self, request):
@@ -162,30 +162,26 @@ class SignUpView(View):
         if form.is_valid():
             form.save()
             # login(request, user)
-            return redirect('login')
-        return render(request, 'registration/Signup.html', {'form': form})
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect(settings.LOGIN_REDIRECT_URL)
-        return super().dispatch(request, *args, **kwargs)
+            return redirect("login")
+        return render(request, "registration/Signup.html", {"form": form})
 
 
 class LoginView(LoginView):
     form_class = UserLoginForm
     template_name = "registration/Login.html"
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect(settings.LOGIN_REDIRECT_URL)
-        return super().dispatch(request, *args, **kwargs)
+    def get_success_url(self):
+        user = self.request.user
+        if user.is_authenticated:
+            return reverse_lazy("user_detail", kwargs={"pk": user.pk})
+        return reverse_lazy("login")
 
 
 class UserDetailView(LoginRequiredMixin, DetailView):
     model = Users
-    template_name = 'user_detail/user_detail.html'
-    context_object_name = 'user'
-    pk_url_kwarg = 'pk'
+    template_name = "user_detail/user_description.html"
+    context_object_name = "user"
+    pk_url_kwarg = "pk"
 
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
@@ -195,22 +191,13 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
     pk_url_kwarg = "pk"
 
     def get_success_url(self):
-        return reverse_lazy('user_detail', kwargs={'pk': self.object.pk})
-
-
-class UserDeleteView(LoginRequiredMixin, DeleteView):
-    model = Users
-    template_name = 'user_detail/user_detail.html'
-    pk_url_kwarg = 'pk'
-    
-    def get_success_url(self):
-        return reverse_lazy('lecture_list_page')
+        return reverse_lazy("user_detail", kwargs={"pk": self.object.pk})
 
 
 class WishListView(LoginRequiredMixin, ListView):
     model = WishList
-    template_name = 'user_detail.html'
-    context_object_name = 'wishlist_items'
+    template_name = "user_detail/user_wishlist.html"
+    context_object_name = "wishlist_items"
 
     def get_queryset(self):
         user_id = Users.objects.get(pk=self.kwargs["pk"])
@@ -245,10 +232,26 @@ class WishListCreateView(LoginRequiredMixin, View):
         WishList.objects.create(
             user=user, lecture=lecture, lecture_name=lecture.lecture_name
         )
+        lecture.like_count += 1
+        lecture.save()
 
         return JsonResponse(
             {"success": True, "message": "Lecture added to wishlist successfully."}
         )
+
+    """
+    사용법
+    {% block content %}
+    <h2>Add to Wishlist</h2>
+    <form method="post" action="{% url 'wishlist_add' %}>
+        {% csrf_token %}
+        <input type="hidden" name="lecture" value="{{ lecture.id }}">
+        {{ form.as_p }}
+        <button type="submit">Add to Wishlist</button>
+    </form>
+    {% endblock %}
+    """
+
 
 @method_decorator(csrf_exempt, name="dispatch")
 class WishListRemoveView(LoginRequiredMixin, View):
@@ -261,6 +264,9 @@ class WishListRemoveView(LoginRequiredMixin, View):
         wishlist_item = WishList.objects.filter(user=user, lecture=lecture).first()
         if wishlist_item:
             wishlist_item.delete()
+            if lecture.like_count > 0:
+                lecture.like_count -= 1
+                lecture.save()
             return JsonResponse(
                 {
                     "success": True,
@@ -272,3 +278,13 @@ class WishListRemoveView(LoginRequiredMixin, View):
                 {"success": False, "message": "Lecture not found in wishlist."},
                 status=400,
             )
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class WishListStatusView(LoginRequiredMixin, View):
+    def get(self, request, lecture_id, *args, **kwargs):
+        user = request.user
+        is_in_wishlist = WishList.objects.filter(
+            user=user, lecture_id=lecture_id
+        ).exists()
+        return JsonResponse({"is_in_wishlist": is_in_wishlist})

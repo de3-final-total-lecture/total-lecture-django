@@ -60,7 +60,7 @@
 
         <div class="lecture-content">
             <div class="lecture-detail">
-                 <!-- 탭 버튼 -->
+                <!-- 탭 버튼 -->
                 <div class="tab-container">
                     <button class="tab-button" data-target="lecture-description">강의 소개</button>
                     <button class="tab-button" data-target="lecture-whatlearn">이런걸 배워요</button>
@@ -128,10 +128,10 @@
                 <div class="sticky-text">
                     <div class="info-discript">
                         <span class="price">{{ lecture.price|default:"-" }}원</span>
-                        <a data-lecture-id="{{ lecture.id }}">
-                            <i id="heart-icon" class="fa-regular fa-heart"></i>
+                        <div>
+                            <i id="heart-icon" class="fa-regular fa-heart", data-lecture-id="{{ lecture.lecture_id }}"></i>
                             ({{ lecture.like_count |default:'0'}})
-                        </a>
+                        </div>
                     </div>
     
                     <br>
@@ -156,6 +156,14 @@
 
     <script src="/static/js/detail.js"></script>
     <script src="{% static 'js/all_lec.js' %}"></script>
+
+    <script>
+        {% if user.is_authenticated %}
+            window.currentUserId = "{{ user.user_id }}";
+        {% else %}
+            window.currentUserId = null;
+        {% endif %}
+    </script>
     
     
 </body>
