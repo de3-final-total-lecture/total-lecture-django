@@ -28,12 +28,12 @@
                     <form method="post" action="{% url 'logout' %}?next={{ request.path }}">
                         {% csrf_token %}
                         <button type="submit">Logout</button>
+                    </form>
                 {% else %}
                     <a href="{%url 'login' %}">Login</a>
                 {% endif %}
                 <button><a>회원가입</a></button>
             </div>
-
         </div>
     </header>
     <main>
@@ -77,6 +77,13 @@
             </div>
         </div>
     </main>
+    <script>
+        {% if user.is_authenticated %}
+            window.currentUserId = "{{ user.user_id }}";
+        {% else %}
+            window.currentUserId = null;
+        {% endif %}
+    </script>
     <script src="{% static 'js/all_lec.js' %}"></script>
 </body>
 </html>
