@@ -66,7 +66,7 @@ $(document).ready(function() {
         if (userId && lectureId) {
             // 사용자의 위시리스트에 강의가 있는지 확인
             $.ajax({
-                url: `/wishlist/status/${lectureId}/`, // 실제 엔드포인트로 교체하세요.
+                url: `/wishlist/status/${lectureId}/`,
                 method: 'GET',
                 success: function(response) {
                     console.log('Response:', response); // 서버로부터의 응답을 로깅
@@ -86,6 +86,7 @@ $(document).ready(function() {
     });
 
     $('#heart-icon, #sticky-heart-icon, #header-heart-icon').on('click', function() {
+        console.log(this)
         const lectureId = $(this).data('lecture-id');
         const userId = window.currentUserId;
 
@@ -109,6 +110,7 @@ $(document).ready(function() {
             },
             data: JSON.stringify({ lecture: lectureId }),
             success: function(response) {
+                console.log(response)
                 if (response.success) {
                     $(this).toggleClass('liked');
                     if ($(this).hasClass('liked')) {

@@ -56,7 +56,7 @@ class CategoryConn(models.Model):
 
 class LecturePriceHistory(models.Model):
     lecture_id = models.CharField(max_length=255, blank=True, null=True)
-    price = models.IntegerField(blank=True, null=True,default=0)
+    price = models.IntegerField(blank=True, null=True, default=0)
     created_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
@@ -65,10 +65,12 @@ class LecturePriceHistory(models.Model):
 
 
 class ReviewAnalysis(models.Model):
-    lecture_id = models.ForeignKey(LectureInfo, on_delete=models.CASCADE, db_column="lecture_id")
-    lecture_name = models.CharField(max_length=255, blank=True, null=True)
+    id = models.AutoField(primary_key=True)
+    lecture_id = models.ForeignKey(
+        LectureInfo, on_delete=models.CASCADE, db_column="lecture_id"
+    )
     summary = models.CharField(max_length=1024, blank=True, null=True)
-    negative_count =  models.IntegerField(blank=True, null=True, default=0)
+    negative_count = models.IntegerField(blank=True, null=True, default=0)
     neutral_count = models.IntegerField(blank=True, null=True, default=0)
     positive_count = models.IntegerField(blank=True, null=True, default=0)
     avg_sentiment = models.FloatField(blank=True, null=True, default=0.0)
@@ -134,10 +136,16 @@ class Users(AbstractBaseUser):
 
 
 class WishList(models.Model):
-    lecture = models.ForeignKey(LectureInfo, on_delete=models.CASCADE, related_name='wishlists', db_column='lecture_id', null=False)
+    lecture = models.ForeignKey(
+        LectureInfo,
+        on_delete=models.CASCADE,
+        related_name="wishlists",
+        db_column="lecture_id",
+        null=False,
+    )
     user = models.ForeignKey(
-            Users, on_delete=models.CASCADE, related_name="wishlists", db_column="user_id"
-        )
+        Users, on_delete=models.CASCADE, related_name="wishlists", db_column="user_id"
+    )
     lecture_name = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
