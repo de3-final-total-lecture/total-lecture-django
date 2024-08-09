@@ -18,7 +18,6 @@ from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
-from django.conf import settings
 
 from rest_framework import generics
 from rest_framework import exceptions
@@ -29,12 +28,8 @@ from rest_framework.pagination import PageNumberPagination
 import json
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import LectureInfo, CategoryConn, Category, Users, WishList
-from .serializers import (
-    LectureInfoSerializer,
-    UserCreationSerializer,
-    UserListSerializer,
-)
+from .models import LectureInfo, CategoryConn, Category, Users, WishList, ReviewAnalysis
+from .serializers import LectureInfoSerializer, UserCreationSerializer, UserListSerializer, ReviewAnalysisSerializer
 from .forms import CustomSignUpForm, UserLoginForm, UserUpdateForm
 from .filters import LectureInfoFilter
 
@@ -46,14 +41,42 @@ class LectureDetailTemplateView(View):
             "category_id", flat=True
         )
         categories = Category.objects.filter(category_id__in=category_ids)
+        
+        review_analysis = ReviewAnalysis.objects.filter(lecture_id=lecture).first()
+        total_count=review_analysis.positive_count + review_analysis.negative_count + review_analysis.neutral_count
+        positive_percentage = (review_analysis.positive_count / total_count) * 100 if total_count else 0
+        negative_percentage = (review_analysis.negative_count / total_count) * 100 if total_count else 0
+        neutral_percentage = (review_analysis.neutral_count / total_count) * 100 if total_count else 0
 
-        return render(
-            request, "detail.html", {"lecture": lecture, "categories": categories}
-        )
-
-
+        context = {
+            'lecture': lecture,
+            'categories': categories,
+            'review_analysis': review_analysis,
+            'positive_percentage': positive_percentage,
+            'negative_percentage': negative_percentage,
+            'neutral_percentage': neutral_percentage,
+        }
+        
+        return render(request, 'detail.html', context)
+      
 class LectureListPageView(TemplateView):
     template_name = "index.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        top_lectures = LectureInfo.objects.filter(platform_name='Inflearn').order_by('-review_count')[:10]
+        
+        tags = set()
+        for lecture in top_lectures:
+            tags.update(tag.strip() for tag in lecture.tag.split('|'))
+        tags = list(tags)[:11]
+        
+        context['tags_row1'] = tags[:6]
+        context['tags_row2'] = tags[6:]
+        
+        context['tags'] = list(tags)
+        return context
 
 
 class LecturePagination(PageNumberPagination):
@@ -151,7 +174,6 @@ class APIUserDetailView(generics.RetrieveAPIView):
     queryset = Users.objects.all()
     serializer_class = UserListSerializer
 
-# Web
 class SignUpView(View):
     def get(self, request):
         form = CustomSignUpForm()
@@ -162,30 +184,26 @@ class SignUpView(View):
         if form.is_valid():
             form.save()
             # login(request, user)
-            return redirect('login')
-        return render(request, 'registration/Signup.html', {'form': form})
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect(settings.LOGIN_REDIRECT_URL)
-        return super().dispatch(request, *args, **kwargs)
+            return redirect("login")
+        return render(request, "registration/Signup.html", {"form": form})
 
 
 class LoginView(LoginView):
     form_class = UserLoginForm
     template_name = "registration/Login.html"
 
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect(settings.LOGIN_REDIRECT_URL)
-        return super().dispatch(request, *args, **kwargs)
-
+    def get_success_url(self):
+        user = self.request.user
+        if user.is_authenticated:
+            return reverse_lazy("lecture_list_page")
+        return reverse_lazy("login")
 
 class UserDetailView(LoginRequiredMixin, DetailView):
+
     model = Users
-    template_name = 'user_detail/user_detail.html'
-    context_object_name = 'user'
-    pk_url_kwarg = 'pk'
+    template_name = "user_detail/user_detail.html"
+    context_object_name = "user"
+    pk_url_kwarg = "pk"
 
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
@@ -195,16 +213,16 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
     pk_url_kwarg = "pk"
 
     def get_success_url(self):
-        return reverse_lazy('user_detail', kwargs={'pk': self.object.pk})
+        return reverse_lazy("user_detail", kwargs={"pk": self.object.pk})
 
 
 class UserDeleteView(LoginRequiredMixin, DeleteView):
     model = Users
-    template_name = 'user_detail/user_detail.html'
-    pk_url_kwarg = 'pk'
-    
+    template_name = "user_detail/user_detail.html"
+    pk_url_kwarg = "pk"
+
     def get_success_url(self):
-        return reverse_lazy('lecture_list_page')
+        return reverse_lazy("lecture_list_page")
 
 
 class WishListView(LoginRequiredMixin, ListView):
@@ -245,6 +263,8 @@ class WishListCreateView(LoginRequiredMixin, View):
         WishList.objects.create(
             user=user, lecture=lecture, lecture_name=lecture.lecture_name
         )
+        lecture.like_count += 1
+        lecture.save()
 
         return JsonResponse(
             {"success": True, "message": "Lecture added to wishlist successfully."}
@@ -261,6 +281,9 @@ class WishListRemoveView(LoginRequiredMixin, View):
         wishlist_item = WishList.objects.filter(user=user, lecture=lecture).first()
         if wishlist_item:
             wishlist_item.delete()
+            if lecture.like_count > 0:
+                lecture.like_count -= 1
+                lecture.save()
             return JsonResponse(
                 {
                     "success": True,
@@ -272,3 +295,13 @@ class WishListRemoveView(LoginRequiredMixin, View):
                 {"success": False, "message": "Lecture not found in wishlist."},
                 status=400,
             )
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class WishListStatusView(LoginRequiredMixin, View):
+    def get(self, request, lecture_id, *args, **kwargs):
+        user = request.user
+        is_in_wishlist = WishList.objects.filter(
+            user=user, lecture_id=lecture_id
+        ).exists()
+        return JsonResponse({"is_in_wishlist": is_in_wishlist})

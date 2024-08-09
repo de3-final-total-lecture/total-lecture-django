@@ -4,6 +4,12 @@
     height: 300px;
     background-color: #c6dce6;
     text-align: center;
+    overflow:hidden;
+}
+
+.banner-container img {
+    width: 100%;
+    height: auto; /* 비율 유지 */
 }
 
 
@@ -12,6 +18,8 @@
     display: flex;
     flex-direction: row;
     width: 100%;
+    align-items: center;
+    justify-content: center; 
     margin: 10px 50px;
     padding: 10px 10px;
     box-sizing: border-box;
@@ -54,18 +62,80 @@
 
 /***********************************************************************************************/
 
-.tags-container {
+.search-container2 {
     display: flex;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
+    justify-content: center;
+    align-items: center;
+    min-width: 700px; /* 최소 너비 설정 */
+    transition: all 0.3s ease; /* 부드러운 애니메이션 추가 */
+    border: 1px solid #acadd9;
+    border-radius: 30px;
+    background-color: #e9e9f1;
+    margin-bottom: 30px;
 }
 
-.tag-item {
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-    margin: 5px;
+
+.search-container2 input {
+    width: 80%;
+    padding: 15px;
+    border: none;
+    margin-right: 10px;
+    background-color: transparent; 
+}
+
+
+.search-container2 button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 5px;
+}
+
+/***********************************************************************************************/
+
+.tags-container {
+    text-align: center;
+    padding: 20px;
+    margin-bottom: 50px;
+    margin-top: 30px;
+}
+
+.tags-container p {
+    margin-bottom: 15px;
+    font-weight: 400;
+}
+
+.tags-grid{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 100%;
+
+}
+
+.tags-row {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin: 10px auto; /* 중앙 정렬 */
+}
+
+.tag-box {
+    background-color: #656d9d;
+    border: none;
+    border-radius: 30px;
+    padding: 10px 20px;
+    text-align: center;
+    color: #fff;
+    font-size: 0.8em;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.tag-box:hover {
+    background-color: #7d8ea4;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 /*************************************************************************************************/
 .lecture-container {
@@ -73,6 +143,7 @@
     grid-template-columns: repeat(auto-fit, minmax(235px,235px));
     gap: 20px;
     width: 100%;
+    justify-content: center; /* 수평 중앙 정렬 */
 }
 
 .lecture-item {
@@ -92,32 +163,12 @@
 }
 
 .lecture-item img { 
-    width: 100%;
-    height: auto;
+    width: 220px;
+    height: 150px;
     border-radius: 5px;
     margin-bottom: 7px;
 }
 
-.name-container{
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 10px;
-    justify-content: space-between;
-}
-
-.heart-icon {
-    flex: 1;
-    position: absolute;
-    right: 5px;
-    color: #d9d9d9;   
-    font-size: 1.3em;
-    cursor: pointer;
-    transition: color 0.3s ease;
-}
-
-.heart-icon.active {
-    color: red; /* 클릭 시 빨간색 */
-}
 
 /*************************************************************************************************/
 
@@ -129,7 +180,6 @@
 }
 
 p.lecture-name {
-    flex: 2;
     font-size: 1.0em;
     font-weight: 500;
     display: -webkit-box;
@@ -139,7 +189,7 @@ p.lecture-name {
     text-overflow: ellipsis;
     line-height: 1.2em; /* 줄 간격 조절 */
     max-height: 2.4em; /* 두 줄의 높이 */
-    margin-right: 30px; 
+    margin-bottom: 10px;
 }
 
 p.teacher {

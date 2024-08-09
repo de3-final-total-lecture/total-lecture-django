@@ -6,8 +6,11 @@ const midCategorySelect = document.getElementById('midCategory');
 const sortTypeSelect = document.getElementById('sortType');
 const pageNumbersElement = document.getElementById('pageNumbers');
 const searchButton = document.getElementById('searchButton');
-const searchInput = document.getElementById('searchInput');
+const searchInput = document.getElementById('searchInput');  
+const searchButton2 = document.getElementById('searchButton2');
+const searchInput2 = document.getElementById('searchInput2'); 
 const levelSelect = document.getElementById('levelSelect');
+const tagBoxes = document.querySelectorAll('.tag-box');
 
 
 mainCategorySelect.addEventListener('change', (e) => {
@@ -19,15 +22,25 @@ sortTypeSelect.addEventListener('change', () => loadPage(1));
 levelSelect.addEventListener('change', () => loadPage(1));
 searchButton.addEventListener('click', () => loadPage(1));
 searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        loadPage(1);
-    }
+    if (e.key === 'Enter') {loadPage(1);}
 });
-
-
+searchButton2.addEventListener('click', () => loadPage(1));
+searchInput2.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {loadPage(1);}
+});
 let currentPage = 1;
 let categories = {};
+let sQuery = '';
 
+
+tagBoxes.forEach(tagBox => {
+    tagBox.addEventListener('click', () => {
+        const tag = tagBox.getAttribute('data-tag'); // 클릭한 태그의 값을 가져오기
+        console.log(tag);
+        sQuery = tag;
+        loadPage(1);
+    });
+});
 
 
 async function fetchCategories() {
@@ -65,94 +78,36 @@ function toggleSearch() {
     }
 }
 
-async function fetchLectures(page) {
+async function fetchLectures(page) {   
     const mainCategory = mainCategorySelect.value;
     const midCategory = midCategorySelect.value;
     const sortType = sortTypeSelect.value;
     const level = levelSelect.value;
-    const searchQuery = searchInput.value.trim();
-    
-    console.log(searchInput)
+    const searchQuery = searchInput.value.trim() || searchInput2.value.trim() || sQuery;
 
+    //api 호출용 url
     let url = `/api/lecture/?page=${page}`;
     if (mainCategory) url += `&main_category=${encodeURIComponent(mainCategory)}`;
     if (midCategory) url += `&mid_category=${encodeURIComponent(midCategory)}`;
-    if (sortType) url += `&sort_type=${sortType}`;
+    if (sortType) url += `&sort_type=${encodeURIComponent(sortType)}`;
     if (searchQuery) url += `&q=${encodeURIComponent(searchQuery)}`;
     if (level) url += `&level=${level}`;
+
+    //화면에 보여지는 url에도 변경사항 반영
+    let displayUrl = `/main/?page=${page}`;
+    if (mainCategory) displayUrl += `&main_category=${encodeURIComponent(mainCategory)}`;
+    if (midCategory) displayUrl += `&mid_category=${encodeURIComponent(midCategory)}`;
+    if (sortType) displayUrl += `&sort_type=${encodeURIComponent(sortType)}`;
+    if (searchQuery) displayUrl += `&q=${encodeURIComponent(searchQuery)}`;
+    if (level) displayUrl += `&level=${encodeURIComponent(level)}`;
+
+    window.history.replaceState({}, '', displayUrl);
 
     const response = await fetch(url);
     const data = await response.json();
     return data;
 }
 
-
-function toggleWishlist(lectureId, icon) {
-    const csrftoken = getCookie('csrftoken');
-    const userId = window.currentUserId;
-
-    if (!userId) {
-        alert('로그인이 필요한 서비스입니다.');
-        return;
-    }
-
-    const isAdding = !icon.classList.contains('active');
-    const url = isAdding 
-        ? `/user/${userId}/wishlist/add/`
-        : `/user/${userId}/wishlist/remove/`;
-
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken
-        },
-        body: JSON.stringify({
-            lecture: lectureId
-        })
-    })
-    .then(response => {
-        if (response.ok) {
-            return response.json();
-        } else if (response.status === 403) {
-            throw new Error('로그인이 필요합니다.');
-        } else {
-            throw new Error(isAdding ? '위시리스트 추가 실패' : '위시리스트 제거 실패');
-        }
-    })
-    .then(data => {
-        if (data.success) {
-            icon.classList.toggle('active');
-        } else {
-            throw new Error(data.message || (isAdding ? '위시리스트 추가 실패' : '위시리스트 제거 실패'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        if (error.message === '로그인이 필요합니다.') {
-            alert('로그인이 필요한 서비스입니다.');
-            window.location.href = '/login/';
-        } else {
-            alert(isAdding ? '위시리스트 추가 중 오류가 발생했습니다.' : '위시리스트 제거 중 오류가 발생했습니다.');
-        }
-    });
-}
-
-// CSRF 토큰을 쿠키에서 가져오는 함수
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
 
 function renderLectures(lectures) {
     lectureListElement.innerHTML = '';
@@ -164,10 +119,7 @@ function renderLectures(lectures) {
             <div>
                 <img src="${lecture.thumbnail_url}">
                 <div class="info-container">
-                    <div class="name-container">
-                        <p class="lecture-name">${lecture.lecture_name}</p>
-                        <i class="fa fa-heart heart-icon"></i>
-                    </div>
+                    <p class="lecture-name">${lecture.lecture_name}</p>
                     <p class="teacher">${lecture.teacher}</p>
                     <p class="price">₩${lecture.price}</p>
                     <div class="review-container">
@@ -182,16 +134,6 @@ function renderLectures(lectures) {
         lectureListElement.appendChild(lectureElement);
     });
 
-    // 하트 아이콘 클릭 이벤트 추가
-    document.querySelectorAll('.heart-icon').forEach(icon => {
-        icon.addEventListener('click', (event) => {
-            console.log('Heart icon clicked');
-            event.stopPropagation();
-            const lectureId = icon.closest('.lecture-item').dataset.lectureId;
-            toggleWishlist(lectureId, icon);
-        });
-    });
-    
 
     document.querySelectorAll('.lecture-item').forEach(item => {
         item.addEventListener('click', () => {
@@ -253,14 +195,12 @@ function addEllipsis() {
 }
 
 async function loadPage(page) {
-    try {
-        const data = await fetchLectures(page);
-        renderLectures(data.results);
-        updatePagination(data);
-        currentPage = page;
-    } catch (error) {
-        console.error('Error loading lectures:', error);
-    }
+    
+    const data = await fetchLectures(page);
+    renderLectures(data.results);
+    updatePagination(data);
+    currentPage = page;
+    
 }
 
 
