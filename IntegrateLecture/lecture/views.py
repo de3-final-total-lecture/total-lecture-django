@@ -41,10 +41,8 @@ class LectureDetailTemplateView(View):
             "category_id", flat=True
         )
         categories = Category.objects.filter(category_id__in=category_ids)
-
-        review_analysis = ReviewAnalysis.objects.filter(lecture=lecture).first()
         
-        review_analysis = ReviewAnalysis.objects.get(lecture=lecture)
+        review_analysis = ReviewAnalysis.objects.filter(lecture_id=lecture).first()
         total_count=review_analysis.positive_count + review_analysis.negative_count + review_analysis.neutral_count
         positive_percentage = (review_analysis.positive_count / total_count) * 100 if total_count else 0
         negative_percentage = (review_analysis.negative_count / total_count) * 100 if total_count else 0
@@ -71,7 +69,7 @@ class LectureListPageView(TemplateView):
         
         tags = set()
         for lecture in top_lectures:
-            tags.update(tag.strip() for tag in lecture.what_do_i_learn.split('|'))
+            tags.update(tag.strip() for tag in lecture.tag.split('|'))
         tags = list(tags)[:11]
         
         context['tags_row1'] = tags[:6]

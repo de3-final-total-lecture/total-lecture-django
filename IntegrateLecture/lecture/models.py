@@ -65,7 +65,7 @@ class LecturePriceHistory(models.Model):
 
 
 class ReviewAnalysis(models.Model):
-    lecture = models.ForeignKey(LectureInfo, on_delete=models.CASCADE, db_column="lecture_id")
+    lecture_id = models.ForeignKey(LectureInfo, on_delete=models.CASCADE, db_column="lecture_id")
     lecture_name = models.CharField(max_length=255, blank=True, null=True)
     summary = models.CharField(max_length=1024, blank=True, null=True)
     negative_count =  models.IntegerField(blank=True, null=True, default=0)
