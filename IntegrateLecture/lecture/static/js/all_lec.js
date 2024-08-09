@@ -5,13 +5,12 @@ const mainCategorySelect = document.getElementById('mainCategory');
 const midCategorySelect = document.getElementById('midCategory');
 const sortTypeSelect = document.getElementById('sortType');
 const pageNumbersElement = document.getElementById('pageNumbers');
-
 const searchButton = document.getElementById('searchButton');
 const searchInput = document.getElementById('searchInput');  
 const searchButton2 = document.getElementById('searchButton2');
 const searchInput2 = document.getElementById('searchInput2'); 
-
 const levelSelect = document.getElementById('levelSelect');
+const tagBoxes = document.querySelectorAll('.tag-box');
 
 
 mainCategorySelect.addEventListener('change', (e) => {
@@ -31,7 +30,17 @@ searchInput2.addEventListener('keypress', (e) => {
 });
 let currentPage = 1;
 let categories = {};
+let sQuery = '';
 
+
+tagBoxes.forEach(tagBox => {
+    tagBox.addEventListener('click', () => {
+        const tag = tagBox.getAttribute('data-tag'); // 클릭한 태그의 값을 가져오기
+        console.log(tag);
+        sQuery = tag;
+        loadPage(1);
+    });
+});
 
 
 async function fetchCategories() {
@@ -69,26 +78,36 @@ function toggleSearch() {
     }
 }
 
-async function fetchLectures(page) {
+async function fetchLectures(page) {   
     const mainCategory = mainCategorySelect.value;
     const midCategory = midCategorySelect.value;
     const sortType = sortTypeSelect.value;
     const level = levelSelect.value;
-    const searchQuery = searchInput.value.trim() || searchInput2.value.trim();;
-    
-    console.log(searchInput)
+    const searchQuery = searchInput.value.trim() || searchInput2.value.trim() || sQuery;
 
+    //api 호출용 url
     let url = `/api/lecture/?page=${page}`;
     if (mainCategory) url += `&main_category=${encodeURIComponent(mainCategory)}`;
     if (midCategory) url += `&mid_category=${encodeURIComponent(midCategory)}`;
-    if (sortType) url += `&sort_type=${sortType}`;
+    if (sortType) url += `&sort_type=${encodeURIComponent(sortType)}`;
     if (searchQuery) url += `&q=${encodeURIComponent(searchQuery)}`;
     if (level) url += `&level=${level}`;
+
+    //화면에 보여지는 url에도 변경사항 반영
+    let displayUrl = `/main/?page=${page}`;
+    if (mainCategory) displayUrl += `&main_category=${encodeURIComponent(mainCategory)}`;
+    if (midCategory) displayUrl += `&mid_category=${encodeURIComponent(midCategory)}`;
+    if (sortType) displayUrl += `&sort_type=${encodeURIComponent(sortType)}`;
+    if (searchQuery) displayUrl += `&q=${encodeURIComponent(searchQuery)}`;
+    if (level) displayUrl += `&level=${encodeURIComponent(level)}`;
+
+    window.history.replaceState({}, '', displayUrl);
 
     const response = await fetch(url);
     const data = await response.json();
     return data;
 }
+
 
 function renderLectures(lectures) {
     lectureListElement.innerHTML = '';
