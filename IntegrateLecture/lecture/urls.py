@@ -22,11 +22,7 @@ urlpatterns = [
     path('user/<int:pk>/delete/', UserDeleteView.as_view(), name='user_delete'),
     path('user/<int:pk>/wishlist/', WishListView.as_view(), name='user_wishlist'),
     path('user/<int:pk>/wishlist/add/', WishListCreateView.as_view(), name='wishlist_add'),
-    path(
-        "user/<int:pk>/wishlist/remove/",
-        WishListRemoveView.as_view(),
-        name="wishlist_remove",
-    ),
+    path("user/<int:pk>/wishlist/remove/", WishListRemoveView.as_view(), name="wishlist_remove"),
 
     path('api/signup/', APIUserSignupView.as_view(), name='user_signup_api'),
     path('api/users/', APIUserListView.as_view(), name='user_list_api'),

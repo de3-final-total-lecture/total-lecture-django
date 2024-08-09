@@ -50,7 +50,9 @@ class CustomSignUpForm(forms.ModelForm):
             skills[self.cleaned_data['skill_1']] = 4
         if self.cleaned_data.get('skill_2'):
             skills[self.cleaned_data['skill_2']] = 4
-            
+        
+        # sorted_skills = dict(sorted(skills.items(), key=lambda item: item[1], reverse=True))
+        
         user.skills = skills
         if commit:
             user.save()

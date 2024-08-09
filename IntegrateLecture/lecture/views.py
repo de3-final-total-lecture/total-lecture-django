@@ -209,16 +209,16 @@ class UserDeleteView(LoginRequiredMixin, DeleteView):
 
 class WishListView(LoginRequiredMixin, ListView):
     model = WishList
-    template_name = 'user_detail.html'
-    context_object_name = 'wishlist_items'
+    template_name = 'wishlist/wishlist_list.html'
+    context_object_name = 'wishlist'
 
     def get_queryset(self):
-        user_id = Users.objects.get(pk=self.kwargs["pk"])
-        return WishList.objects.filter(user_id=user_id)
-
+        queryset = WishList.objects.filter(user=self.request.user).select_related('lecture')
+        return queryset
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["user_id"] = Users.objects.get(pk=self.kwargs["pk"])
+        context['user'] = self.request.user
         return context
 
 
@@ -250,7 +250,7 @@ class WishListCreateView(LoginRequiredMixin, View):
             {"success": True, "message": "Lecture added to wishlist successfully."}
         )
 
-@method_decorator(csrf_exempt, name="dispatch")
+# @method_decorator(csrf_exempt, name="dispatch")
 class WishListRemoveView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)

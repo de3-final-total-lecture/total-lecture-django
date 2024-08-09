@@ -120,17 +120,10 @@ class Users(AbstractBaseUser):
         return f"{self.user_name} ({self.user_email})"
 
 
-#     def increment_skill(self, skill, increment_value=8):
-#         self.skills[skill] = self.skills.get(skill, 0) + increment_value
-#         self.save()
-
-#     def get_top_skills(self, n=3):
-#         sorted_skills = sorted(self.skills.items(), key=lambda x: x[1], reverse=True)
-#         return [skill[0] for skill in sorted_skills[:n]]
-
-
 class WishList(models.Model):
-    lecture = models.ForeignKey(LectureInfo, on_delete=models.CASCADE, related_name='wishlists', db_column='lecture_id', null=False)
+    lecture = models.ForeignKey(
+        LectureInfo, on_delete=models.CASCADE, related_name='wishlists', db_column='lecture_id', null=False
+        )
     user = models.ForeignKey(
             Users, on_delete=models.CASCADE, related_name="wishlists", db_column="user_id"
         )
