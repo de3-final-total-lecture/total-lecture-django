@@ -66,12 +66,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    min-width: 600px; /* 최소 너비 설정 */
+    min-width: 700px; /* 최소 너비 설정 */
     transition: all 0.3s ease; /* 부드러운 애니메이션 추가 */
     border: 1px solid #acadd9;
     border-radius: 30px;
     background-color: #e9e9f1;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 }
 
 
@@ -98,11 +98,11 @@
     text-align: center;
     padding: 20px;
     margin-bottom: 50px;
+    margin-top: 30px;
 }
 
 .tags-container p {
     margin-bottom: 15px;
-    font-size: 1.5em;
     font-weight: 400;
 }
 
@@ -110,7 +110,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    max-width: 100%; /* 원하는 최대 너비 설정 */
+    max-width: 100%;
 
 }
 
@@ -122,13 +122,13 @@
 }
 
 .tag-box {
-    background-color: #545a82;
+    background-color: #656d9d;
     border: none;
     border-radius: 30px;
     padding: 10px 20px;
     text-align: center;
     color: #fff;
-    font-size: 0.9em;
+    font-size: 0.8em;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: background-color 0.3s, box-shadow 0.3s;
 }

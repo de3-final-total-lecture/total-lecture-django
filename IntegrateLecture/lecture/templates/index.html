@@ -75,12 +75,12 @@
                 <div class="tags-grid">
                     <div class="tags-row">
                         {% for tag in tags_row1 %}
-                            <div class="tag-box"># {{ tag }}</div>
+                            <div class="tag-box" data-tag="{{ tag }}"># {{ tag }}</div>
                         {% endfor %}
                     </div>
                     <div class="tags-row">
                         {% for tag in tags_row2 %}
-                            <div class="tag-box"># {{ tag }}</div>
+                            <div class="tag-box" data-tag="{{ tag }}"># {{ tag }}</div>
                         {% endfor %}
                     </div>
                 </div>
