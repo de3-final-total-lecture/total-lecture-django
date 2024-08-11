@@ -44,14 +44,12 @@ class CustomSignUpForm(forms.ModelForm):
         user.set_password(self.cleaned_data["password_1"])
         
         skills = {
-            self.cleaned_data['language']: 8
+            self.cleaned_data['language']: [8, 1, 0]
         }
         if self.cleaned_data.get('skill_1'):
-            skills[self.cleaned_data['skill_1']] = 4
+            skills[self.cleaned_data['skill_1']] = [4, 1, 0]
         if self.cleaned_data.get('skill_2'):
-            skills[self.cleaned_data['skill_2']] = 4
-        
-        # sorted_skills = dict(sorted(skills.items(), key=lambda item: item[1], reverse=True))
+            skills[self.cleaned_data['skill_2']] = [4, 1, 0]
         
         user.skills = skills
         if commit:

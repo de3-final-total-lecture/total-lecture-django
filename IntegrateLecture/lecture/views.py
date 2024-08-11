@@ -58,7 +58,9 @@ class LectureDetailTemplateView(View):
         }
         
         return render(request, 'detail.html', context)
-      
+
+
+
 class LectureListPageView(TemplateView):
     template_name = "index.html"
     
@@ -174,6 +176,7 @@ class APIUserDetailView(generics.RetrieveAPIView):
     queryset = Users.objects.all()
     serializer_class = UserListSerializer
 
+
 class SignUpView(View):
     def get(self, request):
         form = CustomSignUpForm()
@@ -197,6 +200,7 @@ class LoginView(LoginView):
         if user.is_authenticated:
             return reverse_lazy("lecture_list_page")
         return reverse_lazy("login")
+
 
 class UserDetailView(LoginRequiredMixin, DetailView):
 
@@ -270,6 +274,7 @@ class WishListCreateView(LoginRequiredMixin, View):
             {"success": True, "message": "Lecture added to wishlist successfully."}
         )
 
+
 # @method_decorator(csrf_exempt, name="dispatch")
 class WishListRemoveView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
@@ -305,3 +310,33 @@ class WishListStatusView(LoginRequiredMixin, View):
             user=user, lecture_id=lecture_id
         ).exists()
         return JsonResponse({"is_in_wishlist": is_in_wishlist})
+
+
+class ClickEventView(LoginRequiredMixin, View):
+    def post(self, request):
+        lecture_id = request.POST.get('lecture_id')
+        user_id = request.POST.get('user_id')
+
+        lecture = get_object_or_404(LectureInfo, pk=lecture_id)
+        keyword = lecture.tag
+        
+        user = get_object_or_404(Users, pk=user_id)
+
+        skills = user.skills
+
+        if keyword not in skills:
+            skills[keyword] = [2, 1, 0] # keyword가 없을 때 초기 값 설정
+
+        else:
+            skills[keyword][0] += 2
+            skills[keyword][1] += 0.2
+
+        user.skills = skills
+        user.save()
+
+        return JsonResponse({'message': 'Skills updated successfully!'})
+
+'''
+    사용법
+    class="lecture-item" data-lecture-id="{{ lecture.lecture_id }}"를 태그에 추가해야함
+'''
