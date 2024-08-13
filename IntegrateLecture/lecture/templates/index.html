@@ -11,6 +11,12 @@
     <link rel="stylesheet" href="{% static 'css/base_header.css' %}">
 </head>
 <body>
+    <script>
+        const userClickUrl = '{% url "user_click" %}';
+        const tagClickUrl = '{% url "tag_click" %}';
+        const searchUrl = '{% url "user_search" %}';
+        const csrfToken = '{{ csrf_token }}';
+    </script>
     <header>
         <div class="header-container">
             <div class="logo-container">
