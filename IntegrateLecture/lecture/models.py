@@ -18,7 +18,9 @@ class Category(models.Model):
 
 class LectureInfo(models.Model):
     lecture_id = models.CharField(primary_key=True, max_length=255)
+    lecture_url = models.CharField(max_length=511, blank=True, null=True)
     lecture_name = models.CharField(max_length=255, blank=True, null=True)
+    origin_price = models.IntegerField(blank=True, null=True)
     price = models.IntegerField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     what_do_i_learn = models.TextField(blank=True, null=True)
@@ -29,8 +31,8 @@ class LectureInfo(models.Model):
     review_count = models.IntegerField(blank=True, null=True)
     lecture_time = models.CharField(max_length=255, blank=True, null=True)
     thumbnail_url = models.CharField(max_length=511, blank=True, null=True)
-    is_new = models.IntegerField(blank=True, null=True)
-    is_recommend = models.IntegerField(blank=True, null=True)
+    is_new = models.BooleanField(blank=True, null=True)
+    is_recommend = models.BooleanField(blank=True, null=True)
     like_count = models.IntegerField(default=0, null=True)
     platform_name = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
@@ -55,6 +57,7 @@ class CategoryConn(models.Model):
 
 
 class LecturePriceHistory(models.Model):
+    id = models.AutoField(primary_key=True)
     lecture_id = models.CharField(max_length=255, blank=True, null=True)
     price = models.IntegerField(blank=True, null=True, default=0)
     created_at = models.DateTimeField(blank=True, null=True)
@@ -66,7 +69,9 @@ class LecturePriceHistory(models.Model):
 
 class ReviewAnalysis(models.Model):
     id = models.AutoField(primary_key=True)
-    lecture_id = models.ForeignKey(LectureInfo, on_delete=models.CASCADE, db_column="lecture_id")
+    lecture_id = models.ForeignKey(
+        LectureInfo, on_delete=models.CASCADE, db_column="lecture_id"
+    )
     summary = models.CharField(max_length=1024, blank=True, null=True)
     negative_count = models.IntegerField(blank=True, null=True, default=0)
     neutral_count = models.IntegerField(blank=True, null=True, default=0)
@@ -136,6 +141,7 @@ class WishList(models.Model):
         Users, on_delete=models.CASCADE, related_name="wishlists", db_column="user_id"
     )
     lecture_name = models.CharField(max_length=255, blank=True, null=True)
+    is_alarm = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -147,8 +153,6 @@ class WishList(models.Model):
         return f"{self.user.user_name}'s wishlist: {self.lecture_name}"
 
 
-#
-#
 # class AuthGroup(models.Model):
 #     name = models.CharField(unique=True, max_length=150)
 #

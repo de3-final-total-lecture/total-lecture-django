@@ -15,17 +15,25 @@
         const negativePercentage = {{ negative_percentage|floatformat:2 }};
         const neutralPercentage = {{ neutral_percentage|floatformat:2 }};
         const avgSentiment = {{ review_analysis.avg_sentiment|floatformat:2 }};
+        const priceHistory = {{ price_history }};
+        const priceHistoryDate = {{ price_history_date|safe }};
     </script>
+
     <script src="{% static 'js/detail.js' %}"></script>
     <script src="{% static 'js/all_lec.js' %}"></script>
     <script src="{% static 'js/chart.js' %}"></script>
+    <script src="{% static 'js/price_history_chart.js' %}"></script>
+
     
 </head>
 <body>
     <header>
         <div class="header-container">
             <div class="logo-container">
-                <p>사이트 로고</p>
+                <!-- 사이트 로고 -->
+                <a href="/main">
+                    <img src="https://github.com/user-attachments/assets/7c1bab45-252a-4764-868a-7e56e5370b2f" width="90" height="80"/>
+                </a>
             </div>
             <div class="search-container" id="searchContainer">
                 <input class="searchInput" type="text" placeholder="원하는 강의를 검색해보세요." id="searchInput">
@@ -35,13 +43,13 @@
             </div>
             <div class="icon-container" id="iconContainer">
                 {% if user.is_authenticated %}
-                    <form method="post" action="{% url 'logout' %}?next={{ request.path }}">
+                    <form method="post" action="{% url 'logout' %}?next={{ request.build_absolute_uri|urlencode }}">
                         {% csrf_token %}
                         <button type="submit">Logout</button>
                     </form>
                     <button><a href="{% url 'user_detail' pk=user.pk %}">내정보</a></button>  
                 {% else %}
-                    <button><a href="{% url 'login' %}">Login</a></button>
+                    <button><a href="{% url 'login' %}?next={{ request.build_absolute_uri|urlencode }}">Login</a></button>
                     <button><a href="{% url 'signup' %}">Signup</a></button>
                 {% endif %}
             </div>
@@ -94,7 +102,7 @@
                 <div id="lecture-whatlearn" class="lecture-whatlearn" data-contents="{{ lecture.what_do_i_learn}}">
                     <h2>이런걸 배워요</h2>
                     <hr class="custom-hr"/>
-                    <div id="what-do-i-learn-container"></div>
+                    <div id="what-do-i-learn-container"  data-contents="{{ lecture.what_do_i_learn }}"></div>
                     <!-- 리스트는 jQuery에서 동적으로 생성될 예정 -->
                 </div>
                 <br>
@@ -152,6 +160,7 @@
                     <h2>가격 히스토리</h2>
                     <hr class="custom-hr"/>
                     <!-- 가격 히스토리를 여기에 표시 -->
+                    <canvas id="priceHistoryChart" width="100%"></canvas>
                 </div>
             </div>
             <div class="sticky-container">
@@ -174,12 +183,13 @@
                     <a>{{lecture.lecture_time|default:"-"}}</a>
                 </div>
                 <div class="sticky-button">
-                    <button id="num1" class="num1" data-lectureid="{{ lecture.lecture_id }}">수강하러 가기</button>
-                    <button class="num2">알림 설정하기</button>
+                    <button class="num1" data-lectureid="{{ lecture.lecture_url }}">수강하러 가기</button>
+                    <button class="num2" data-lectureid="{{ lecture.lecture_id }}">알림 설정하기</button>
+                    <button class="num2 hidden" data-lectureid="{{ lecture.lecture_id }}">알림 해제하기</button>
                 </div>
             </div>
             <div class="fixed-card">
-                <button>수강하러 가기</button>
+                <button class="num1" data-lectureid="{{ lecture.lecture_url }}">수강하러 가기</button>
                 <button>강의 찜하기</button>
             </div>
         </div>

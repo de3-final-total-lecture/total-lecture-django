@@ -101,17 +101,45 @@ async function fetchLectures(page) {
     if (searchQuery) displayUrl += `&q=${encodeURIComponent(searchQuery)}`;
     if (level) displayUrl += `&level=${encodeURIComponent(level)}`;
 
-    window.history.replaceState({}, '', displayUrl);
+    window.history.pushState({}, null, displayUrl);
 
     const response = await fetch(url);
     const data = await response.json();
     return data;
 }
 
+function checkUrl(strUrl) {
+    let expUrl = /^http[s]?:\/\/([\S]{3,})/i;
+    return expUrl.test(strUrl);
+}
+
+function checkLectureData(lecture) {
+    if (!checkUrl(lecture.lecture_url) || !checkUrl(lecture.thumbnail_url))
+        return false;
+    if (lecture.platform_name !== "coursera") {
+        if (lecture.origin_price == null || lecture.price == null)
+            return false;
+    }
+    if (lecture.description == null || lecture.description === "")
+        return false;
+    if (lecture.what_do_i_learn == null || lecture.what_do_i_learn === "")
+        return false;
+    return true;
+}
 
 function renderLectures(lectures) {
     lectureListElement.innerHTML = '';
     lectures.forEach(lecture => {
+        if (!checkLectureData(lecture)) {
+            console.log(lecture.lecture_url + " " + checkUrl(lecture.lecture_url))
+            console.log(lecture.thumbnail_url + " " + checkUrl(lecture.thumbnail_url))
+            console.log(lecture.platform_name + " " + lecture.origin_price + " " + lecture.price)
+            console.log("description: " + lecture.description)
+            console.log("what do i learn: " + lecture.what_do_i_learn)
+            console.log(lecture.lecture_name + " was except from lecture list");
+            return;
+        }
+
         const lectureElement = document.createElement('div');
         lectureElement.classList.add('lecture-item');
         lectureElement.dataset.lectureId = lecture.lecture_id;
