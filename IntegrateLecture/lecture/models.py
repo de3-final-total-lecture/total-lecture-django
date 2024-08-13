@@ -18,7 +18,9 @@ class Category(models.Model):
 
 class LectureInfo(models.Model):
     lecture_id = models.CharField(primary_key=True, max_length=255)
+    lecture_url = models.CharField(max_length=511, blank=True, null=True)
     lecture_name = models.CharField(max_length=255, blank=True, null=True)
+    origin_price = models.IntegerField(blank=True, null=True)
     price = models.IntegerField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     what_do_i_learn = models.TextField(blank=True, null=True)
