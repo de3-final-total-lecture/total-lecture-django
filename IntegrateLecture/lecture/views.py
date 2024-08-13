@@ -45,6 +45,7 @@ from .serializers import (
 )
 from .forms import CustomSignUpForm, UserLoginForm, UserUpdateForm
 from .filters import LectureInfoFilter
+from .choices import ALL_CHOICES
 
 
 class LectureDetailTemplateView(View):
@@ -84,8 +85,8 @@ class LectureDetailTemplateView(View):
             "price_history_date": price_history_date,
 
         }
-
-        return render(request, "detail.html", context)
+        
+        return render(request, 'detail.html', context)
 
 
 class LectureListPageView(TemplateView):
@@ -264,16 +265,16 @@ class UserDeleteView(LoginRequiredMixin, DeleteView):
 
 class WishListView(LoginRequiredMixin, ListView):
     model = WishList
-    template_name = "user_detail/user_wishlist.html"
-    context_object_name = "wishlist_items"
+    template_name = 'wishlist/wishlist_list.html'
+    context_object_name = 'wishlist'
 
     def get_queryset(self):
-        user_id = Users.objects.get(pk=self.kwargs["pk"])
-        return WishList.objects.filter(user_id=user_id)
-
+        queryset = WishList.objects.filter(user=self.request.user).select_related('lecture')
+        return queryset
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["user_id"] = Users.objects.get(pk=self.kwargs["pk"])
+        context['user'] = self.request.user
         return context
 
 
@@ -307,21 +308,8 @@ class WishListCreateView(LoginRequiredMixin, View):
             {"success": True, "message": "Lecture added to wishlist successfully."}
         )
 
-    """
-    사용법
-    {% block content %}
-    <h2>Add to Wishlist</h2>
-    <form method="post" action="{% url 'wishlist_add' %}>
-        {% csrf_token %}
-        <input type="hidden" name="lecture" value="{{ lecture.id }}">
-        {{ form.as_p }}
-        <button type="submit">Add to Wishlist</button>
-    </form>
-    {% endblock %}
-    """
 
-
-@method_decorator(csrf_exempt, name="dispatch")
+# @method_decorator(csrf_exempt, name="dispatch")
 class WishListRemoveView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
@@ -358,6 +346,85 @@ class WishListStatusView(LoginRequiredMixin, View):
         return JsonResponse({"is_in_wishlist": is_in_wishlist})
 
 
+class ClickEventView(LoginRequiredMixin, View):
+    def post(self, request):
+        lecture_id = request.POST.get('lecture_id')
+        user_id = request.POST.get('user_id')
+
+        lecture = get_object_or_404(LectureInfo, pk=lecture_id)
+        keyword = lecture.tag
+        
+        user = get_object_or_404(Users, pk=user_id)
+
+        skills = user.skills
+
+        if keyword not in skills:
+            skills[keyword] = [2, 1, 0] # keyword가 없을 때 초기 값 설정
+
+        else:
+            skills[keyword][0] += 2
+            skills[keyword][1] += 0.2
+
+        user.skills = skills
+        user.save()
+
+        return JsonResponse({'message': 'Skills updated successfully!'})
+
+      
+class TagClickEventView(LoginRequiredMixin, View):
+    def post(self, request):
+        keyword = request.POST.get('tag_keyword')
+        keyword = keyword[0].upper() + keyword[1:].lower()
+        user_id = request.POST.get('user_id')
+        user = get_object_or_404(Users, pk=user_id)
+        
+        skills = user.skills
+        
+        if keyword in ALL_CHOICES:
+            for key in skills:
+                skills[key][1] *= 0.9
+                
+            if keyword in skills:
+                skills[keyword][0] += 3
+                skills[keyword][1] = 1
+
+            else:
+                skills[keyword] = [3, 1]
+
+            user.skills = skills
+            print(skills)
+            user.save()
+                
+            return JsonResponse({'message': 'Skills updated successfully!'})
+            
+
+class SearchEventView(LoginRequiredMixin, View):
+    def post(self, request):
+        keyword = request.POST.get('searchKeyword')
+        keyword = keyword[0].upper() + keyword[1:].lower()
+        print(keyword)
+        user_id = request.POST.get('user_id')
+        print(user_id)
+        user = get_object_or_404(Users, pk=user_id)
+        
+        skills = user.skills
+        if keyword in ALL_CHOICES:
+            for key in skills:
+                skills[key][1] *= 0.9
+            
+            if keyword in skills:
+                skills[keyword][0] += 4
+                skills[keyword][1] = 1
+            
+            else:
+                skills[keyword] = [4, 1]
+            
+            user.skills = skills
+            user.save()
+                
+            return JsonResponse({'message': 'Skills updated successfully!'})
+
+          
 @method_decorator(csrf_exempt, name="dispatch")
 class ToggleAlarmView(LoginRequiredMixin, View):
     def get(self, request, lecture_id, *args, **kwargs):

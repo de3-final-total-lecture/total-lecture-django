@@ -29,6 +29,9 @@ urlpatterns = [
         WishListStatusView.as_view(),
         name="wishlist_status",
     ),
+    path("user_click", ClickEventView.as_view(), name="user_click")
+    path("tag_click/", TagClickEventView.as_view(), name="tag_click"),
+    path("user_search/", SearchEventView.as_view(), name="user_search"),
     path(
         "wishlist/toggle_alarm/<str:lecture_id>/",
         ToggleAlarmView.as_view(),
