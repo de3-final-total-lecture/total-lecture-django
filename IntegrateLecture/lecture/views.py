@@ -56,40 +56,33 @@ class LectureDetailTemplateView(View):
         categories = Category.objects.filter(category_id__in=category_ids)
 
         review_analysis = ReviewAnalysis.objects.filter(lecture_id=lecture).first()
-        total_count = (
-            review_analysis.positive_count
-            + review_analysis.negative_count
-            + review_analysis.neutral_count
-        )
-        positive_percentage = (
-            (review_analysis.positive_count / total_count) * 100 if total_count else 0
-        )
-        negative_percentage = (
-            (review_analysis.negative_count / total_count) * 100 if total_count else 0
-        )
-        neutral_percentage = (
-            (review_analysis.neutral_count / total_count) * 100 if total_count else 0
-        )
-
-        price_history = LecturePriceHistory.objects.filter(
-            lecture_id=lecture.lecture_id
-        ).values_list("price", flat=True)
-        price_history_date = LecturePriceHistory.objects.filter(
-            lecture_id=lecture.lecture_id
-        ).values_list("created_at", flat=True)
-        price_history_date = [
-            entry.strftime("%Y-%m-%d") for entry in price_history_date
-        ]
+        
+        if(review_analysis):
+            total_count=review_analysis.positive_count + review_analysis.negative_count + review_analysis.neutral_count
+            positive_percentage = (review_analysis.positive_count / total_count) * 100 if total_count else 0
+            negative_percentage = (review_analysis.negative_count / total_count) * 100 if total_count else 0
+            neutral_percentage = (review_analysis.neutral_count / total_count) * 100 if total_count else 0
+        
+         price_history = LecturePriceHistory.objects.filter(
+             lecture_id=lecture.lecture_id
+         ).values_list("price", flat=True)
+         price_history_date = LecturePriceHistory.objects.filter(
+             lecture_id=lecture.lecture_id
+         ).values_list("created_at", flat=True)
+         price_history_date = [
+             entry.strftime("%Y-%m-%d") for entry in price_history_date
+         ]
 
         context = {
-            "lecture": lecture,
-            "categories": categories,
-            "review_analysis": review_analysis,
-            "positive_percentage": positive_percentage,
-            "negative_percentage": negative_percentage,
-            "neutral_percentage": neutral_percentage,
+            'lecture': lecture,
+            'categories': categories,
+            'review_analysis': review_analysis,
+            'positive_percentage': positive_percentage if review_analysis else None,
+            'negative_percentage': negative_percentage if review_analysis else None,
+            'neutral_percentage': neutral_percentage if review_analysis else None,
             "price_history": list(price_history),
             "price_history_date": price_history_date,
+
         }
 
         return render(request, "detail.html", context)
@@ -225,6 +218,7 @@ class SignUpView(View):
             # login(request, user)
             return redirect("login")
         return render(request, "registration/Signup.html", {"form": form})
+
 
 
 class LoginView(LoginView):
