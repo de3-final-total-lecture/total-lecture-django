@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('priceHistoryChart').getContext('2d');
-    console.log("hihihi")
+
 
     new Chart(ctx, {
         type: 'line',

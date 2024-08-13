@@ -28,7 +28,15 @@ from rest_framework.pagination import PageNumberPagination
 import json
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import LectureInfo, CategoryConn, Category, Users, WishList, ReviewAnalysis
+from .models import (
+    LectureInfo,
+    CategoryConn,
+    Category,
+    Users,
+    WishList,
+    ReviewAnalysis,
+    LecturePriceHistory,
+)
 from .serializers import (
     LectureInfoSerializer,
     UserCreationSerializer,
@@ -63,6 +71,16 @@ class LectureDetailTemplateView(View):
             (review_analysis.neutral_count / total_count) * 100 if total_count else 0
         )
 
+        price_history = LecturePriceHistory.objects.filter(
+            lecture_id=lecture.lecture_id
+        ).values_list("price", flat=True)
+        price_history_date = LecturePriceHistory.objects.filter(
+            lecture_id=lecture.lecture_id
+        ).values_list("created_at", flat=True)
+        price_history_date = [
+            entry.strftime("%Y-%m-%d") for entry in price_history_date
+        ]
+
         context = {
             "lecture": lecture,
             "categories": categories,
@@ -70,6 +88,8 @@ class LectureDetailTemplateView(View):
             "positive_percentage": positive_percentage,
             "negative_percentage": negative_percentage,
             "neutral_percentage": neutral_percentage,
+            "price_history": list(price_history),
+            "price_history_date": price_history_date,
         }
 
         return render(request, "detail.html", context)
