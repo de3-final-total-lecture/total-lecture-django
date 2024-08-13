@@ -29,8 +29,8 @@ class LectureInfo(models.Model):
     review_count = models.IntegerField(blank=True, null=True)
     lecture_time = models.CharField(max_length=255, blank=True, null=True)
     thumbnail_url = models.CharField(max_length=511, blank=True, null=True)
-    is_new = models.IntegerField(blank=True, null=True)
-    is_recommend = models.IntegerField(blank=True, null=True)
+    is_new = models.BooleanField(blank=True, null=True)
+    is_recommend = models.BooleanField(blank=True, null=True)
     like_count = models.IntegerField(default=0, null=True)
     platform_name = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
@@ -156,8 +156,6 @@ class WishList(models.Model):
         return f"{self.user.user_name}'s wishlist: {self.lecture_name}"
 
 
-#
-#
 # class AuthGroup(models.Model):
 #     name = models.CharField(unique=True, max_length=150)
 #

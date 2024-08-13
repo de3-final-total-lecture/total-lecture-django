@@ -101,7 +101,7 @@ async function fetchLectures(page) {
     if (searchQuery) displayUrl += `&q=${encodeURIComponent(searchQuery)}`;
     if (level) displayUrl += `&level=${encodeURIComponent(level)}`;
 
-    window.history.replaceState({}, '', displayUrl);
+    window.history.pushState({}, null, displayUrl);
 
     const response = await fetch(url);
     const data = await response.json();
