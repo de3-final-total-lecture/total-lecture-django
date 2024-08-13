@@ -234,6 +234,9 @@ class LoginView(LoginView):
     def get_success_url(self):
         user = self.request.user
         if user.is_authenticated:
+            next_url = self.request.GET.get('next')
+            if next_url:
+                return next_url
             return reverse_lazy("lecture_list_page")
         return reverse_lazy("login")
 
