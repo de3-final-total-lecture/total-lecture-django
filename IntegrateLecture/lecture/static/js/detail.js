@@ -1,5 +1,6 @@
 $(document).ready(function() {
-
+    $('.hidden').css('display', 'none');
+    
     $('.tab-button').click(function () {
         var target = $(this).data('target');
         var targetOffset = $('#' + target).offset().top - $('.tab-container').height();
@@ -30,11 +31,14 @@ $(document).ready(function() {
     // what_do_i_learn 구분자 제거
     var whatDoILearn = $('.lecture-whatlearn').data('contents');
     var learns = whatDoILearn.split('|');
+    console.log(learns);
     var learn_html = '';
     learns.forEach(function(learn) {
         learn_html += '<div class="item"> # ' + learn + '</div>';
+        console.log(learn_html);
     });
     $('#what-do-i-learn-container').html(learn_html);
+
 
     // tag 구분자 제거
     var tagData = $('.tags').data('contents');
@@ -86,7 +90,6 @@ $(document).ready(function() {
     });
 
     $('#heart-icon, #sticky-heart-icon, #header-heart-icon').on('click', function() {
-        console.log(this)
         const lectureId = $(this).data('lecture-id');
         const userId = window.currentUserId;
 
@@ -118,6 +121,7 @@ $(document).ready(function() {
                     } else {
                         $(this).removeClass('fa-solid fa-heart').addClass('fa-regular fa-heart');
                     }
+                    location.reload();
                 } else {
                     alert(response.message || '위시리스트 업데이트 중 오류가 발생했습니다.');
                 }
@@ -135,12 +139,82 @@ $(document).ready(function() {
         $(this).text(formattedPrice + '원');
     });
 
-    $(document).on('click', '.num1', function() {
-        var lectureId = $(this).data('lectureid');
-        var lectureURL = base62Decode(lectureId);
-
-        window.location.href = lectureURL;
+    $('.num1').on('click', function() {
+        const lectureUrl = $(this).data('lectureid');
+        if (lectureUrl) {
+            window.open(lectureUrl, '_blank'); // 새로운 탭에서 URL 열기
+        } else {
+            alert('강의 URL이 존재하지 않습니다.');
+        }
     });
+
+    $('.num2').each(function() {
+        const button = $(this);
+        const lectureId = button.data('lectureid');
+        const url = `/wishlist/toggle_alarm/${lectureId}/`;
+    
+        // 초기 상태 설정을 위한 GET 요청
+        $.ajax({
+            url: url,
+            method: 'GET',
+            success: function(response) {
+                if (response.is_alarm_activate) {
+                    button.text('알림 해제하기');
+                } else {
+                    button.text('알림 설정하기');
+                    // button.siblings('.num2').text('알림 설정하기').toggleClass('hidden');
+                }
+            },
+            error: function(error) {
+                console.error('초기 알람 상태를 가져오는 중 오류 발생:', error);
+            }
+        });
+    });
+
+    $('.num2').on('click', function() {
+        const lectureId = $(this).data('lectureid');
+        const userId = window.currentUserId;
+
+        if (!userId) {
+            alert('로그인이 필요한 서비스입니다.');
+            return;
+        }
+
+        const button = $(this);
+        const url = `/wishlist/toggle_alarm/${lectureId}/`;
+
+        // AJAX 요청을 통해 is_alarm 상태를 토글
+        $.ajax({
+            url: url,
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken') // CSRF 토큰을 가져오는 함수 사용
+            },
+            success: function(response) {
+                console.log(response)
+                if (response.success) {
+                    if (button.text() === '알림 해제하기') {
+                        // 알림 해제하기 상태일 때 알림 설정하기로 변경
+                        button.text('알림 설정하기');
+                        alert("알람 해제되었습니다.");
+                    } else {
+                        // 알림 설정하기 상태일 때 알림 해제하기로 변경
+                        button.text('알림 해제하기');
+                        button.siblings('.num2').text('알림 설정하기').toggleClass('hidden');
+                        alert("알람 설정이 완료되었습니다.");
+                    }
+                } else {
+                    alert(response.message || '알람 상태 변경 중 오류가 발생했습니다.');
+                }
+            },
+            error: function(error) {
+                console.error('알람 상태 변경 중 오류 발생:', error);
+                alert('찜한 강의만 알람 설정할 수 있습니다. 하트 버튼을 눌러주세요.');
+            }
+        });
+    });
+
+
 
 });
 

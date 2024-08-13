@@ -14,7 +14,10 @@
     <header>
         <div class="header-container">
             <div class="logo-container">
-                <p>사이트 로고</p>
+                <!-- 사이트 로고 -->
+                <a href="/main">
+                    <img src="https://github.com/user-attachments/assets/7c1bab45-252a-4764-868a-7e56e5370b2f" width="90" height="80"/>
+                </a>
             </div>
             <div class="search-container" id="searchContainer">
                 <input class="searchInput" type="text" placeholder="원하는 강의를 검색해보세요." id="searchInput">
@@ -25,13 +28,13 @@
             <div class="icon-container" id="iconContainer">
                 {% comment %} <button><i id="heart-icon" class="fa-regular fa-heart"></i></button> {% endcomment %}
                 {% if user.is_authenticated %}
-                    <form method="post" action="{% url 'logout' %}?next={{ request.path }}">
+                    <form method="post" action="{% url 'logout' %}?next={{ request.build_absolute_uri|urlencode }}">
                         {% csrf_token %}
                         <button type="submit">Logout</button>
                     </form>
                     <button><a href="{% url 'user_detail' pk=user.pk %}">내정보</a></button>  
                 {% else %}
-                    <button><a href="{% url 'login' %}">Login</a></button>
+                    <button><a href="{% url 'login' %}?next={{ request.build_absolute_uri|urlencode }}">Login</a></button>
                     <button><a href="{% url 'signup' %}">Signup</a></button>
                 {% endif %}
             </div>
