@@ -99,7 +99,7 @@
                 <div id="lecture-whatlearn" class="lecture-whatlearn" data-contents="{{ lecture.what_do_i_learn}}">
                     <h2>이런걸 배워요</h2>
                     <hr class="custom-hr"/>
-                    <div id="what-do-i-learn-container"></div>
+                    <div id="what-do-i-learn-container"  data-contents="{{ lecture.what_do_i_learn }}"></div>
                     <!-- 리스트는 jQuery에서 동적으로 생성될 예정 -->
                 </div>
                 <br>
@@ -180,12 +180,13 @@
                     <a>{{lecture.lecture_time|default:"-"}}</a>
                 </div>
                 <div class="sticky-button">
-                    <button id="num1" class="num1" data-lectureid="{{ lecture.lecture_id }}">수강하러 가기</button>
-                    <button class="num2">알림 설정하기</button>
+                    <button class="num1" data-lectureid="{{ lecture.lecture_url }}">수강하러 가기</button>
+                    <button class="num2" data-lectureid="{{ lecture.lecture_id }}">알림 설정하기</button>
+                    <button class="num2 hidden" data-lectureid="{{ lecture.lecture_id }}">알림 해제하기</button>
                 </div>
             </div>
             <div class="fixed-card">
-                <button>수강하러 가기</button>
+                <button class="num1" data-lectureid="{{ lecture.lecture_url }}">수강하러 가기</button>
                 <button>강의 찜하기</button>
             </div>
         </div>
