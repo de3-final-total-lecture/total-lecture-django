@@ -282,6 +282,10 @@
     transition: background 0.3s;
 }
 
+.hidden {
+    display: none;
+}
+
 
 .sticky-button .num1:hover {
     background: #00132e;
@@ -391,7 +395,7 @@
 }
 
 .chart-container {
-    width: 50%;
+    width: 40%;
     margin: 20px auto;
 }
 

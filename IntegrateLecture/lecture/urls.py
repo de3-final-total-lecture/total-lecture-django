@@ -33,8 +33,12 @@ urlpatterns = [
         WishListStatusView.as_view(),
         name="wishlist_status",
     ),
+    path(
+        "wishlist/toggle_alarm/<str:lecture_id>/",
+        ToggleAlarmView.as_view(),
+        name="toggle_alarm",
+    ),
     path("api/signup/", APIUserSignupView.as_view(), name="user_signup_api"),
     path("api/users/", APIUserListView.as_view(), name="user_list_api"),
     path("api/users/<str:pk>", APIUserDetailView.as_view(), name="user_detail_api"),
-
 ]
