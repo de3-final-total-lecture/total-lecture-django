@@ -28,8 +28,13 @@ from rest_framework.pagination import PageNumberPagination
 import json
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import LectureInfo, CategoryConn, Category, Users, WishList, ReviewAnalysis, LecturePriceHistory
-from .serializers import LectureInfoSerializer, UserCreationSerializer, UserListSerializer, ReviewAnalysisSerializer
+from .models import LectureInfo, CategoryConn, Category, Users, WishList, ReviewAnalysis
+from .serializers import (
+    LectureInfoSerializer,
+    UserCreationSerializer,
+    UserListSerializer,
+    ReviewAnalysisSerializer,
+)
 from .forms import CustomSignUpForm, UserLoginForm, UserUpdateForm
 from .filters import LectureInfoFilter
 
@@ -41,46 +46,54 @@ class LectureDetailTemplateView(View):
             "category_id", flat=True
         )
         categories = Category.objects.filter(category_id__in=category_ids)
-        
-        review_analysis = ReviewAnalysis.objects.filter(lecture_id=lecture).first()
-        total_count=review_analysis.positive_count + review_analysis.negative_count + review_analysis.neutral_count
-        positive_percentage = (review_analysis.positive_count / total_count) * 100 if total_count else 0
-        negative_percentage = (review_analysis.negative_count / total_count) * 100 if total_count else 0
-        neutral_percentage = (review_analysis.neutral_count / total_count) * 100 if total_count else 0
 
-        price_history = LecturePriceHistory.objects.filter(lecture_id=lecture.lecture_id).values_list('price', flat=True)
-        price_history_date = LecturePriceHistory.objects.filter(lecture_id=lecture.lecture_id).values_list('created_at', flat=True)
-        price_history_date = [entry.strftime('%Y-%m-%d') for entry in price_history_date]
+        review_analysis = ReviewAnalysis.objects.filter(lecture_id=lecture).first()
+        total_count = (
+            review_analysis.positive_count
+            + review_analysis.negative_count
+            + review_analysis.neutral_count
+        )
+        positive_percentage = (
+            (review_analysis.positive_count / total_count) * 100 if total_count else 0
+        )
+        negative_percentage = (
+            (review_analysis.negative_count / total_count) * 100 if total_count else 0
+        )
+        neutral_percentage = (
+            (review_analysis.neutral_count / total_count) * 100 if total_count else 0
+        )
+
         context = {
-            'lecture': lecture,
-            'categories': categories,
-            'review_analysis': review_analysis,
-            'positive_percentage': positive_percentage,
-            'negative_percentage': negative_percentage,
-            'neutral_percentage': neutral_percentage,
-            'price_history': list(price_history),
-            'price_history_date': price_history_date
+            "lecture": lecture,
+            "categories": categories,
+            "review_analysis": review_analysis,
+            "positive_percentage": positive_percentage,
+            "negative_percentage": negative_percentage,
+            "neutral_percentage": neutral_percentage,
         }
-        
-        return render(request, 'detail.html', context)
-      
+
+        return render(request, "detail.html", context)
+
+
 class LectureListPageView(TemplateView):
     template_name = "index.html"
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        top_lectures = LectureInfo.objects.filter(platform_name='Inflearn').order_by('-review_count')[:10]
-        
+
+        top_lectures = LectureInfo.objects.filter(platform_name="Inflearn").order_by(
+            "-review_count"
+        )[:10]
+
         tags = set()
         for lecture in top_lectures:
-            tags.update(tag.strip() for tag in lecture.tag.split('|'))
+            tags.update(tag.strip() for tag in lecture.tag.split("|"))
         tags = list(tags)[:11]
-        
-        context['tags_row1'] = tags[:6]
-        context['tags_row2'] = tags[6:]
-        
-        context['tags'] = list(tags)
+
+        context["tags_row1"] = tags[:6]
+        context["tags_row2"] = tags[6:]
+
+        context["tags"] = list(tags)
         return context
 
 
@@ -179,6 +192,7 @@ class APIUserDetailView(generics.RetrieveAPIView):
     queryset = Users.objects.all()
     serializer_class = UserListSerializer
 
+
 class SignUpView(View):
     def get(self, request):
         form = CustomSignUpForm()
@@ -202,6 +216,7 @@ class LoginView(LoginView):
         if user.is_authenticated:
             return reverse_lazy("lecture_list_page")
         return reverse_lazy("login")
+
 
 class UserDetailView(LoginRequiredMixin, DetailView):
 
@@ -324,3 +339,28 @@ class WishListStatusView(LoginRequiredMixin, View):
             user=user, lecture_id=lecture_id
         ).exists()
         return JsonResponse({"is_in_wishlist": is_in_wishlist})
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class ToggleAlarmView(LoginRequiredMixin, View):
+    def get(self, request, lecture_id, *args, **kwargs):
+        user = request.user
+        try:
+            is_alarm_activate = WishList.objects.get(
+                user=user, lecture_id=lecture_id
+            ).is_alarm
+            return JsonResponse({"is_alarm_activate": is_alarm_activate})
+        except:
+            JsonResponse({"is_alarm_activate": False})
+
+    def post(self, request, lecture_id, *args, **kwargs):
+        user = request.user
+        try:
+            wishlist_item = WishList.objects.get(user=user, lecture_id=lecture_id)
+            wishlist_item.is_alarm = not wishlist_item.is_alarm
+            wishlist_item.save()
+            return JsonResponse({"success": True, "is_alarm": wishlist_item.is_alarm})
+        except WishList.DoesNotExist:
+            return JsonResponse(
+                {"success": False, "message": "Wishlist item not found."}, status=404
+            )
