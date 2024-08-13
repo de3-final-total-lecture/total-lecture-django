@@ -7,7 +7,6 @@ from django.views.generic import (
     DetailView,
     UpdateView,
     ListView,
-    CreateView,
     DeleteView,
 )
 from django.views import View
@@ -16,6 +15,7 @@ from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 
@@ -26,7 +26,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 import json
-from django.views.decorators.csrf import csrf_exempt
+from functools import reduce
+import operator
 
 from .models import (
     LectureInfo,
@@ -39,8 +40,6 @@ from .models import (
 )
 from .serializers import (
     LectureInfoSerializer,
-    UserCreationSerializer,
-    UserListSerializer,
     ReviewAnalysisSerializer,
 )
 from .forms import CustomSignUpForm, UserLoginForm, UserUpdateForm
@@ -183,30 +182,6 @@ class CategoryListView(APIView):
 
 
 # User 관리
-# DRF-API
-class APIUserSignupView(generics.CreateAPIView):
-    serializer_class = UserCreationSerializer
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            serializer.data, status=status.HTTP_201_CREATED, headers=headers
-        )
-
-
-class APIUserListView(generics.ListAPIView):
-    queryset = Users.objects.all()
-    serializer_class = UserListSerializer
-
-
-class APIUserDetailView(generics.RetrieveAPIView):
-    queryset = Users.objects.all()
-    serializer_class = UserListSerializer
-
-
 class SignUpView(View):
     def get(self, request):
         form = CustomSignUpForm()
@@ -219,7 +194,6 @@ class SignUpView(View):
             # login(request, user)
             return redirect("login")
         return render(request, "registration/Signup.html", {"form": form})
-
 
 
 class LoginView(LoginView):
@@ -346,29 +320,64 @@ class WishListStatusView(LoginRequiredMixin, View):
         return JsonResponse({"is_in_wishlist": is_in_wishlist})
 
 
+class Recommend_lecture(LoginRequiredMixin, ListView):
+    context_object_name = 'recommend_lectures'
+    
+    def get_queryset(self):
+        user_id = self.kwargs['user_id']
+        user = get_object_or_404(Users, pk=user_id)
+        return self.recommend_lectures(user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_id = self.kwargs['user_id']
+        user = get_object_or_404(Users, pk=user_id)
+        context['user'] = user
+        return context
+
+    def get_top_skills(self, user):
+        skills = user.skills
+        
+        sorted_skills = sorted(skills.items(), key=lambda item: item[1][0] * item[1][1], reverse=True)
+        top_skills = [skill[0] for skill in sorted_skills[:3]]
+        return top_skills
+    
+    def recommend_lecture(self, user):
+        top_skills = self.get_top_skills(user)
+        
+        lectures = LectureInfo.objects.filter(
+            reduce(operator.or_, (Q(tag_icontains=skill) for skill in top_skills))
+        ).order_by('-is_recommend', '-scope')
+        
+        return lectures
+# 사용법
+# {% for lecture in recommend_lectures %}
+
+
 class ClickEventView(LoginRequiredMixin, View):
     def post(self, request):
-        lecture_id = request.POST.get('lecture_id')
+        keyword = request.POST.get('keyword')
+        keyword = keyword[0].upper() + keyword[1:].lower()
         user_id = request.POST.get('user_id')
 
-        lecture = get_object_or_404(LectureInfo, pk=lecture_id)
-        keyword = lecture.tag
-        
         user = get_object_or_404(Users, pk=user_id)
 
         skills = user.skills
+        if keyword in ALL_CHOICES:
+            for key in skills:
+                skills[key][1] *= 0.9
+                
+            if keyword in skills:
+                skills[keyword][0] += 2
+                skills[keyword][1] = 1
 
-        if keyword not in skills:
-            skills[keyword] = [2, 1, 0] # keyword가 없을 때 초기 값 설정
+            else:
+                skills[keyword] = [2, 1]
 
-        else:
-            skills[keyword][0] += 2
-            skills[keyword][1] += 0.2
+            user.skills = skills
+            user.save()
 
-        user.skills = skills
-        user.save()
-
-        return JsonResponse({'message': 'Skills updated successfully!'})
+            return JsonResponse({'message': 'Skills updated successfully!'})
 
       
 class TagClickEventView(LoginRequiredMixin, View):
@@ -392,7 +401,6 @@ class TagClickEventView(LoginRequiredMixin, View):
                 skills[keyword] = [3, 1]
 
             user.skills = skills
-            print(skills)
             user.save()
                 
             return JsonResponse({'message': 'Skills updated successfully!'})
@@ -402,9 +410,7 @@ class SearchEventView(LoginRequiredMixin, View):
     def post(self, request):
         keyword = request.POST.get('searchKeyword')
         keyword = keyword[0].upper() + keyword[1:].lower()
-        print(keyword)
         user_id = request.POST.get('user_id')
-        print(user_id)
         user = get_object_or_404(Users, pk=user_id)
         
         skills = user.skills

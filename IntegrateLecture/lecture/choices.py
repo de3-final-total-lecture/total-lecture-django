@@ -25,3 +25,11 @@ SKILL_CHOICES = [
     ("GCP", "GCP"), ("Azure", "Azure"), ("Git", "Git"), ("Linux", "Linux"),
     ("TDD", "TDD"), ("Embedded System", "Embedded System"), ("Computer Science", "Computer Science")
 ]
+
+ALL_CHOICES = ['Machine learning','Deep learning','Data science','Llm','Prompt engineering','Computer vision','Nlp','Pytorch','Tensorflow',
+    'Data engineering','Kafka','Spark','Airflow','Hadoop','Bigdata','Mongodb','Crawling','Web development','Spring',
+    'Node.js','React','Redis','Os','Network','Data structure','Algorithm','Dbms','Sql','Oracle',
+    'Postgresql','Android','Ios','Flutter','React native','Devops','Ci/cd','Msa','Terraform','Docker',
+    'Kubernetes','Iac','Cybersecurity','Reversing','Blockchain','Unity','Unreal','Cloud computing','Aws','Gcp',
+    'Azure','Git','Linux','Tdd','Embedded system','Computer science', "Python", "Java", "JavaScript", "Html/css", "Kotlin",
+    "C", "C++", "C#", "Mysql", "Golang", "Go", "Typescript", "Rust", "Swift"]

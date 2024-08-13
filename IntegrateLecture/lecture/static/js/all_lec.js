@@ -22,7 +22,24 @@ sortTypeSelect.addEventListener('change', () => loadPage(1));
 levelSelect.addEventListener('change', () => loadPage(1));
 searchButton.addEventListener('click', () => loadPage(1));
 searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {loadPage(1);}
+    if (e.key === 'Enter') {
+        const searchValue = searchInput.value.trim();
+
+        $.ajax({
+            url: searchUrl,
+            method: 'POST',
+            data: {
+                'searchKeyword': searchValue,
+                'user_id': window.currentUserId
+            },
+            success: function(response) {
+                console.log(response.message);
+            },
+            error: function(xhr, status, error) {
+                console.error(error);
+            }
+        });
+        loadPage(1);}
 });
 searchButton2.addEventListener('click', () => loadPage(1));
 searchInput2.addEventListener('keypress', (e) => {
@@ -243,3 +260,14 @@ nextPageButton.addEventListener('click', () => {
 });
 
 fetchCategories().then(() => loadPage(1));
+
+function getCSRFToken() {
+    return csrfToken;
+}
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", getCSRFToken());
+        }
+    }
+});
