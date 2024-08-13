@@ -28,13 +28,13 @@
             <div class="icon-container" id="iconContainer">
                 {% comment %} <button><i id="heart-icon" class="fa-regular fa-heart"></i></button> {% endcomment %}
                 {% if user.is_authenticated %}
-                    <form method="post" action="{% url 'logout' %}?next={{ request.path }}">
+                    <form method="post" action="{% url 'logout' %}?next={{ request.build_absolute_uri|urlencode }}">
                         {% csrf_token %}
                         <button type="submit">Logout</button>
                     </form>
                     <button><a href="{% url 'user_detail' pk=user.pk %}">내정보</a></button>  
                 {% else %}
-                    <button><a href="{% url 'login' %}">Login</a></button>
+                    <button><a href="{% url 'login' %}?next={{ request.build_absolute_uri|urlencode }}">Login</a></button>
                     <button><a href="{% url 'signup' %}">Signup</a></button>
                 {% endif %}
             </div>
