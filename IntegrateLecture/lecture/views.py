@@ -63,15 +63,15 @@ class LectureDetailTemplateView(View):
             negative_percentage = (review_analysis.negative_count / total_count) * 100 if total_count else 0
             neutral_percentage = (review_analysis.neutral_count / total_count) * 100 if total_count else 0
         
-         price_history = LecturePriceHistory.objects.filter(
-             lecture_id=lecture.lecture_id
-         ).values_list("price", flat=True)
-         price_history_date = LecturePriceHistory.objects.filter(
-             lecture_id=lecture.lecture_id
-         ).values_list("created_at", flat=True)
-         price_history_date = [
-             entry.strftime("%Y-%m-%d") for entry in price_history_date
-         ]
+        price_history = LecturePriceHistory.objects.filter(
+            lecture_id=lecture.lecture_id
+        ).values_list("price", flat=True)
+        price_history_date = LecturePriceHistory.objects.filter(
+            lecture_id=lecture.lecture_id
+        ).values_list("created_at", flat=True)
+        price_history_date = [
+            entry.strftime("%Y-%m-%d") for entry in price_history_date
+        ]
 
         context = {
             'lecture': lecture,
