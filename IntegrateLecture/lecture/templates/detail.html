@@ -14,18 +14,26 @@
         const positivePercentage = {{ positive_percentage|floatformat:2 }};
         const negativePercentage = {{ negative_percentage|floatformat:2 }};
         const neutralPercentage = {{ neutral_percentage|floatformat:2 }};
-        const avgSentiment = {{ review_analysis.avg_sentiment|floatformat:2 }};
+        const avgSentiment = {{ avg_sentiment|floatformat:2}};
+        const priceHistory = {{ price_history }};
+        const priceHistoryDate = {{ price_history_date|safe }};
     </script>
+
     <script src="{% static 'js/detail.js' %}"></script>
     <script src="{% static 'js/all_lec.js' %}"></script>
     <script src="{% static 'js/chart.js' %}"></script>
+    <script src="{% static 'js/price_history_chart.js' %}"></script>
+
     
 </head>
 <body>
     <header>
         <div class="header-container">
             <div class="logo-container">
-                <p>사이트 로고</p>
+                <!-- 사이트 로고 -->
+                <a href="/main">
+                    <img src="https://github.com/user-attachments/assets/7c1bab45-252a-4764-868a-7e56e5370b2f" width="90" height="80"/>
+                </a>
             </div>
             <div class="search-container" id="searchContainer">
                 <input class="searchInput" type="text" placeholder="원하는 강의를 검색해보세요." id="searchInput">
@@ -35,13 +43,13 @@
             </div>
             <div class="icon-container" id="iconContainer">
                 {% if user.is_authenticated %}
-                    <form method="post" action="{% url 'logout' %}?next={{ request.path }}">
+                    <form method="post" action="{% url 'logout' %}?next={{ request.build_absolute_uri|urlencode }}">
                         {% csrf_token %}
                         <button type="submit">Logout</button>
                     </form>
                     <button><a href="{% url 'user_detail' pk=user.pk %}">내정보</a></button>  
                 {% else %}
-                    <button><a href="{% url 'login' %}">Login</a></button>
+                    <button><a href="{% url 'login' %}?next={{ request.build_absolute_uri|urlencode }}">Login</a></button>
                     <button><a href="{% url 'signup' %}">Signup</a></button>
                 {% endif %}
             </div>
@@ -102,38 +110,49 @@
                     <h2>해당 강의의 리뷰 분석</h2>
                     <hr class="custom-hr"/> 
                     <div id="review-content">
-                        {% if review_analysis %}
-                            <div class="reivew-text">
+                        {% if lecture.review_count > 0 and lecture.scope > 0 %}
+                            <div class="review-text">
                                 <h3>별점 평균</h3>
-                                <p>{{ lecture.scope }} / 5</p></br>
+                                <p>{{ lecture.scope }} / 5</p><br>
                                 <h3>총 리뷰 수</h3>
-                                <p>{{ lecture.review_count }}개</p></br>
+                                <p>{{ lecture.review_count }}개</p><br>
                             </div>
-                            <div class="avg-sentiment-container">
-                                <h3>강의평의 평균적인 분위기</h3>
-                                <div class="horizontal-bar-container">
-                                    <div class="horizontal-bar avg-sentiment"></div>
+                                <div class="avg-sentiment-container">
+                                    <h3>강의평의 평균적인 분위기</h3>
+                                    {% if review_analysis.avg_sentiment > 0 %}
+                                        <div class="horizontal-bar-container">
+                                            <div class="horizontal-bar avg-sentiment"></div>
+                                        </div>
+                                        <div class="bar-label">
+                                            <p>부정적</p>
+                                            <p>긍정적</p>
+                                        </div>
+                                    {% else %}
+                                        <p>리뷰 분석이 존재하지 않는 강의에요😅</p>
+                                    {% endif %}
+                                </div><br>
+                
+                                <div class="review-percent">
+                                    <h3>강의평의 비율</h3>
+                                    {% if review_analysis.positive_count > 0 or review_analysis.negative_count > 0 or review_analysis.neutral_count > 0 %}
+                                        <div class="chart-container">
+                                            <canvas id="sentimentChart"></canvas>
+                                        </div>
+                                    {% else %}
+                                        <p>리뷰 분석이 존재하지 않는 강의에요😅</p>
+                                    {% endif %}
+                                </div><br>
+                                <div class="review-summary">
+                                    <h3>강의평 요약</h3>
+                                    {% if review_analysis.summary %}
+                                        <p>{{ review_analysis.summary }}</p>
+                                    {% else %}
+                                        <p>리뷰 요약이 존재하지 않는 강의에요😅</p>
+                                    {% endif %}
                                 </div>
-                                <div class="bar-label">
-                                    <p >부정적</p>
-                                    <p >긍정적</p>
-                                </div>
-                            </div></br>
-                            <!-- 감정 분석 -->
-                            <div class="review-percent">
-                                <h3>강의평의 비율</h3>
-                                <div class="chart-container">
-                                    <canvas id="sentimentChart"></canvas>
-                                </div>
-                            </div></br>
-                            
-                            <div class="review-summary">
-                                <h3>강의평 요약</h3>
-                                <p>{{ review_analysis.summary }}</p>
-                            </div>
                         {% else %}
                             <p>리뷰가 존재하지 않는 강의에요😅</p>
-                        {% endif %}
+                        {% endif %}                   
                     </div>
                 </div></br>
                 <br>
@@ -141,16 +160,11 @@
                     <h2>가격 히스토리</h2>
                     <hr class="custom-hr"/>
                     <!-- 가격 히스토리를 여기에 표시 -->
-                    <p>{{ lecture.origin_price }}</p>
-                    <div>
-                        {% for ele in lecture_price_history %}
-                            <p>{{ ele.price }}</p>
-                            <p>{{ ele.created_at }}</p>
-                        {% empty %}
-                            <p>가격 기록이 없습니다.</p>
-                        {% endfor %}
-                    
-                    </div>
+                    {% if price_history|length > 0 %}
+                        <canvas id="priceHistoryChart" width="100%"></canvas>
+                    {% else %}
+                        <p>가격 히스토리가 없습니다.</p>
+                    {% endif %}
                 </div>
             </div>
             <div class="sticky-container">

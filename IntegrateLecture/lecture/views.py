@@ -7,7 +7,6 @@ from django.views.generic import (
     DetailView,
     UpdateView,
     ListView,
-    CreateView,
     DeleteView,
 )
 from django.views import View
@@ -16,6 +15,7 @@ from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 
@@ -26,7 +26,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 import json
-from django.views.decorators.csrf import csrf_exempt
+from functools import reduce
+import operator
 
 from .models import (
     LectureInfo,
@@ -39,12 +40,11 @@ from .models import (
 )
 from .serializers import (
     LectureInfoSerializer,
-    UserCreationSerializer,
-    UserListSerializer,
     ReviewAnalysisSerializer,
 )
 from .forms import CustomSignUpForm, UserLoginForm, UserUpdateForm
 from .filters import LectureInfoFilter
+from .choices import ALL_CHOICES
 
 
 class LectureDetailTemplateView(View):
@@ -56,34 +56,45 @@ class LectureDetailTemplateView(View):
         categories = Category.objects.filter(category_id__in=category_ids)
 
         review_analysis = ReviewAnalysis.objects.filter(lecture_id=lecture).first()
-        total_count = (
-            review_analysis.positive_count
-            + review_analysis.negative_count
-            + review_analysis.neutral_count
-        )
-        positive_percentage = (
-            (review_analysis.positive_count / total_count) * 100 if total_count else 0
-        )
-        negative_percentage = (
-            (review_analysis.negative_count / total_count) * 100 if total_count else 0
-        )
-        neutral_percentage = (
-            (review_analysis.neutral_count / total_count) * 100 if total_count else 0
-        )
-
-        lecture_price_history = LecturePriceHistory.objects.filter(lecture_id=lecture)
+        
+        positive_percentage=0
+        negative_percentage=0
+        neutral_percentage=0
+        
+        if review_analysis :
+            if review_analysis.positive_count==0 and review_analysis.negative_count==0 and review_analysis.neutral_count==0 :
+                pass
+            else :    
+                total_count=review_analysis.positive_count + review_analysis.negative_count + review_analysis.neutral_count
+                positive_percentage = (review_analysis.positive_count / total_count) * 100 
+                negative_percentage = (review_analysis.negative_count / total_count) * 100 
+                neutral_percentage = (review_analysis.neutral_count / total_count) * 100 
+        
+        
+        price_history = LecturePriceHistory.objects.filter(
+            lecture_id=lecture.lecture_id
+        ).values_list("price", flat=True)
+        price_history_date = LecturePriceHistory.objects.filter(
+            lecture_id=lecture.lecture_id
+        ).values_list("created_at", flat=True)
+        price_history_date = [
+            entry.strftime("%Y-%m-%d") for entry in price_history_date
+        ]
 
         context = {
-            "lecture": lecture,
-            "categories": categories,
-            "review_analysis": review_analysis,
-            "positive_percentage": positive_percentage,
-            "negative_percentage": negative_percentage,
-            "neutral_percentage": neutral_percentage,
-            "lecture_price_history": lecture_price_history,
-        }
+            'lecture': lecture,
+            'categories': categories,
+            'review_analysis': review_analysis,
+            'positive_percentage': positive_percentage,
+            'negative_percentage': negative_percentage,
+            'neutral_percentage': neutral_percentage,
+            "price_history": list(price_history),
+            "price_history_date": price_history_date,
+            'avg_sentiment':review_analysis.avg_sentiment if review_analysis else 0
 
-        return render(request, "detail.html", context)
+        }
+        
+        return render(request, 'detail.html', context)
 
 
 class LectureListPageView(TemplateView):
@@ -180,30 +191,6 @@ class CategoryListView(APIView):
 
 
 # User 관리
-# DRF-API
-class APIUserSignupView(generics.CreateAPIView):
-    serializer_class = UserCreationSerializer
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            serializer.data, status=status.HTTP_201_CREATED, headers=headers
-        )
-
-
-class APIUserListView(generics.ListAPIView):
-    queryset = Users.objects.all()
-    serializer_class = UserListSerializer
-
-
-class APIUserDetailView(generics.RetrieveAPIView):
-    queryset = Users.objects.all()
-    serializer_class = UserListSerializer
-
-
 class SignUpView(View):
     def get(self, request):
         form = CustomSignUpForm()
@@ -225,6 +212,9 @@ class LoginView(LoginView):
     def get_success_url(self):
         user = self.request.user
         if user.is_authenticated:
+            next_url = self.request.GET.get('next')
+            if next_url:
+                return next_url
             return reverse_lazy("lecture_list_page")
         return reverse_lazy("login")
 
@@ -257,16 +247,16 @@ class UserDeleteView(LoginRequiredMixin, DeleteView):
 
 class WishListView(LoginRequiredMixin, ListView):
     model = WishList
-    template_name = "user_detail/user_wishlist.html"
-    context_object_name = "wishlist_items"
+    template_name = 'wishlist/wishlist_list.html'
+    context_object_name = 'wishlist'
 
     def get_queryset(self):
-        user_id = Users.objects.get(pk=self.kwargs["pk"])
-        return WishList.objects.filter(user_id=user_id)
-
+        queryset = WishList.objects.filter(user=self.request.user).select_related('lecture')
+        return queryset
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["user_id"] = Users.objects.get(pk=self.kwargs["pk"])
+        context['user'] = self.request.user
         return context
 
 
@@ -300,21 +290,8 @@ class WishListCreateView(LoginRequiredMixin, View):
             {"success": True, "message": "Lecture added to wishlist successfully."}
         )
 
-    """
-    사용법
-    {% block content %}
-    <h2>Add to Wishlist</h2>
-    <form method="post" action="{% url 'wishlist_add' %}>
-        {% csrf_token %}
-        <input type="hidden" name="lecture" value="{{ lecture.id }}">
-        {{ form.as_p }}
-        <button type="submit">Add to Wishlist</button>
-    </form>
-    {% endblock %}
-    """
 
-
-@method_decorator(csrf_exempt, name="dispatch")
+# @method_decorator(csrf_exempt, name="dispatch")
 class WishListRemoveView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
@@ -351,6 +328,117 @@ class WishListStatusView(LoginRequiredMixin, View):
         return JsonResponse({"is_in_wishlist": is_in_wishlist})
 
 
+class Recommend_lecture(LoginRequiredMixin, ListView):
+    context_object_name = 'recommend_lectures'
+    
+    def get_queryset(self):
+        user_id = self.kwargs['user_id']
+        user = get_object_or_404(Users, pk=user_id)
+        return self.recommend_lectures(user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_id = self.kwargs['user_id']
+        user = get_object_or_404(Users, pk=user_id)
+        context['user'] = user
+        return context
+
+    def get_top_skills(self, user):
+        skills = user.skills
+        
+        sorted_skills = sorted(skills.items(), key=lambda item: item[1][0] * item[1][1], reverse=True)
+        top_skills = [skill[0] for skill in sorted_skills[:3]]
+        return top_skills
+    
+    def recommend_lecture(self, user):
+        top_skills = self.get_top_skills(user)
+        
+        lectures = LectureInfo.objects.filter(
+            reduce(operator.or_, (Q(tag_icontains=skill) for skill in top_skills))
+        ).order_by('-is_recommend', '-scope')
+        
+        return lectures
+# 사용법
+# {% for lecture in recommend_lectures %}
+
+
+class ClickEventView(LoginRequiredMixin, View):
+    def post(self, request):
+        keyword = request.POST.get('keyword')
+        keyword = keyword[0].upper() + keyword[1:].lower()
+        user_id = request.POST.get('user_id')
+
+        user = get_object_or_404(Users, pk=user_id)
+
+        skills = user.skills
+        if keyword in ALL_CHOICES:
+            for key in skills:
+                skills[key][1] *= 0.9
+                
+            if keyword in skills:
+                skills[keyword][0] += 2
+                skills[keyword][1] = 1
+
+            else:
+                skills[keyword] = [2, 1]
+
+            user.skills = skills
+            user.save()
+
+            return JsonResponse({'message': 'Skills updated successfully!'})
+
+      
+class TagClickEventView(LoginRequiredMixin, View):
+    def post(self, request):
+        keyword = request.POST.get('tag_keyword')
+        keyword = keyword[0].upper() + keyword[1:].lower()
+        user_id = request.POST.get('user_id')
+        user = get_object_or_404(Users, pk=user_id)
+        
+        skills = user.skills
+        
+        if keyword in ALL_CHOICES:
+            for key in skills:
+                skills[key][1] *= 0.9
+                
+            if keyword in skills:
+                skills[keyword][0] += 3
+                skills[keyword][1] = 1
+
+            else:
+                skills[keyword] = [3, 1]
+
+            user.skills = skills
+            user.save()
+                
+            return JsonResponse({'message': 'Skills updated successfully!'})
+            
+
+class SearchEventView(LoginRequiredMixin, View):
+    def post(self, request):
+        keyword = request.POST.get('searchKeyword')
+        keyword = keyword[0].upper() + keyword[1:].lower()
+        user_id = request.POST.get('user_id')
+        user = get_object_or_404(Users, pk=user_id)
+        
+        skills = user.skills
+        if keyword in ALL_CHOICES:
+            for key in skills:
+                skills[key][1] *= 0.9
+            
+            if keyword in skills:
+                skills[keyword][0] += 4
+                skills[keyword][1] = 1
+            
+            else:
+                skills[keyword] = [4, 1]
+            
+            user.skills = skills
+            user.save()
+                
+            return JsonResponse({'message': 'Skills updated successfully!'})
+
+          
 @method_decorator(csrf_exempt, name="dispatch")
 class ToggleAlarmView(LoginRequiredMixin, View):
     def get(self, request, lecture_id, *args, **kwargs):

@@ -42,7 +42,6 @@ $(document).ready(function() {
     }
 
 
-
     // tag 구분자 제거
     var tagData = $('.tags').data('contents');
     if (tagData && typeof tagData === 'string' && tagData.length !== 2) {
@@ -55,13 +54,13 @@ $(document).ready(function() {
         });
         $('.tags').html(tag_html);
     } else {
-        $('.tags').html(''); // 태그 값이 없으면 HTML을 비움
+        $('.tags').html(); // 태그 값이 없으면 HTML을 비움
     }
 
     var rating = parseFloat($('.lecture-rating').data('rating')); // rating 값을 data-attribute에서 가져옴
     $('#rating-stars').html(getStarRatingHtml(rating));
 
-    $('#heart-icon, #sticky-heart-icon, #header-heart-icon').each(function() {
+    $('#heart-icon, #sticky-heart-icon, #header-heart-icon').each(function() { 
         const lectureId = $(this).data('lecture-id');
         const userId = window.currentUserId;
 

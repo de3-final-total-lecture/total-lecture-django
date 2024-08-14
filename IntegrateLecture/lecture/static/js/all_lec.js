@@ -5,13 +5,12 @@ const mainCategorySelect = document.getElementById('mainCategory');
 const midCategorySelect = document.getElementById('midCategory');
 const sortTypeSelect = document.getElementById('sortType');
 const pageNumbersElement = document.getElementById('pageNumbers');
-
 const searchButton = document.getElementById('searchButton');
 const searchInput = document.getElementById('searchInput');  
 const searchButton2 = document.getElementById('searchButton2');
 const searchInput2 = document.getElementById('searchInput2'); 
-
 const levelSelect = document.getElementById('levelSelect');
+const tagBoxes = document.querySelectorAll('.tag-box');
 
 
 mainCategorySelect.addEventListener('change', (e) => {
@@ -28,6 +27,22 @@ searchButton.addEventListener('click', () => {
 
 searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
+        const searchValue = searchInput.value.trim();
+
+        $.ajax({
+            url: searchUrl,
+            method: 'POST',
+            data: {
+                'searchKeyword': searchValue,
+                'user_id': window.currentUserId
+            },
+            success: function(response) {
+                console.log(response.message);
+            },
+            error: function(xhr, status, error) {
+                console.error(error);
+            }
+        });
         loadPage(1);
         searchInput.value = '';
     }
@@ -43,7 +58,17 @@ searchInput2.addEventListener('keypress', (e) => {
     }
 });currentPage = 1;
 let categories = {};
+let sQuery = '';
 
+
+tagBoxes.forEach(tagBox => {
+    tagBox.addEventListener('click', () => {
+        const tag = tagBox.getAttribute('data-tag'); // 클릭한 태그의 값을 가져오기
+        console.log(tag);
+        sQuery = tag;
+        loadPage(1);
+    });
+});
 
 
 async function fetchCategories() {
@@ -81,30 +106,68 @@ function toggleSearch() {
     }
 }
 
-async function fetchLectures(page) {
+async function fetchLectures(page) {   
     const mainCategory = mainCategorySelect.value;
     const midCategory = midCategorySelect.value;
     const sortType = sortTypeSelect.value;
     const level = levelSelect.value;
-    const searchQuery = searchInput.value.trim() || searchInput2.value.trim();;
-    
-    console.log(searchInput)
+    const searchQuery = searchInput.value.trim() || searchInput2.value.trim() || sQuery;
 
+    //api 호출용 url
     let url = `/api/lecture/?page=${page}`;
     if (mainCategory) url += `&main_category=${encodeURIComponent(mainCategory)}`;
     if (midCategory) url += `&mid_category=${encodeURIComponent(midCategory)}`;
-    if (sortType) url += `&sort_type=${sortType}`;
+    if (sortType) url += `&sort_type=${encodeURIComponent(sortType)}`;
     if (searchQuery) url += `&q=${encodeURIComponent(searchQuery)}`;
     if (level) url += `&level=${level}`;
+
+    //화면에 보여지는 url에도 변경사항 반영
+    let displayUrl = `/main/?page=${page}`;
+    if (mainCategory) displayUrl += `&main_category=${encodeURIComponent(mainCategory)}`;
+    if (midCategory) displayUrl += `&mid_category=${encodeURIComponent(midCategory)}`;
+    if (sortType) displayUrl += `&sort_type=${encodeURIComponent(sortType)}`;
+    if (searchQuery) displayUrl += `&q=${encodeURIComponent(searchQuery)}`;
+    if (level) displayUrl += `&level=${encodeURIComponent(level)}`;
+
+    window.history.pushState({}, null, displayUrl);
 
     const response = await fetch(url);
     const data = await response.json();
     return data;
 }
 
+function checkUrl(strUrl) {
+    let expUrl = /^http[s]?:\/\/([\S]{3,})/i;
+    return expUrl.test(strUrl);
+}
+
+function checkLectureData(lecture) {
+    if (!checkUrl(lecture.lecture_url) || !checkUrl(lecture.thumbnail_url))
+        return false;
+    if (lecture.platform_name !== "coursera") {
+        if (lecture.origin_price == null || lecture.price == null)
+            return false;
+    }
+    if (lecture.description == null || lecture.description === "")
+        return false;
+    // if (lecture.what_do_i_learn == null || lecture.what_do_i_learn === "")
+    //     return false;
+    return true;
+}
+
 function renderLectures(lectures) {
     lectureListElement.innerHTML = '';
     lectures.forEach(lecture => {
+        if (!checkLectureData(lecture)) {
+            console.log(lecture.lecture_url + " " + checkUrl(lecture.lecture_url))
+            console.log(lecture.thumbnail_url + " " + checkUrl(lecture.thumbnail_url))
+            console.log(lecture.platform_name + " " + lecture.origin_price + " " + lecture.price)
+            console.log("description: " + lecture.description)
+            console.log("what do i learn: " + lecture.what_do_i_learn)
+            console.log(lecture.lecture_name + " was except from lecture list");
+            return;
+        }
+
         const lectureElement = document.createElement('div');
         lectureElement.classList.add('lecture-item');
         lectureElement.dataset.lectureId = lecture.lecture_id;
@@ -208,3 +271,14 @@ nextPageButton.addEventListener('click', () => {
 });
 
 fetchCategories().then(() => loadPage(1));
+
+function getCSRFToken() {
+    return csrfToken;
+}
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", getCSRFToken());
+        }
+    }
+});

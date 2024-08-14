@@ -31,10 +31,11 @@ class LectureInfo(models.Model):
     review_count = models.IntegerField(blank=True, null=True)
     lecture_time = models.CharField(max_length=255, blank=True, null=True)
     thumbnail_url = models.CharField(max_length=511, blank=True, null=True)
-    is_new = models.IntegerField(blank=True, null=True)
-    is_recommend = models.IntegerField(blank=True, null=True)
+    is_new = models.BooleanField(blank=True, null=True)
+    is_recommend = models.BooleanField(blank=True, null=True)
     like_count = models.IntegerField(default=0, null=True)
     platform_name = models.CharField(max_length=255, blank=True, null=True)
+    keyword = models.CharField(max_length=255)
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
@@ -70,9 +71,7 @@ class LecturePriceHistory(models.Model):
 class ReviewAnalysis(models.Model):
     id = models.AutoField(primary_key=True)
     lecture_id = models.ForeignKey(
-        LectureInfo,
-        on_delete=models.CASCADE,
-        db_column="lecture_id",
+        LectureInfo, on_delete=models.CASCADE, db_column="lecture_id"
     )
     summary = models.CharField(max_length=1024, blank=True, null=True)
     negative_count = models.IntegerField(blank=True, null=True, default=0)
@@ -131,15 +130,6 @@ class Users(AbstractBaseUser):
         return f"{self.user_name} ({self.user_email})"
 
 
-#     def increment_skill(self, skill, increment_value=8):
-#         self.skills[skill] = self.skills.get(skill, 0) + increment_value
-#         self.save()
-
-#     def get_top_skills(self, n=3):
-#         sorted_skills = sorted(self.skills.items(), key=lambda x: x[1], reverse=True)
-#         return [skill[0] for skill in sorted_skills[:n]]
-
-
 class WishList(models.Model):
     lecture = models.ForeignKey(
         LectureInfo,
@@ -164,8 +154,6 @@ class WishList(models.Model):
         return f"{self.user.user_name}'s wishlist: {self.lecture_name}"
 
 
-#
-#
 # class AuthGroup(models.Model):
 #     name = models.CharField(unique=True, max_length=150)
 #

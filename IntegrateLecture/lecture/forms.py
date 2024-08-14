@@ -30,6 +30,12 @@ class CustomSignUpForm(forms.ModelForm):
             raise forms.ValidationError("Password must contain at least one special character.")
         return password_1
 
+    def clean_language(self):
+        language = self.cleaned_data.get('language')
+        if language == "None":
+            raise forms.ValidationError("Please select a valid language.")
+        return language
+    
     def clean(self):
         cleaned_data = super().clean()
         password_1 = cleaned_data.get("password_1")
@@ -43,14 +49,20 @@ class CustomSignUpForm(forms.ModelForm):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data["password_1"])
         
-        skills = {
-            self.cleaned_data['language']: 8
-        }
-        if self.cleaned_data.get('skill_1'):
-            skills[self.cleaned_data['skill_1']] = 4
-        if self.cleaned_data.get('skill_2'):
-            skills[self.cleaned_data['skill_2']] = 4
-            
+        skills = {}
+        
+        language = self.cleaned_data.get('language')
+        if language and language != "None":
+            skills[language] = [8, 1]
+
+        skill_1 = self.cleaned_data.get('skill_1')
+        if skill_1 and skill_1 != "None":
+            skills[skill_1] = [4, 1]
+        
+        skill_2 = self.cleaned_data.get('skill_2')
+        if skill_2 and skill_2 != "None":
+            skills[skill_2] = [4, 1]
+        
         user.skills = skills
         if commit:
             user.save()
