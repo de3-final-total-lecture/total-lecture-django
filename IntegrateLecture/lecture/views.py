@@ -62,7 +62,9 @@ class LectureDetailTemplateView(View):
         neutral_percentage=0
         
         if review_analysis :
-            if review_analysis.positive_count is not None and review_analysis.negative_count is not None and review_analysis.neutral_count is not None :
+            if review_analysis.positive_count==0 and review_analysis.negative_count==0 and review_analysis.neutral_count==0 :
+                pass
+            else :    
                 total_count=review_analysis.positive_count + review_analysis.negative_count + review_analysis.neutral_count
                 positive_percentage = (review_analysis.positive_count / total_count) * 100 
                 negative_percentage = (review_analysis.negative_count / total_count) * 100 
