@@ -230,7 +230,6 @@ class LoginView(LoginView):
 
 
 class UserDetailView(LoginRequiredMixin, DetailView):
-
     model = Users
     template_name = "user_detail/user_detail.html"
     context_object_name = "user"
