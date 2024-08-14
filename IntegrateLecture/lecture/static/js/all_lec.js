@@ -282,3 +282,12 @@ $.ajaxSetup({
         }
     }
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('button.pretty_button').forEach(button => {
+        const link = button.querySelector('a');
+        if (link) {
+            link.innerHTML = '<span>' + link.textContent.trim().split('').join('</span><span>') + '</span>';
+        }
+    });
+});
