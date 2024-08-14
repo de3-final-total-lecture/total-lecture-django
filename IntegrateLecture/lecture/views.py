@@ -57,11 +57,13 @@ class LectureDetailTemplateView(View):
 
         review_analysis = ReviewAnalysis.objects.filter(lecture_id=lecture).first()
         
-        if(review_analysis):
-            total_count=review_analysis.positive_count + review_analysis.negative_count + review_analysis.neutral_count
-            positive_percentage = (review_analysis.positive_count / total_count) * 100 if total_count else 0
-            negative_percentage = (review_analysis.negative_count / total_count) * 100 if total_count else 0
-            neutral_percentage = (review_analysis.neutral_count / total_count) * 100 if total_count else 0
+        if review_analysis :
+            if review_analysis.positive_count is not None and review_analysis.negative_count is not None and review_analysis.neutral_count is not None :
+                total_count=review_analysis.positive_count + review_analysis.negative_count + review_analysis.neutral_count
+                positive_percentage = (review_analysis.positive_count / total_count) * 100 if total_count else 0
+                negative_percentage = (review_analysis.negative_count / total_count) * 100 if total_count else 0
+                neutral_percentage = (review_analysis.neutral_count / total_count) * 100 if total_count else 0
+        
         
         price_history = LecturePriceHistory.objects.filter(
             lecture_id=lecture.lecture_id
