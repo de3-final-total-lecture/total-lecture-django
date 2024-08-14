@@ -88,6 +88,7 @@ class LectureDetailTemplateView(View):
             'neutral_percentage': neutral_percentage,
             "price_history": list(price_history),
             "price_history_date": price_history_date,
+            'avg_sentiment':review_analysis.avg_sentiment if review_analysis else 0
 
         }
         
