@@ -32,11 +32,16 @@ searchInput.addEventListener('keypress', (e) => {
         searchInput.value = '';
     }
 });
-searchButton2.addEventListener('click', () => loadPage(1));
-searchInput2.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {loadPage(1);}
+searchButton2.addEventListener('click', () => {
+    loadPage(1);
+    searchInput2.value = '';
 });
-let currentPage = 1;
+searchInput2.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        loadPage(1);
+        searchInput2.value = '';
+    }
+});currentPage = 1;
 let categories = {};
 
 
