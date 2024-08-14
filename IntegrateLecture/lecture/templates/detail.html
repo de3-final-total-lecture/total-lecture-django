@@ -22,8 +22,6 @@
     <script src="{% static 'js/detail.js' %}"></script>
     <script src="{% static 'js/all_lec.js' %}"></script>
     <script src="{% static 'js/chart.js' %}"></script>
-
-    
 </head>
 <body>
     <header>
@@ -78,7 +76,10 @@
                 </div>
             </div>
             <div class="lecture-thumbnail">
-                <img src="{{ lecture.thumbnail_url }}" alt="썸네일">
+                <div>
+                    <img src="{{ lecture.thumbnail_url }}" alt="썸네일">
+                </div>
+                
             </div>
         </div>
 
