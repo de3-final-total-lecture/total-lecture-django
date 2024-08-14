@@ -160,7 +160,11 @@
                     <h2>가격 히스토리</h2>
                     <hr class="custom-hr"/>
                     <!-- 가격 히스토리를 여기에 표시 -->
-                    <canvas id="priceHistoryChart" width="100%"></canvas>
+                    {% if price_history|length > 0 %}
+                        <canvas id="priceHistoryChart" width="100%"></canvas>
+                    {% else %}
+                        <p>가격 히스토리가 없습니다.</p>
+                    {% endif %}
                 </div>
             </div>
             <div class="sticky-container">

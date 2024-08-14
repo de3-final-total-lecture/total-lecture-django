@@ -139,8 +139,8 @@ function checkLectureData(lecture) {
     }
     if (lecture.description == null || lecture.description === "")
         return false;
-    if (lecture.what_do_i_learn == null || lecture.what_do_i_learn === "")
-        return false;
+    // if (lecture.what_do_i_learn == null || lecture.what_do_i_learn === "")
+    //     return false;
     return true;
 }
 
