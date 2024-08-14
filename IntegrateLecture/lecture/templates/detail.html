@@ -188,7 +188,7 @@
                         </div>
                     
                     {% else %}
-                        {% if price_history%}
+                        {% if price_history|length > 0%}
                             <canvas id="priceHistoryChart" width="100%"></canvas>
                         {% else %}
                         <p>할인 정보가 존재하지 않는 강의에요.😅</p>

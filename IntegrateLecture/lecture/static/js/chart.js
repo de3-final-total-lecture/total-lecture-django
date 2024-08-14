@@ -37,3 +37,37 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error("Average sentiment value is out of bounds");
     }
 });
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('priceHistoryChart').getContext('2d');
+
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: priceHistoryDate,
+            datasets: [{
+                label: 'Price',
+                data: priceHistory,
+                borderColor: 'rgba(1, 55, 255, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                borderWidth: 1,
+                pointRadius: 5,
+                pointHoverRadius: 7 
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            interaction: {
+                mode: 'nearest', // 가장 가까운 포인트를 찾음
+                axis: 'x', // x축 기준으로 동작
+                intersect: false // x축의 모든 포인트에 대해 마우스 오버 가능
+            }
+        }
+    });
+});

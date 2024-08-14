@@ -35,6 +35,7 @@ class LectureInfo(models.Model):
     is_recommend = models.BooleanField(blank=True, null=True)
     like_count = models.IntegerField(default=0, null=True)
     platform_name = models.CharField(max_length=255, blank=True, null=True)
+    keyword = models.CharField(max_length=255)
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
@@ -127,15 +128,6 @@ class Users(AbstractBaseUser):
 
     def __str__(self):
         return f"{self.user_name} ({self.user_email})"
-
-
-#     def increment_skill(self, skill, increment_value=8):
-#         self.skills[skill] = self.skills.get(skill, 0) + increment_value
-#         self.save()
-
-#     def get_top_skills(self, n=3):
-#         sorted_skills = sorted(self.skills.items(), key=lambda x: x[1], reverse=True)
-#         return [skill[0] for skill in sorted_skills[:n]]
 
 
 class WishList(models.Model):

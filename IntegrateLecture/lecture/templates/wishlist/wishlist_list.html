@@ -1,6 +1,6 @@
 {% extends 'user_base.html' %}
-
-{% block title %}Edit User Profile{% endblock %}
+{% load static %}
+{% block title %} {{ request.user.user_name }} WishList {% endblock %}
 
 {% block header %}
 <header>
@@ -21,7 +21,6 @@
                     {% csrf_token %}
                     <button type="submit">Logout</button>
                 </form> 
-                <button><a href="{% url 'user_wishlist' pk=user.pk %}">찜목록</a></button>
             {% else %}
                 <button><a href="{% url 'login' %}">Login</a></button>
                 <button><a href="{% url 'signup' %}">Signup</a></button>
@@ -32,7 +31,8 @@
 {% endblock %}
 
 {% block breadcrumb %}
-<li class="breadcrumb-item">User Profile</li>
+<li class="breadcrumb-item"><a href="{% url 'user_detail' pk=user.pk %}">User Profile</a></li>
+<li class="breadcrumb-item active" aria-current="page">User Wishlist</li>
 {% endblock %}
 
 {% block link_info %}
@@ -64,6 +64,7 @@
         {% else %}
             <span class="text-secondary">None</span>
         {% endif %}
+
 </li>
 {% endblock %}
 
@@ -71,30 +72,21 @@
 <div class="card mb-3">
     <div class="card-body">
         <div class="card-body">
-            <div class="row">
-                <div class="col-sm-3">
-                    <h6 class="mb-0">Name</h6>
-                </div>
-                <div class="col-sm-9 text-secondary">{{ user.user_name}}</div>
-            </div>
-            <hr>
-            <div class="row mb-3">
-                <div class="col-sm-3">
-                    <h6 class="mb-0">Email</h6>
-                </div>
-                <div class="col-sm-9 text-secondary"><h6>{{ user.user_email }}</h6></div>
-            </div>
-            <hr>
-            <div class="row mb-3">
-                <div class="col-sm-3">
-                    <h6 class="mb-0">Phone</h6>
-                </div>
-                <div class="col-sm-9 text-secondary">(239) 816-9029</div>
-            </div>
-            <hr>
-            <div class="row">
-                <div class="col-sm-0"></div><a class="btn btn-info " href="{% url 'user_update' pk=user.pk %}">Edit</a>
-            </div>
+            <ul id="wishlist">
+                {% for item in wishlist %}
+                    <div class="row wishlist-item" data-lecture-id="{{ item.lecture.lecture_id }}">
+                        <li>{{ item.lecture.lecture_name }}</li>
+                        <div class="col mb-3"></div>
+                        <button class="col-auto btn btn-sm remove-wishlist-item" style="background: none; border: none;">
+                            <img src="https://icones.pro/wp-content/uploads/2022/05/icone-fermer-et-x-rouge.png" width="14" height="14" alt="Delete">
+                        </button>
+                    </div>
+
+                {% empty %}
+                    <li>No items in your wishlist.</li>
+                {% endfor %}
+                <hr>
+            </ul>
         </div>
     </div>
 </div>
