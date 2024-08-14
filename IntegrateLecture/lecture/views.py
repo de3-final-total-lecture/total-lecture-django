@@ -83,9 +83,9 @@ class LectureDetailTemplateView(View):
             'lecture': lecture,
             'categories': categories,
             'review_analysis': review_analysis,
-            'positive_percentage': positive_percentage if review_analysis else None,
-            'negative_percentage': negative_percentage if review_analysis else None,
-            'neutral_percentage': neutral_percentage if review_analysis else None,
+            'positive_percentage': positive_percentage,
+            'negative_percentage': negative_percentage,
+            'neutral_percentage': neutral_percentage,
             "price_history": list(price_history),
             "price_history_date": price_history_date,
 
