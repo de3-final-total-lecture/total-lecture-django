@@ -46,10 +46,10 @@
                         {% csrf_token %}
                         <button type="submit">Logout</button>
                     </form>
-                    <button><a href="{% url 'user_detail' pk=user.pk %}">내정보</a></button>  
+                    <button class="pretty_button"><a href="{% url 'user_detail' pk=user.pk %}">내정보</a></button>  
                 {% else %}
-                    <button><a href="{% url 'login' %}?next={{ request.build_absolute_uri|urlencode }}">Login</a></button>
-                    <button><a href="{% url 'signup' %}">Signup</a></button>
+                    <button class="pretty_button"><a href="{% url 'login' %}?next={{ request.build_absolute_uri|urlencode }}">Login</a></button>
+                    <button class="pretty_button"><a href="{% url 'signup' %}">Signup</a></button>
                 {% endif %}
             </div>
         </div>
