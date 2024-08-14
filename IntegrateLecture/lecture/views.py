@@ -57,11 +57,19 @@ class LectureDetailTemplateView(View):
 
         review_analysis = ReviewAnalysis.objects.filter(lecture_id=lecture).first()
         
-        if(review_analysis):
-            total_count=review_analysis.positive_count + review_analysis.negative_count + review_analysis.neutral_count
-            positive_percentage = (review_analysis.positive_count / total_count) * 100 if total_count else 0
-            negative_percentage = (review_analysis.negative_count / total_count) * 100 if total_count else 0
-            neutral_percentage = (review_analysis.neutral_count / total_count) * 100 if total_count else 0
+        positive_percentage=0
+        negative_percentage=0
+        neutral_percentage=0
+        
+        if review_analysis :
+            if review_analysis.positive_count==0 and review_analysis.negative_count==0 and review_analysis.neutral_count==0 :
+                pass
+            else :    
+                total_count=review_analysis.positive_count + review_analysis.negative_count + review_analysis.neutral_count
+                positive_percentage = (review_analysis.positive_count / total_count) * 100 
+                negative_percentage = (review_analysis.negative_count / total_count) * 100 
+                neutral_percentage = (review_analysis.neutral_count / total_count) * 100 
+        
         
         price_history = LecturePriceHistory.objects.filter(
             lecture_id=lecture.lecture_id
@@ -77,11 +85,12 @@ class LectureDetailTemplateView(View):
             'lecture': lecture,
             'categories': categories,
             'review_analysis': review_analysis,
-            'positive_percentage': positive_percentage if review_analysis else None,
-            'negative_percentage': negative_percentage if review_analysis else None,
-            'neutral_percentage': neutral_percentage if review_analysis else None,
+            'positive_percentage': positive_percentage,
+            'negative_percentage': negative_percentage,
+            'neutral_percentage': neutral_percentage,
             "price_history": list(price_history),
             "price_history_date": price_history_date,
+            'avg_sentiment':review_analysis.avg_sentiment if review_analysis else 0
 
         }
         
