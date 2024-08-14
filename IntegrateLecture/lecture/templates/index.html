@@ -36,9 +36,9 @@
                 {% if user.is_authenticated %}
                     <form method="post" action="{% url 'logout' %}?next={{ request.build_absolute_uri|urlencode }}">
                         {% csrf_token %}
-                        <button type="submit">Logout</button>
+                        <button type="submit" class="pretty_button"><a>Logout</a></button>
                     </form>
-                    <button class="pretty_button"><a href="{% url 'user_detail' pk=user.pk %}">내정보</a></button>  
+                    <button class="pretty_button"><a href="{% url 'user_detail' pk=user.pk %}">MyPage</a></button>  
                 {% else %}
                     <button class="pretty_button"><a href="{% url 'login' %}?next={{ request.build_absolute_uri|urlencode }}">Login</a></button>
                     <button class="pretty_button"><a href="{% url 'signup' %}">Signup</a></button>
