@@ -147,6 +147,7 @@ class LectureListView(generics.ListAPIView):
         sort_type = self.request.GET.get("sort_type")
         query = self.request.GET.get("q")
         level = self.request.GET.get("level")
+        platform_name = self.request.GET.get("platform_name")
 
         if sort_type == "RECENT":
             queryset = queryset.order_by("-is_new")
@@ -164,6 +165,9 @@ class LectureListView(generics.ListAPIView):
 
         if level:
             queryset = queryset.filter(level=level)
+            
+        if platform_name:
+            queryset = queryset.filter(platform_name=platform_name)
 
         return queryset
 
