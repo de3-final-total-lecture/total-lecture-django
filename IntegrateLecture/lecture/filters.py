@@ -6,6 +6,7 @@ class LectureInfoFilter(django_filters.FilterSet):
     main_category = django_filters.CharFilter(method="filter_by_main_category")
     mid_category = django_filters.CharFilter(method="filter_by_mid_category")
     level = django_filters.CharFilter(field_name="level", lookup_expr="icontains")
+    platform_name = django_filters.CharFilter(field_name="platform_name", lookup_expr="icontains")
 
     class Meta:
         model = LectureInfo
@@ -23,3 +24,6 @@ class LectureInfoFilter(django_filters.FilterSet):
 
     def filter_by_level(self, queryset, name, value):
         return queryset.filter(lectureinfo__level=value).distinct()
+    
+    def filter_by_platform_name(self, queryset, name, value):
+        return queryset.filter(lectureinfo__platform_name=value).distinct()

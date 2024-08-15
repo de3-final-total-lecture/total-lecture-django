@@ -30,19 +30,21 @@ $(document).ready(function() {
 
     // what_do_i_learn 구분자 제거
     var whatDoILearn = $('.lecture-whatlearn').data('contents');
-    var learns = whatDoILearn.split('|');
-    console.log(learns);
-    var learn_html = '';
-    learns.forEach(function(learn) {
-        learn_html += '<div class="item"> # ' + learn + '</div>';
-        console.log(learn_html);
-    });
-    $('#what-do-i-learn-container').html(learn_html);
+    if (whatDoILearn && typeof whatDoILearn === 'string' && whatDoILearn.length !== 2) {
+        var learns = whatDoILearn.split('|');
+        var learn_html = '';
+        learns.forEach(function(learn) {
+            learn_html += '<div class="item"> ✔️ ' + learn + '</div>';
+        });
+        $('#what-do-i-learn-container').html(learn_html);
+    } else {
+        $('#what-do-i-learn-container').html(''); // 태그 값이 없으면 HTML을 비움
+    }
 
 
     // tag 구분자 제거
     var tagData = $('.tags').data('contents');
-    if (tagData && tagData.trim() !== '') {
+    if (tagData && typeof tagData === 'string' && tagData.length !== 2) {
         var tags = tagData.split('|');
         var tag_html = '';
         tags.forEach(function(tag) {
@@ -134,9 +136,9 @@ $(document).ready(function() {
     });
 
     $('.price').each(function() {
-        var price = $(this).text().replace('원', '').trim();
+        var price = $(this).text();
         var formattedPrice = price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        $(this).text(formattedPrice + '원');
+        $(this).text(formattedPrice);
     });
 
     $('.num1').on('click', function() {
@@ -310,3 +312,12 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('button.pretty_button').forEach(button => {
+        const link = button.querySelector('a');
+        if (link) {
+            link.innerHTML = '<span>' + link.textContent.trim().split('').join('</span><span>') + '</span>';
+        }
+    });
+});

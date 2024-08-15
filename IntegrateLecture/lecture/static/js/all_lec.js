@@ -87,7 +87,11 @@ mainCategorySelect.addEventListener('change', (e) => {
 midCategorySelect.addEventListener('change', () => loadPage(1));
 sortTypeSelect.addEventListener('change', () => loadPage(1));
 levelSelect.addEventListener('change', () => loadPage(1));
-searchButton.addEventListener('click', () => loadPage(1));
+searchButton.addEventListener('click', () => {
+    loadPage(1);
+    searchInput.value = '';
+});
+
 searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         const searchValue = searchInput.value.trim();
@@ -106,13 +110,20 @@ searchInput.addEventListener('keypress', (e) => {
                 console.error(error);
             }
         });
-        loadPage(1);}
+        loadPage(1);
+        searchInput.value = '';
+    }
 });
-searchButton2.addEventListener('click', () => loadPage(1));
+searchButton2.addEventListener('click', () => {
+    loadPage(1);
+    searchInput2.value = '';
+});
 searchInput2.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {loadPage(1);}
-});
-let currentPage = 1;
+    if (e.key === 'Enter') {
+        loadPage(1);
+        searchInput2.value = '';
+    }
+});currentPage = 1;
 let categories = {};
 let sQuery = '';
 
@@ -208,8 +219,8 @@ function checkLectureData(lecture) {
     }
     if (lecture.description == null || lecture.description === "")
         return false;
-    if (lecture.what_do_i_learn == null || lecture.what_do_i_learn === "")
-        return false;
+    // if (lecture.what_do_i_learn == null || lecture.what_do_i_learn === "")
+    //     return false;
     return true;
 }
 
@@ -339,4 +350,13 @@ $.ajaxSetup({
             xhr.setRequestHeader("X-CSRFToken", getCSRFToken());
         }
     }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('button.pretty_button').forEach(button => {
+        const link = button.querySelector('a');
+        if (link) {
+            link.innerHTML = '<span>' + link.textContent.trim().split('').join('</span><span>') + '</span>';
+        }
+    });
 });

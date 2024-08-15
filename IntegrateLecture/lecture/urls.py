@@ -3,6 +3,7 @@ from . import views
 from .views import *
 from django.contrib.auth.views import LogoutView
 
+
 urlpatterns = [
     path("lecture/detail/<str:pk>/",LectureDetailTemplateView.as_view(),name="lecture_detail",),
     path("main/", LectureListPageView.as_view(), name="lecture_list_page"),
