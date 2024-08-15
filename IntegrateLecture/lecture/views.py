@@ -117,25 +117,28 @@ class LectureListPageView(TemplateView):
         context["tags"] = list(tags)
         
         user = self.request.user
-        user_skills = user.skills
-        
-        top_skills = sorted(user_skills.items(), key=lambda x: x[1][0] * x[1][1], reverse=True)[:]
-        top_keywords = [skill[0] for skill in top_skills]
-        
-        platforms = ["Inflearn", "Coursera", "Udemy"]
-        recommendations = {platform: [] for platform in platforms}
-        
-        for keyword in top_keywords:
-            for platform in platforms:
-                lecture = LectureInfo.objects.filter(
-                    keyword=quote(keyword),
-                    platform_name=platform,
-                    is_recommend=True
-                ).order_by('-review_count', '-scope').first()
+        if user.is_authenticated:
+            user_skills = user.skills
+            
+            top_skills = sorted(user_skills.items(), key=lambda x: x[1][0] * x[1][1], reverse=True)[:]
+            top_keywords = [skill[0] for skill in top_skills]
+            
+            platforms = ["Inflearn", "Coursera", "Udemy"]
+            recommendations = {platform: [] for platform in platforms}
+            
+            for keyword in top_keywords:
+                for platform in platforms:
+                    lecture = LectureInfo.objects.filter(
+                        keyword=quote(keyword),
+                        platform_name=platform,
+                        is_recommend=True
+                    ).order_by('-review_count', '-scope').first()
 
-                if lecture:
-                    recommendations[platform].append(lecture)
-        context['recommendations'] = recommendations
+                    if lecture:
+                        recommendations[platform].append(lecture)
+            context['recommendations'] = recommendations
+        else:
+            context['recommendations'] = {}
         
         return context
 

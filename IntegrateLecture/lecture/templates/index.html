@@ -52,26 +52,28 @@
         <div class="banner-container">
             <img class="info-img" src="{% static 'assets/배너1.jpg' %}">
             <img class="info-img" src="{% static 'assets/배너2.jpg' %}">
-            {% for platform, lectures in recommendations.items %}
-                {% for lecture in lectures %}
-                    {% comment %} <p>{{ lecture.lecture_name }}</p> {% endcomment %}
-                    <div class="recommend-banner">
-                        <a href="{% url 'lecture_detail' lecture.lecture_id %}">
-                            <div class="recommend-text">
-                                <h3> 이런 강의는 어때요? {{ user.user_name }}</h3>
-                                {% if platform == 'Coursera' %}
-                                    <img class='platform-logo' src="{% static 'assets/' %}{{ platform }}_logo.svg.png" height='20px' width=auto style='margin-top:15px'>
-                                {% elif platform == 'Udemy' %}
-                                    <img class='platform-logo' src="{% static 'assets/' %}{{ platform }}_logo.svg.png" height='40px' width=auto>
-                                {% elif platform == 'Inflearn' %}
-                                    <img class='platform-logo' src="{% static 'assets/' %}{{ platform }}_logo.svg.png" height='50px' width=auto style='margin-left:-20px'>
-                                {% endif %}
-                            </div>
-                            <img class='recommend-img' src="{{ lecture.thumbnail_url }}" alt="{{ lecture.lecture_name }}">
-                        </a>
-                    </div>
+            {% if user.is_authenticated %}
+                {% for platform, lectures in recommendations.items %}
+                    {% for lecture in lectures %}
+                        {% comment %} <p>{{ lecture.lecture_name }}</p> {% endcomment %}
+                        <div class="recommend-banner">
+                            <a href="{% url 'lecture_detail' lecture.lecture_id %}">
+                                <div class="recommend-text">
+                                    <h3> 이런 강의는 어때요? {{ user.user_name }}</h3>
+                                    {% if platform == 'Coursera' %}
+                                        <img class='platform-logo' src="{% static 'assets/' %}{{ platform }}_logo.svg.png" height='20px' width=auto style='margin-top:15px'>
+                                    {% elif platform == 'Udemy' %}
+                                        <img class='platform-logo' src="{% static 'assets/' %}{{ platform }}_logo.svg.png" height='40px' width=auto>
+                                    {% elif platform == 'Inflearn' %}
+                                        <img class='platform-logo' src="{% static 'assets/' %}{{ platform }}_logo.svg.png" height='50px' width=auto style='margin-left:-20px'>
+                                    {% endif %}
+                                </div>
+                                <img class='recommend-img' src="{{ lecture.thumbnail_url }}" alt="{{ lecture.lecture_name }}">
+                            </a>
+                        </div>
+                    {% endfor %}
                 {% endfor %}
-            {% endfor %}
+            {% endif %}
         </div>
         <div class="lec-container">
             <div class="filters-container">
