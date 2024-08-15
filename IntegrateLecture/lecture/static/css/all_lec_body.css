@@ -253,6 +253,9 @@ p.price {
 .level-중급이상 {
     background-color: #b534e3; 
 }
+.level-All {
+    background-color: #2a8ef1;
+}
 
 /***********************************************************************************************/
 .pagination {

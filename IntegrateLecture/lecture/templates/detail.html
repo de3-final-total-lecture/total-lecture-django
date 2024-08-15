@@ -20,11 +20,8 @@
     </script>
 
     <script src="{% static 'js/detail.js' %}"></script>
-    <script src="{% static 'js/all_lec.js' %}"></script>
     <script src="{% static 'js/chart.js' %}"></script>
-    <script src="{% static 'js/price_history_chart.js' %}"></script>
 
-    
 </head>
 <body>
     <header>
@@ -34,12 +31,6 @@
                 <a href="/main">
                     <img src="https://github.com/user-attachments/assets/7c1bab45-252a-4764-868a-7e56e5370b2f" width="90" height="80"/>
                 </a>
-            </div>
-            <div class="search-container" id="searchContainer">
-                <input class="searchInput" type="text" placeholder="원하는 강의를 검색해보세요." id="searchInput">
-                <button id="searchButton" onclick="toggleSearch()">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </button>
             </div>
             <div class="icon-container" id="iconContainer">
                 {% if user.is_authenticated %}
@@ -90,7 +81,11 @@
                     <button class="tab-button" data-target="lecture-description">강의 소개</button>
                     <button class="tab-button" data-target="lecture-whatlearn">이런걸 배워요</button>
                     <button class="tab-button" data-target="lecture-review">리뷰 분석</button>
-                    <button class="tab-button" data-target="lecture-price-history">가격 히스토리</button>
+                    {% if lecture.platform_name == "Coursera"%}
+                        <button class="tab-button" data-target="lecture-price-history">Coursera Plus 요금</button>
+                    {% else %}
+                        <button class="tab-button" data-target="lecture-price-history">가격 히스토리</button>
+                    {% endif %}
                 </div>
                 <div id="lecture-description" class="lecture-description">
                     <h2>강의 소개</h2>
@@ -107,7 +102,7 @@
                 </div>
                 <br>
                 <div id="lecture-review" class="lecture-review">
-                    <h2>해당 강의의 리뷰 분석</h2>
+                    <h2>리뷰 분석</h2>
                     <hr class="custom-hr"/> 
                     <div id="review-content">
                         {% if lecture.review_count > 0 and lecture.scope > 0 %}
@@ -157,38 +152,42 @@
                 </div></br>
                 <br>
                 <div id="lecture-price-history" class="lecture-price-history">
-                    <h2>가격 히스토리</h2>
-                    <hr class="custom-hr"/>
-                    <!-- 가격 히스토리를 여기에 표시 -->
                     {% if lecture.platform_name == "Coursera"%}
-                        <h2>개인용 구독제</h2>
-                        <div class="coursera-plus-info">
-                            <!-- Coursera Plus Header -->
-                            <h2 class="coursera-plus-title">Coursera Plus: 월간 및 연간 플랜</h2>
-                            
-                            <!-- Monthly Plan Section -->
-                            <div class="plan-section">
-                                <h3 class="plan-title">Coursera Plus 월간 플랜</h3>
-                                <p class="plan-description">다양한 강좌와 자격증을 월 단위로 이용할 수 있습니다. 유연한 학습 계획을 위해 매월 결제합니다.</p>
-                                <div class="plan-price">
-                                    <span class="price-amount">$59</span>/월
-                                </div>
-                                <button class="btn-enroll">7일 무료 이용 시작</button>
+                    <h2>Coursera Plus 요금 정책</h2>
+                    <hr class="custom-hr"/>
+                    <div class="pricing-container">
+                        <div class="price-card">
+                            <div class="price-title">
+                                <p> Coursera Plus 월간 플랜</p>
                             </div>
-                            
-                            <!-- Annual Plan Section -->
-                            <div class="plan-section">
-                                <h3 class="plan-title">Coursera Plus 연간 플랜</h3>
-                                <p class="plan-description">연간 구독으로 비용을 절감하고, 장기적인 학습 목표를 설정할 수 있습니다.</p>
-                                <div class="plan-price">
-                                    <span class="price-amount">$399</span>/년
-                                </div>
-                                <button class="btn-enroll">연간 플랜 체험해 보기</button>
+                            <div class="price-body">
+                                <h4>매월 80,000원</h4>
+                                <ul>
+                                    <li>170여 곳 이상의 선도적인 회사와 대학교에서 제공하는 7,000+개의 강좌와 특화 과정 이용</li>
+                                    <li>무제한 수료증 취득</li>
+                                    <li>1000여 개 이상의 적용 프로젝트 및 업계 전문가의 실습 연구소로 직업 관련 기술과 도구 학습하기</li>
+                                    <li>Google, Facebook 등의 업계 리더가 제공하는 15가지 전문 자격증 프로그램 중에서 선택</li>
+                                </ul>
                             </div>
                         </div>
-                    
+                        <div class="price-card">
+                            <div class="price-title">
+                                <p> Coursera Plus 연간 플랜</p>
+                            </div>
+                            <div class="price-body">
+                                <h4>매년 540,700원</h4>
+                                <ul>
+                                    <li>월간 플랜에 포함된 모든 항목 기본 제공</li>
+                                    <li>연간 요금을 선불로 결제하는 경우 할인 제공</li>
+                                    <li>일과 생활의 균형을 유지하고 나에게 맞는 속도로 학습할 수 있는 최대한의 유연성 제공</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                     {% else %}
-                        {% if price_history|length > 0%}
+                        <h2>가격 히스토리</h2>
+                        <hr class="custom-hr"/>
+                        {% if price_history|length > 0 %}
                             <canvas id="priceHistoryChart" width="100%"></canvas>
                         {% else %}
                         <p>할인 정보가 존재하지 않는 강의에요.😅</p>
@@ -202,8 +201,14 @@
                 </div>
                 <div class="sticky-text">
                     <div class="info-discript">
-
-                        <span class="price">{{ lecture.price|default:"-" }}원</span>
+                        {% if lecture.platform_name == "Coursera"%}
+                            <div>
+                                <span class="price">66,000원 ~ </span>
+                                <p style="color: #717171;">(구독한 Coursera Plan에 따라 다름)</p>
+                            </div>
+                        {% else %}
+                            <span class="price">{{ lecture.price|default:"-" }}원</span>
+                        {% endif %}
                         <div>
                             <i id="heart-icon" class="fa-regular fa-heart", data-lecture-id="{{ lecture.lecture_id }}"></i>
                             ({{ lecture.like_count |default:'0'}})

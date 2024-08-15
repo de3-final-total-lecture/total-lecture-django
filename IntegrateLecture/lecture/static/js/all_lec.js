@@ -10,6 +10,7 @@ const searchInput = document.getElementById('searchInput');
 const searchButton2 = document.getElementById('searchButton2');
 const searchInput2 = document.getElementById('searchInput2'); 
 const levelSelect = document.getElementById('levelSelect');
+const platformSelect = document.getElementById('platform');
 const tagBoxes = document.querySelectorAll('.tag-box');
 
 
@@ -20,6 +21,7 @@ mainCategorySelect.addEventListener('change', (e) => {
 midCategorySelect.addEventListener('change', () => loadPage(1));
 sortTypeSelect.addEventListener('change', () => loadPage(1));
 levelSelect.addEventListener('change', () => loadPage(1));
+platformSelect.addEventListener('change', () => loadPage(1))
 searchButton.addEventListener('click', () => loadPage(1));
 searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
@@ -100,6 +102,7 @@ async function fetchLectures(page) {
     const midCategory = midCategorySelect.value;
     const sortType = sortTypeSelect.value;
     const level = levelSelect.value;
+    const platform = platformSelect.value;
     const searchQuery = searchInput.value.trim() || searchInput2.value.trim() || sQuery;
 
     //api 호출용 url
@@ -109,6 +112,7 @@ async function fetchLectures(page) {
     if (sortType) url += `&sort_type=${encodeURIComponent(sortType)}`;
     if (searchQuery) url += `&q=${encodeURIComponent(searchQuery)}`;
     if (level) url += `&level=${level}`;
+    if (platform) url += `&platform_name=${platform}`;
 
     //화면에 보여지는 url에도 변경사항 반영
     let displayUrl = `/main/?page=${page}`;
@@ -117,6 +121,7 @@ async function fetchLectures(page) {
     if (sortType) displayUrl += `&sort_type=${encodeURIComponent(sortType)}`;
     if (searchQuery) displayUrl += `&q=${encodeURIComponent(searchQuery)}`;
     if (level) displayUrl += `&level=${encodeURIComponent(level)}`;
+    if (platform) displayUrl += `&platform_name=${platform}`;
 
     window.history.pushState({}, null, displayUrl);
 
@@ -160,13 +165,19 @@ function renderLectures(lectures) {
         const lectureElement = document.createElement('div');
         lectureElement.classList.add('lecture-item');
         lectureElement.dataset.lectureId = lecture.lecture_id;
+        let priceText;
+        if (lecture.platform_name === "Coursera") {
+            priceText = "Coursera Plus";
+        } else {
+            priceText = `₩${lecture.price}`;
+        }
         lectureElement.innerHTML = `
             <div>
                 <img src="${lecture.thumbnail_url}">
                 <div class="info-container">
                     <p class="lecture-name">${lecture.lecture_name}</p>
                     <p class="teacher">${lecture.teacher}</p>
-                    <p class="price">₩${lecture.price}</p>
+                    <p class="price">${priceText}</p>
                     <div class="review-container">
                         <i class="fa-solid fa-star" style="color: #FFD700"></i>
                         <p class="review-scope">${lecture.scope}</p>

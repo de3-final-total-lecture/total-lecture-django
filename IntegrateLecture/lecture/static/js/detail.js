@@ -34,7 +34,7 @@ $(document).ready(function() {
         var learns = whatDoILearn.split('|');
         var learn_html = '';
         learns.forEach(function(learn) {
-            learn_html += '<div class="item"> # ' + learn + '</div>';
+            learn_html += '<div class="item"> ✔️ ' + learn + '</div>';
         });
         $('#what-do-i-learn-container').html(learn_html);
     } else {
@@ -136,9 +136,9 @@ $(document).ready(function() {
     });
 
     $('.price').each(function() {
-        var price = $(this).text().replace('원', '').trim();
+        var price = $(this).text();
         var formattedPrice = price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        $(this).text(formattedPrice + '원');
+        $(this).text(formattedPrice);
     });
 
     $('.num1').on('click', function() {
