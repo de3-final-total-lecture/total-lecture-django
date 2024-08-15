@@ -19,6 +19,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 
+from rest_framework import generics
 from rest_framework import exceptions
 from rest_framework.views import APIView
 from rest_framework.response import Response
