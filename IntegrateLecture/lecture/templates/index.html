@@ -47,9 +47,23 @@
         </div>
     </header>
     <main>
-        <div class="banner-container">
-            <p> 광고 비스무리한거 삽입 예정 </p>
+        <div class="banner-wrapper">
+            <ul class="banner-container">
+            {% for platform, lectures in recommendations.items %}    
+                {% for lecture in lectures %}
+                <div class="banner-box">
+                    <li class="banner-box">
+                        <a href="{{ lecture.lecture_url }}">
+                            <img src="{{ lecture.thumbnail_url }}" alt="{{ lecture.lecture_name }}" style='height:200px'>
+                        </a>
+                    </li>
+                </div>
+                {% endfor %}
+            {% endfor %}
+            </ul>
         </div>
+        <button class="next">Next</button>
+        <button class="before">Before</button>
         <div class="lec-container">
             <div class="filters-container">
                 <div class="category-container">
