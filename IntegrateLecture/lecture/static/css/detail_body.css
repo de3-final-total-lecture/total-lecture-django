@@ -29,26 +29,23 @@
 /******************************************************************************************************/
 /* 강의 정보 요약 섹션 */
 .lecture-summary {
-    display: flex;
-    position: absolute;
-    top: 80px;
+    display: block;
+    position: relative;
     left: 0;
-    flex-direction: row;
     width: 100%;
     height: 46%;
     background: #001123;
     /* background: linear-gradient(to right, #23273e, #646883); */
-    padding: 20px 40px;
     box-sizing: border-box;
     overflow: hidden;
+    min-height: 310px;
 }
 
 .summary-info {
-    display: flex;
-    flex-direction: column;
-    flex: 2;
-    margin-left: 90px;
-    margin-right: 50px;
+    display: inline-block;
+    margin: 20px;
+    width: 65%; /* 화면의 2/3 */
+    padding: 0px 80px 20px 100px; /* 여백 추가 */
     justify-content: center; /* 수평 중앙 정렬 */
 }
 
@@ -112,17 +109,21 @@
 /******************************************************************************************************/
 /* 썸네일 섹션 */
 .lecture-thumbnail {
-    flex: 1.2;
-    vertical-align: center;
+    display: inline-block;
+    position: absolute;
+    width: 25%;
+    height: 100%;
+}
+.lecture-thumbnail div {
+    display: flex;
+    height: 100%;
+    justify-content: center; /* 가로 중앙 정렬 */
+    align-items: center; /* 세로 중앙 정렬 */
 }
 
 .lecture-thumbnail img {
     width: 370px; 
     height: 240px; 
-    margin-top : 30px;
-    margin-right: 40px;
-    margin-bottom: 40px;
-    border-radius: 10px;
     box-shadow: 0px 0px 300px 50px #36445e;
 }
 
@@ -131,7 +132,6 @@
 /* 세부정보 + 스티키 카드 컨테이너*/
 .lecture-content {
     display: flex;
-    margin-top: 330px; 
     right: 0;
     width: 100%;
     background: #fff;
@@ -329,11 +329,12 @@
 
 /* 반응형 디자인 */
 @media (max-width: 1024px) {
-    .lecture-detail, .sticky-container {
+    
+    .lecture-detail, .sticky-container, .lecture-thumbnail {
         width: 100%;
     }
     
-    .sticky-container {
+    .sticky-container, .lecture-thumbnail {
         display: none; /* 화면이 줄어들면 숨김 */
     }
     
