@@ -57,21 +57,32 @@ class LectureDetailTemplateView(View):
         categories = Category.objects.filter(category_id__in=category_ids)
 
         review_analysis = ReviewAnalysis.objects.filter(lecture_id=lecture).first()
-        
-        positive_percentage=0
-        negative_percentage=0
-        neutral_percentage=0
-        
-        if review_analysis :
-            if review_analysis.positive_count==0 and review_analysis.negative_count==0 and review_analysis.neutral_count==0 :
+
+        positive_percentage = 0
+        negative_percentage = 0
+        neutral_percentage = 0
+
+        if review_analysis:
+            if (
+                review_analysis.positive_count == 0
+                and review_analysis.negative_count == 0
+                and review_analysis.neutral_count == 0
+            ):
                 pass
-            else :    
-                total_count=review_analysis.positive_count + review_analysis.negative_count + review_analysis.neutral_count
-                positive_percentage = (review_analysis.positive_count / total_count) * 100 
-                negative_percentage = (review_analysis.negative_count / total_count) * 100 
-                neutral_percentage = (review_analysis.neutral_count / total_count) * 100 
-        
-        
+            else:
+                total_count = (
+                    review_analysis.positive_count
+                    + review_analysis.negative_count
+                    + review_analysis.neutral_count
+                )
+                positive_percentage = (
+                    review_analysis.positive_count / total_count
+                ) * 100
+                negative_percentage = (
+                    review_analysis.negative_count / total_count
+                ) * 100
+                neutral_percentage = (review_analysis.neutral_count / total_count) * 100
+
         price_history = LecturePriceHistory.objects.filter(
             lecture_id=lecture.lecture_id
         ).values_list("price", flat=True)
@@ -83,19 +94,18 @@ class LectureDetailTemplateView(View):
         ]
 
         context = {
-            'lecture': lecture,
-            'categories': categories,
-            'review_analysis': review_analysis,
-            'positive_percentage': positive_percentage,
-            'negative_percentage': negative_percentage,
-            'neutral_percentage': neutral_percentage,
+            "lecture": lecture,
+            "categories": categories,
+            "review_analysis": review_analysis,
+            "positive_percentage": positive_percentage,
+            "negative_percentage": negative_percentage,
+            "neutral_percentage": neutral_percentage,
             "price_history": list(price_history),
             "price_history_date": price_history_date,
-            'avg_sentiment':review_analysis.avg_sentiment if review_analysis else 0
-
+            "avg_sentiment": review_analysis.avg_sentiment if review_analysis else 0,
         }
-        
-        return render(request, 'detail.html', context)
+
+        return render(request, "detail.html", context)
 
 
 class LectureListPageView(TemplateView):
@@ -189,7 +199,7 @@ class LectureListView(generics.ListAPIView):
 
         if level:
             queryset = queryset.filter(level=level)
-            
+
         if platform_name:
             queryset = queryset.filter(platform_name=platform_name)
 
@@ -240,7 +250,7 @@ class LoginView(LoginView):
     def get_success_url(self):
         user = self.request.user
         if user.is_authenticated:
-            next_url = self.request.GET.get('next')
+            next_url = self.request.GET.get("next")
             if next_url:
                 return next_url
             return reverse_lazy("lecture_list_page")
@@ -253,6 +263,12 @@ class UserDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "user"
     pk_url_kwarg = "pk"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        wishlist = WishList.objects.filter(user=self.object).select_related("lecture")
+        context["wishlist"] = wishlist
+        return context
+
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = Users
@@ -263,6 +279,18 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy("user_detail", kwargs={"pk": self.object.pk})
 
+    def get_context_data(self, **kwargs):
+        # 기본 컨텍스트 데이터 가져오기
+        context = super().get_context_data(**kwargs)
+
+        # 현재 사용자의 위시리스트 항목 가져오기
+        wishlist = WishList.objects.filter(user=self.object).select_related("lecture")
+
+        # 위시리스트를 컨텍스트에 추가
+        context["wishlist"] = wishlist
+
+        return context
+
 
 class UserDeleteView(LoginRequiredMixin, DeleteView):
     model = Users
@@ -271,21 +299,6 @@ class UserDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy("lecture_list_page")
-
-
-class WishListView(LoginRequiredMixin, ListView):
-    model = WishList
-    template_name = 'wishlist/wishlist_list.html'
-    context_object_name = 'wishlist'
-
-    def get_queryset(self):
-        queryset = WishList.objects.filter(user=self.request.user).select_related('lecture')
-        return queryset
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['user'] = self.request.user
-        return context
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -317,7 +330,6 @@ class WishListCreateView(LoginRequiredMixin, View):
         return JsonResponse(
             {"success": True, "message": "Lecture added to wishlist successfully."}
         )
-
 
 
 # @method_decorator(csrf_exempt, name="dispatch")
@@ -356,15 +368,11 @@ class WishListStatusView(LoginRequiredMixin, View):
         ).exists()
         return JsonResponse({"is_in_wishlist": is_in_wishlist})
 
-
-
-    
-
 class ClickEventView(LoginRequiredMixin, View):
     def post(self, request):
-        keyword = request.POST.get('keyword')
+        keyword = request.POST.get("keyword")
         keyword = keyword[0].upper() + keyword[1:].lower()
-        user_id = request.POST.get('user_id')
+        user_id = request.POST.get("user_id")
 
         user = get_object_or_404(Users, pk=user_id)
 
@@ -372,7 +380,7 @@ class ClickEventView(LoginRequiredMixin, View):
         if keyword in ALL_CHOICES:
             for key in skills:
                 skills[key][1] *= 0.9
-                
+
             if keyword in skills:
                 skills[keyword][0] += 2
                 skills[keyword][1] = 1
@@ -383,22 +391,22 @@ class ClickEventView(LoginRequiredMixin, View):
             user.skills = skills
             user.save()
 
-            return JsonResponse({'message': 'Skills updated successfully!'})
+            return JsonResponse({"message": "Skills updated successfully!"})
 
-      
+
 class TagClickEventView(LoginRequiredMixin, View):
     def post(self, request):
-        keyword = request.POST.get('tag_keyword')
+        keyword = request.POST.get("tag_keyword")
         keyword = keyword[0].upper() + keyword[1:].lower()
-        user_id = request.POST.get('user_id')
+        user_id = request.POST.get("user_id")
         user = get_object_or_404(Users, pk=user_id)
-        
+
         skills = user.skills
-        
+
         if keyword in ALL_CHOICES:
             for key in skills:
                 skills[key][1] *= 0.9
-                
+
             if keyword in skills:
                 skills[keyword][0] += 3
                 skills[keyword][1] = 1
@@ -408,35 +416,35 @@ class TagClickEventView(LoginRequiredMixin, View):
 
             user.skills = skills
             user.save()
-                
-            return JsonResponse({'message': 'Skills updated successfully!'})
-            
+
+            return JsonResponse({"message": "Skills updated successfully!"})
+
 
 class SearchEventView(LoginRequiredMixin, View):
     def post(self, request):
-        keyword = request.POST.get('searchKeyword')
+        keyword = request.POST.get("searchKeyword")
         keyword = keyword[0].upper() + keyword[1:].lower()
-        user_id = request.POST.get('user_id')
+        user_id = request.POST.get("user_id")
         user = get_object_or_404(Users, pk=user_id)
-        
+
         skills = user.skills
         if keyword in ALL_CHOICES:
             for key in skills:
                 skills[key][1] *= 0.9
-            
+
             if keyword in skills:
                 skills[keyword][0] += 4
                 skills[keyword][1] = 1
-            
+
             else:
                 skills[keyword] = [4, 1]
-            
+
             user.skills = skills
             user.save()
-                
-            return JsonResponse({'message': 'Skills updated successfully!'})
 
-          
+            return JsonResponse({"message": "Skills updated successfully!"})
+
+
 @method_decorator(csrf_exempt, name="dispatch")
 class ToggleAlarmView(LoginRequiredMixin, View):
     def get(self, request, lecture_id, *args, **kwargs):
@@ -460,4 +468,3 @@ class ToggleAlarmView(LoginRequiredMixin, View):
             return JsonResponse(
                 {"success": False, "message": "Wishlist item not found."}, status=404
             )
-        
