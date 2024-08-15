@@ -28,6 +28,7 @@ from rest_framework.pagination import PageNumberPagination
 import json
 from functools import reduce
 import operator
+from urllib.parse import unquote, quote
 
 from .models import (
     LectureInfo,
@@ -49,7 +50,7 @@ from .choices import ALL_CHOICES
 
 class LectureDetailTemplateView(View):
     def get(self, request, pk):
-        lecture = get_object_or_404(LectureInfo, pk=pk)
+        lecture = get_object_or_404(LectureInfo, pk=pk)        
         category_ids = CategoryConn.objects.filter(lecture=lecture).values_list(
             "category_id", flat=True
         )
@@ -103,9 +104,7 @@ class LectureListPageView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        top_lectures = LectureInfo.objects.filter(platform_name="Inflearn").order_by(
-            "-review_count"
-        )[:10]
+        top_lectures = LectureInfo.objects.filter(platform_name="Inflearn").order_by("-review_count")[:10]
 
         tags = set()
         for lecture in top_lectures:
@@ -116,6 +115,28 @@ class LectureListPageView(TemplateView):
         context["tags_row2"] = tags[6:]
 
         context["tags"] = list(tags)
+        
+        user = self.request.user
+        user_skills = user.skills
+        
+        top_skills = sorted(user_skills.items(), key=lambda x: x[1][0] * x[1][1], reverse=True)[:]
+        top_keywords = [skill[0] for skill in top_skills]
+        
+        platforms = ["Inflearn", "Coursera", "Udemy"]
+        recommendations = {platform: [] for platform in platforms}
+        
+        for keyword in top_keywords:
+            for platform in platforms:
+                lecture = LectureInfo.objects.filter(
+                    keyword=quote(keyword),
+                    platform_name=platform,
+                    is_recommend=True
+                ).order_by('-review_count', '-scope').first()
+
+                if lecture:
+                    recommendations[platform].append(lecture)
+        context['recommendations'] = recommendations
+        
         return context
 
 
@@ -333,39 +354,8 @@ class WishListStatusView(LoginRequiredMixin, View):
         return JsonResponse({"is_in_wishlist": is_in_wishlist})
 
 
-class Recommend_lecture(LoginRequiredMixin, ListView):
-    context_object_name = 'recommend_lectures'
-    
-    def get_queryset(self):
-        user_id = self.kwargs['user_id']
-        user = get_object_or_404(Users, pk=user_id)
-        return self.recommend_lectures(user)
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_id = self.kwargs['user_id']
-        user = get_object_or_404(Users, pk=user_id)
-        context['user'] = user
-        return context
 
-    def get_top_skills(self, user):
-        skills = user.skills
-        
-        sorted_skills = sorted(skills.items(), key=lambda item: item[1][0] * item[1][1], reverse=True)
-        top_skills = [skill[0] for skill in sorted_skills[:3]]
-        return top_skills
     
-    def recommend_lecture(self, user):
-        top_skills = self.get_top_skills(user)
-        
-        lectures = LectureInfo.objects.filter(
-            reduce(operator.or_, (Q(tag_icontains=skill) for skill in top_skills))
-        ).order_by('-is_recommend', '-scope')
-        
-        return lectures
-# 사용법
-# {% for lecture in recommend_lectures %}
-
 
 class ClickEventView(LoginRequiredMixin, View):
     def post(self, request):
