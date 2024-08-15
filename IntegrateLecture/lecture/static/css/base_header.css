@@ -97,4 +97,74 @@ a {
     color: inherit;
 }
 
+/* 아래는 로그인 버튼 꾸미기 CSS */
+button.pretty_button {
+    --background: #275efe;
+    --text: #fff;
+    --font-size: 16px;
+    --duration: .5s;
+    --move-hover: -4px;
+    --shadow: 0 2px 8px -1px rgba(39, 94, 254, 0.32);
+    --shadow-hover: 0 4px 20px -2px rgba(39, 94, 254, 0.5);
+    --font-shadow: var(--font-size);
+    background: #2F3545;
+    color: #fff;
+    box-shadow: 0 2px 8px -1px rgba(18, 22, 33, 0.04);
+    padding: 8px 16px;
+    font-weight: 500;
+    border-radius: 16px;
+    display: block;
+    border: none;
+    outline: none;
+    appearance: none;
+    text-decoration: none;
+    font-size: var(--font-size);
+    letter-spacing: .5px;
+    box-shadow: var(--shadow);
+    transform: translateY(var(--y)) translateZ(0);
+    transition: transform var(--duration) ease, box-shadow var(--duration) ease;
 
+}
+
+button.pretty_button:hover {
+    box-shadow: 0 4px 20px -2px rgba(18, 22, 33, 0.12); /* hover 상태에서의 그림자 효과를 설정 */
+}
+button.pretty_button a {
+    display: flex;
+    overflow: hidden;
+    text-shadow: 0 var(--font-shadow) 0 var(--text);
+}
+button.pretty_button a span {
+    display: block;
+    backface-visibility: hidden;
+    font-style: normal;
+    transition: transform var(--duration) ease;
+    transform: translateY(var(--m)) translateZ(0);
+}
+button.pretty_button a span:nth-child(1) { transition-delay: 0.05s; }
+button.pretty_button a span:nth-child(2) { transition-delay: 0.1s; }
+button.pretty_button a span:nth-child(3) { transition-delay: 0.15s; }
+button.pretty_button a span:nth-child(4) { transition-delay: 0.2s; }
+button.pretty_button a span:nth-child(5) { transition-delay: 0.25s; }
+button.pretty_button a span:nth-child(6) { transition-delay: 0.3s; }
+button.pretty_button a span:nth-child(7) { transition-delay: 0.35s; }
+button.pretty_button a span:nth-child(8) { transition-delay: 0.4s; }
+button.pretty_button a span:nth-child(9) { transition-delay: 0.45s; }
+button.pretty_button a span:nth-child(10) { transition-delay: 0.5s; }
+
+button.pretty_button:hover {
+    --y: var(--move-hover);
+    box-shadow: var(--shadow-hover);
+}
+
+button.pretty_button:hover a span {
+    --m: calc(var(--font-size) * -1.13);
+}
+
+button.pretty_button.reverse {
+    --font-shadow: calc(var(--font-size) * -1.13);
+}
+
+button.pretty_button.reverse:hover a span {
+    --m: calc(var(--font-size));
+}
