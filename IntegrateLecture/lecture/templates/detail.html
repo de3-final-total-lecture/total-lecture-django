@@ -1,0 +1,249 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ lecture.lecture_name }} - 강의 상세 정보</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/detail_body.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base_header.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const positivePercentage = {{ positive_percentage|floatformat:2 }};
+        const negativePercentage = {{ negative_percentage|floatformat:2 }};
+        const neutralPercentage = {{ neutral_percentage|floatformat:2 }};
+        const avgSentiment = {{ avg_sentiment|floatformat:2}};
+        const priceHistory = {{ price_history }};
+        const priceHistoryDate = {{ price_history_date|safe }};
+    </script>
+
+    <script src="{% static 'js/detail.js' %}"></script>
+    <script src="{% static 'js/chart.js' %}"></script>
+
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo-container">
+                <!-- 사이트 로고 -->
+                <a href="/main">
+                    <img src="https://github.com/user-attachments/assets/7c1bab45-252a-4764-868a-7e56e5370b2f" width="90" height="80"/>
+                </a>
+            </div>
+            <div class="icon-container" id="iconContainer">
+                {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'logout' %}?next={{ request.build_absolute_uri|urlencode }}">
+                        {% csrf_token %}
+                        <button type="submit" class="pretty_button"><a>Logout</a></button>
+                    </form>
+                    <button class="pretty_button"><a href="{% url 'user_detail' pk=user.pk %}">MyPage</a></button>  
+                {% else %}
+                    <button class="pretty_button"><a href="{% url 'login' %}?next={{ request.build_absolute_uri|urlencode }}">Login</a></button>
+                    <button class="pretty_button"><a href="{% url 'signup' %}">Signup</a></button>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="lecture-summary">
+            <div class="summary-info">
+                <ul>
+                    {% for category in categories %}
+                        <li class="category-item" data-category="{{ category.main_category_name }}/{{ category.mid_category_name }}">
+                            {{ category.main_category_name }} / {{ category.mid_category_name }}
+                        </li>
+                    {% endfor %}
+                </ul>
+                <h1>{{ lecture.lecture_name }} </h1>
+                <br>
+                <p class="teacher-item" data-teacher="{{ lecture.teacher }}">
+                    <i class="fa-solid fa-user-tie"></i> : {{ lecture.teacher|default:"-" }}
+                </p>
+                <p class="lecture-rating" data-rating="{{ lecture.scope|default:"0" }}">
+                    <span id="rating-stars" class="rating-stars"|default:"0"></span> 
+                    ({{ lecture.scope }}) 수강평 {{ lecture.review_count|default:"0" }} 개
+                </p>
+                <div class="tags" data-contents="{{ lecture.tag }}">
+                    <!-- 버튼은 jQuery에서 동적으로 생성될 예정 -->
+                </div>
+            </div>
+            <div class="lecture-thumbnail">
+                <div>
+                    <img src="{{ lecture.thumbnail_url }}" alt="썸네일">
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="lecture-content">
+            <div class="lecture-detail">
+                <!-- 탭 버튼 -->
+                <div class="tab-container">
+                    <button class="tab-button" data-target="lecture-description">강의 소개</button>
+                    <button class="tab-button" data-target="lecture-whatlearn">이런걸 배워요</button>
+                    <button class="tab-button" data-target="lecture-review">리뷰 분석</button>
+                    {% if lecture.platform_name == "Coursera"%}
+                        <button class="tab-button" data-target="lecture-price-history">Coursera Plus 요금</button>
+                    {% else %}
+                        <button class="tab-button" data-target="lecture-price-history">가격 히스토리</button>
+                    {% endif %}
+                </div>
+                <div id="lecture-description" class="lecture-description">
+                    <h2>강의 소개</h2>
+                    <hr class="custom-hr"/> 
+                    <p style="line-height: 1.8;">{{ lecture.description }}</p>
+
+                </div>
+                <br>
+                <div id="lecture-whatlearn" class="lecture-whatlearn" data-contents="{{ lecture.what_do_i_learn}}">
+                    <h2>이런걸 배워요</h2>
+                    <hr class="custom-hr"/>
+                    <div id="what-do-i-learn-container"  data-contents="{{ lecture.what_do_i_learn }}"></div>
+                    <!-- 리스트는 jQuery에서 동적으로 생성될 예정 -->
+                </div>
+                <br>
+                <div id="lecture-review" class="lecture-review">
+                    <h2>리뷰 분석</h2>
+                    <hr class="custom-hr"/> 
+                    <div id="review-content">
+                        {% if lecture.review_count > 0 and lecture.scope > 0 %}
+                            <div class="review-text">
+                                <h3>별점 평균</h3>
+                                <p>{{ lecture.scope }} / 5</p><br>
+                                <h3>총 리뷰 수</h3>
+                                <p>{{ lecture.review_count }}개</p><br>
+                            </div>
+                                <div class="avg-sentiment-container">
+                                    <h3>강의평의 평균적인 분위기</h3>
+                                    {% if review_analysis.avg_sentiment > 0 %}
+                                        <div class="horizontal-bar-container">
+                                            <div class="horizontal-bar avg-sentiment"></div>
+                                        </div>
+                                        <div class="bar-label">
+                                            <p>부정적</p>
+                                            <p>긍정적</p>
+                                        </div>
+                                    {% else %}
+                                        <p>리뷰 분석이 존재하지 않는 강의에요.😅</p>
+                                    {% endif %}
+                                </div><br>
+                
+                                <div class="review-percent">
+                                    <h3>강의평의 비율</h3>
+                                    {% if review_analysis.positive_count > 0 or review_analysis.negative_count > 0 or review_analysis.neutral_count > 0 %}
+                                        <div class="chart-container">
+                                            <canvas id="sentimentChart"></canvas>
+                                        </div>
+                                    {% else %}
+                                        <p>리뷰 분석이 존재하지 않는 강의에요.😅</p>
+                                    {% endif %}
+                                </div><br>
+                                <div class="review-summary">
+                                    <h3>강의평 요약</h3>
+                                    {% if review_analysis.summary %}
+                                        <p>{{ review_analysis.summary }}</p>
+                                    {% else %}
+                                        <p>리뷰 요약이 존재하지 않는 강의에요.😅</p>
+                                    {% endif %}
+                                </div>
+                        {% else %}
+                            <p>리뷰가 존재하지 않는 강의에요.😅</p>
+                        {% endif %}                   
+                    </div>
+                </div></br>
+                <br>
+                <div id="lecture-price-history" class="lecture-price-history">
+                    {% if lecture.platform_name == "Coursera"%}
+                    <h2>Coursera Plus 요금 정책</h2>
+                    <hr class="custom-hr"/>
+                    <div class="pricing-container">
+                        <div class="price-card">
+                            <div class="price-title">
+                                <p> Coursera Plus 월간 플랜</p>
+                            </div>
+                            <div class="price-body">
+                                <h4>매월 80,000원</h4>
+                                <ul>
+                                    <li>170여 곳 이상의 선도적인 회사와 대학교에서 제공하는 7,000+개의 강좌와 특화 과정 이용</li>
+                                    <li>무제한 수료증 취득</li>
+                                    <li>1000여 개 이상의 적용 프로젝트 및 업계 전문가의 실습 연구소로 직업 관련 기술과 도구 학습하기</li>
+                                    <li>Google, Facebook 등의 업계 리더가 제공하는 15가지 전문 자격증 프로그램 중에서 선택</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="price-card">
+                            <div class="price-title">
+                                <p> Coursera Plus 연간 플랜</p>
+                            </div>
+                            <div class="price-body">
+                                <h4>매년 540,700원</h4>
+                                <ul>
+                                    <li>월간 플랜에 포함된 모든 항목 기본 제공</li>
+                                    <li>연간 요금을 선불로 결제하는 경우 할인 제공</li>
+                                    <li>일과 생활의 균형을 유지하고 나에게 맞는 속도로 학습할 수 있는 최대한의 유연성 제공</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                        <h2>가격 히스토리</h2>
+                        <hr class="custom-hr"/>
+                        {% if price_history|length > 0 %}
+                            <canvas id="priceHistoryChart" width="100%"></canvas>
+                        {% else %}
+                        <p>할인 정보가 존재하지 않는 강의에요.😅</p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="sticky-container">
+                <div class="sticky-title">
+                    <h3>{{lecture.platform_name}}</h3>
+                </div>
+                <div class="sticky-text">
+                    <div class="info-discript">
+                        {% if lecture.platform_name == "Coursera"%}
+                            <div>
+                                <span class="price">66,000원 ~ </span>
+                                <p style="color: #717171;">(구독한 Coursera Plan에 따라 다름)</p>
+                            </div>
+                        {% else %}
+                            <span class="price">{{ lecture.price|default:"-" }}원</span>
+                        {% endif %}
+                        <div>
+                            <i id="heart-icon" class="fa-regular fa-heart", data-lecture-id="{{ lecture.lecture_id }}"></i>
+                            ({{ lecture.like_count |default:'0'}})
+                        </div>
+                    </div>
+                    <a class="info"> 강의 레벨   </a> 
+                    <a>{{lecture.level|default:"-"}}</a>
+                </br>
+                    <a class="info"> 총 강의 시간   </a>
+                    <a>{{lecture.lecture_time|default:"-"}}</a>
+                </div>
+                <div class="sticky-button">
+                    <button class="num1" data-lectureid="{{ lecture.lecture_url }}">수강하러 가기</button>
+                    <button class="num2" data-lectureid="{{ lecture.lecture_id }}">알림 설정하기</button>
+                    <button class="num2 hidden" data-lectureid="{{ lecture.lecture_id }}">알림 해제하기</button>
+                </div>
+            </div>
+            <div class="fixed-card">
+                <button class="num1" data-lectureid="{{ lecture.lecture_url }}">수강하러 가기</button>
+                <button>강의 찜하기</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        {% if user.is_authenticated %}
+            window.currentUserId = "{{ user.user_id }}";
+        {% else %}
+            window.currentUserId = null;
+        {% endif %}
+    </script>
+    
+
+</body>
+</html>

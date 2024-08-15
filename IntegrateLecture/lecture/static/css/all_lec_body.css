@@ -1,0 +1,310 @@
+
+.banner-container {
+    width: 100%;
+    height: 300px;
+    background-color: #c6dce6;
+    text-align: center;
+    overflow:hidden;
+}
+
+.banner-container img {
+    width: 100%;
+    height: auto; /* 비율 유지 */
+}
+
+
+/***************************************************************************/
+.lec-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+    justify-content: center; 
+    margin: 10px 50px;
+    padding: 10px 10px;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+}
+
+.filters-container {
+    display: flex;
+    width: 100%;
+    gap: 10px;
+    margin: 20px;
+    justify-content: space-between;
+}
+
+.category-container{
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+}
+
+.sort-container {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+}
+
+.filters-container select {
+    width: 110px;
+    height: 50px;
+    font-size: 0.9em;
+    font-weight: 450;
+    border: 1.5px solid #b9b9b9;
+    color: #1f1f1f; 
+    padding: 5px 30px 5px 5px;    
+    border-radius: 5px; 
+    text-align: center; 
+    appearance: none;
+    background: right no-repeat url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="25" height="25"><path d="M7 10l5 5 5-5z"/></svg>');
+}
+
+/***********************************************************************************************/
+
+.search-container2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 700px; /* 최소 너비 설정 */
+    transition: all 0.3s ease; /* 부드러운 애니메이션 추가 */
+    border: 1px solid #acadd9;
+    border-radius: 30px;
+    background-color: #e9e9f1;
+    margin-bottom: 30px;
+}
+
+
+.search-container2 input {
+    width: 80%;
+    padding: 15px;
+    border: none;
+    margin-right: 10px;
+    background-color: transparent; 
+}
+
+
+.search-container2 button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 5px;
+}
+
+/***********************************************************************************************/
+
+.tags-container {
+    text-align: center;
+    padding: 20px;
+    margin-bottom: 50px;
+    margin-top: 30px;
+}
+
+.tags-container p {
+    margin-bottom: 15px;
+    font-weight: 400;
+}
+
+.tags-grid{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 100%;
+
+}
+
+.tags-row {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin: 10px auto; /* 중앙 정렬 */
+}
+
+.tag-box {
+    background-color: #656d9d;
+    border: none;
+    border-radius: 30px;
+    padding: 10px 20px;
+    text-align: center;
+    color: #fff;
+    font-size: 0.8em;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.tag-box:hover {
+    background-color: #7d8ea4;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+/*************************************************************************************************/
+.lecture-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(235px,235px));
+    gap: 20px;
+    width: 100%;
+    justify-content: center; /* 수평 중앙 정렬 */
+}
+
+.lecture-item {
+    background-color: #fff;
+    border:none;
+    border-radius: 10px;
+    padding: 15px;
+    align-items:flex-start;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+    position: relative;
+    overflow: hidden;
+}
+
+.lecture-item:hover {
+    transform: scale(1.05); /* 카드 확대 효과 */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* 그림자 효과 */
+}
+
+.lecture-item img { 
+    width: 220px;
+    height: 150px;
+    border-radius: 5px;
+    margin-bottom: 7px;
+}
+
+
+/*************************************************************************************************/
+
+.info-container {
+    position: relative;
+    height: 140px;
+    width: 100%;
+    padding: 5px
+}
+
+p.lecture-name {
+    font-size: 1.0em;
+    font-weight: 500;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 두 줄까지만 표시, 비표준 속성이라서 발생하는 오류 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2em; /* 줄 간격 조절 */
+    max-height: 2.4em; /* 두 줄의 높이 */
+    margin-bottom: 10px;
+}
+
+p.teacher {
+    display: -webkit-box;
+    -webkit-line-clamp: 1; 
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: absolute;
+    bottom: 60px;
+    font-size: 0.9em;
+    font-weight: 350;
+    color: #2a2a2a;
+}
+
+p.price {
+    position: absolute;
+    bottom: 35px;
+    font-size: 1.0em;
+    font-weight: 450;
+    color: #ca2b2b;
+}
+
+.review-container{
+    position: absolute;
+    bottom: 10px;
+    display: flex;
+    align-items: center;
+    vertical-align: center;
+    justify-content: flex-start;
+    width: 100%;
+    gap: 3px;
+}
+
+.review-scope{
+    font-size: 0.9em;
+    font-weight: 500;
+    color: #3d3d3d;     
+}
+
+.review-count {
+    font-size: 0.9em;
+    font-weight: 500;
+    color: #3d3d3d;
+}
+
+.level {
+    position: absolute;
+    right: 5px;
+    font-size: 0.8em;
+    font-weight: 600;
+    color: #fff; 
+    padding: 5px 10px; 
+    border-radius: 5px; 
+    text-align: center; 
+    margin-bottom: 5px;
+    
+}
+
+.level-입문 {
+    background-color: #ffc108; 
+}
+.level-초급 {
+    background-color: #2aad2a; 
+}
+.level-중급이상 {
+    background-color: #b534e3; 
+}
+.level-All {
+    background-color: #2a8ef1;
+}
+
+/***********************************************************************************************/
+.pagination {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    margin-top: 50px;
+}
+
+.pagination button, .pagination .page-number {
+    background-color: #ffffff;
+    color: #707070;
+    border: 1.3px solid #b3b3b3;
+    width: 35px;
+    height: 35px;
+    margin: 0px 5px;
+    font-size: 1.0em;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.pagination button:disabled {
+    background-color: #ffffff;
+    border: 1.3px solid #e6e6e6;
+    color: #bebebe;
+    cursor: not-allowed;
+}
+
+.pagination .page-number {
+    background-color: #ffffff;
+    color: #707070;
+    border: 1.3px solid #b3b3b3;
+    cursor: pointer;
+}
+
+.pagination .page-number.active {
+    background-color: #424769;
+    color: #ffffff;
+    border: none
+}
+
+.pagination .page-number:hover {
+    background-color: #f1f1f1;
+    color: #707070;
+    border: 1.5px solid #b3b3b3;
+}

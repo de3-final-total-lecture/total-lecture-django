@@ -1,0 +1,170 @@
+/* 공통 스타일 */
+header {
+    background: #fff; 
+    color: #000;
+    padding: 20px 40px;
+    display: block;
+    justify-content: space-between;
+    align-items: center;
+    border:none;
+    position: relative;
+    z-index: 1;
+}
+
+.header-container {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+    margin: 0px 10px;
+}
+
+.search-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 600px; /* 최소 너비 설정 */
+    transition: all 0.3s ease; /* 부드러운 애니메이션 추가 */
+}
+
+
+.search-container input {
+    width: 80%;
+    padding: 15px;
+    border: 1px solid #e1e1e1;
+    background-color: #f7f7f7;
+    border-radius: 10px;
+    margin-right: 10px;
+    transition: opacity 0.3s ease;
+}
+
+
+.search-container button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 5px;
+}
+
+.icon-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    min-width: 200px; /* 최소 너비 설정 */
+}
+
+
+.icon-container button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    border: 1.5px solid #e5e5e5;
+    border-radius: 5px;
+    font-size: 15px;
+    padding: 5px;
+    margin: 0px 10px;
+}
+
+main {
+    display: flex;
+    flex-direction: row;
+    box-sizing: border-box;
+    flex-wrap: wrap; /*화면 크기에 따라 줄바꿈 되도록 설정 */
+    line-height: 1.5;
+}
+
+body, h1, h2, h3, p, div, button, input {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #fff;
+    color: #000;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* 아래는 로그인 버튼 꾸미기 CSS */
+button.pretty_button {
+    --background: #275efe;
+    --text: #fff;
+    --font-size: 16px;
+    --duration: .5s;
+    --move-hover: -4px;
+    --shadow: 0 2px 8px -1px rgba(39, 94, 254, 0.32);
+    --shadow-hover: 0 4px 20px -2px rgba(39, 94, 254, 0.5);
+    --font-shadow: var(--font-size);
+    background: #2F3545;
+    color: #fff;
+    box-shadow: 0 2px 8px -1px rgba(18, 22, 33, 0.04);
+    padding: 8px 16px;
+    font-weight: 500;
+    border-radius: 16px;
+    display: block;
+    border: none;
+    outline: none;
+    appearance: none;
+    text-decoration: none;
+    font-size: var(--font-size);
+    letter-spacing: .5px;
+    box-shadow: var(--shadow);
+    transform: translateY(var(--y)) translateZ(0);
+    transition: transform var(--duration) ease, box-shadow var(--duration) ease;
+
+}
+
+button.pretty_button:hover {
+    box-shadow: 0 4px 20px -2px rgba(18, 22, 33, 0.12); /* hover 상태에서의 그림자 효과를 설정 */
+}
+button.pretty_button a {
+    display: flex;
+    overflow: hidden;
+    text-shadow: 0 var(--font-shadow) 0 var(--text);
+}
+button.pretty_button a span {
+    display: block;
+    backface-visibility: hidden;
+    font-style: normal;
+    transition: transform var(--duration) ease;
+    transform: translateY(var(--m)) translateZ(0);
+}
+button.pretty_button a span:nth-child(1) { transition-delay: 0.05s; }
+button.pretty_button a span:nth-child(2) { transition-delay: 0.1s; }
+button.pretty_button a span:nth-child(3) { transition-delay: 0.15s; }
+button.pretty_button a span:nth-child(4) { transition-delay: 0.2s; }
+button.pretty_button a span:nth-child(5) { transition-delay: 0.25s; }
+button.pretty_button a span:nth-child(6) { transition-delay: 0.3s; }
+button.pretty_button a span:nth-child(7) { transition-delay: 0.35s; }
+button.pretty_button a span:nth-child(8) { transition-delay: 0.4s; }
+button.pretty_button a span:nth-child(9) { transition-delay: 0.45s; }
+button.pretty_button a span:nth-child(10) { transition-delay: 0.5s; }
+
+button.pretty_button:hover {
+    --y: var(--move-hover);
+    box-shadow: var(--shadow-hover);
+}
+
+button.pretty_button:hover a span {
+    --m: calc(var(--font-size) * -1.13);
+}
+
+button.pretty_button.reverse {
+    --font-shadow: calc(var(--font-size) * -1.13);
+}
+
+button.pretty_button.reverse:hover a span {
+    --m: calc(var(--font-size));
+}

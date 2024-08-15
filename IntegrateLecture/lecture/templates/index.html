@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메인 화면</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/all_lec_body.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base_header.css' %}">
+</head>
+<body>
+    <script>
+        const userClickUrl = '{% url "user_click" %}';
+        const tagClickUrl = '{% url "tag_click" %}';
+        const searchUrl = '{% url "user_search" %}';
+        const csrfToken = '{{ csrf_token }}';
+    </script>
+    <header>
+        <div class="header-container">
+            <div class="logo-container">
+                <!-- 사이트 로고 -->
+                <a href="/main">
+                    <img src="https://github.com/user-attachments/assets/7c1bab45-252a-4764-868a-7e56e5370b2f" width="90" height="80"/>
+                </a>
+            </div>
+            <div class="search-container" id="searchContainer">
+                <input class="searchInput" type="text" placeholder="원하는 강의를 검색해보세요." id="searchInput">
+                <button id="searchButton" onclick="toggleSearch()">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+            <div class="icon-container" id="iconContainer">
+                {% comment %} <button><i id="heart-icon" class="fa-regular fa-heart"></i></button> {% endcomment %}
+                {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'logout' %}?next={{ request.build_absolute_uri|urlencode }}">
+                        {% csrf_token %}
+                        <button type="submit" class="pretty_button"><a>Logout</a></button>
+                    </form>
+                    <button class="pretty_button"><a href="{% url 'user_detail' pk=user.pk %}">MyPage</a></button>  
+                {% else %}
+                    <button class="pretty_button"><a href="{% url 'login' %}?next={{ request.build_absolute_uri|urlencode }}">Login</a></button>
+                    <button class="pretty_button"><a href="{% url 'signup' %}">Signup</a></button>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="banner-container">
+            <p> 광고 비스무리한거 삽입 예정 </p>
+        </div>
+        <div class="lec-container">
+            <div class="filters-container">
+                <div class="category-container">
+                    <select id="platform">
+                        <option value="">모든 사이트</option>
+                        <option value="Coursera">코세라</option>
+                        <option value="Inflearn">인프런</option>
+                        <option value="Udemy">유데미</option>
+                    </select>
+                    <select id="mainCategory">
+                        <option value="">분야 선택</option>
+                    </select>
+                    <select id="midCategory">
+                        <option value="">기술 선택</option>
+                    </select>
+                </div>
+                <div class = "sory-container">
+                    <select id="sortType">
+                        <option value="RECENT">최신순</option>
+                        <option value="RECOMMEND">추천순</option>
+                    </select>
+                    <select id="levelSelect">
+                        <option value="">난이도</option>
+                        <option value="입문">입문</option>
+                        <option value="초급">초급</option>
+                        <option value="중급이상">중급이상</option>
+                        <option value="All">All</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="tags-container" id="tagsContainer">
+                <div class="search-container2" id="searchContainer2">
+                    <input class="searchInput2" type="text" placeholder="요즘 많이 찾는 기술들을 학습해봐요" id="searchInput2">
+                    <button id="searchButton2" onclick="toggleSearch()">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+                <div class="tags-grid">
+                    <div class="tags-row">
+                        {% for tag in tags_row1 %}
+                            <div class="tag-box" data-tag="{{ tag }}"># {{ tag }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="tags-row">
+                        {% for tag in tags_row2 %}
+                            <div class="tag-box" data-tag="{{ tag }}"># {{ tag }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="lecture-container" id="lectureList">
+                <!--js에서 생성되서 삽입됨-->
+            </div>
+            <div class="pagination">
+                <button id="prevPage">＜</button>
+                <span id="pageNumbers"></span>
+                <button id="nextPage">＞</button>
+            </div>
+        </div>
+    </main>
+    <script>
+        {% if user.is_authenticated %}
+            window.currentUserId = "{{ user.user_id }}";
+        {% else %}
+            window.currentUserId = null;
+        {% endif %}
+    </script>
+    <script src="{% static 'js/all_lec.js' %}"></script>
+</body>
+</html>

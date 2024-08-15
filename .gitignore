@@ -67,3 +67,5 @@ Pipfile.lock
 .idea
 .vscode
 jango/
+lecture_key.pem
+rds-dump.sql
