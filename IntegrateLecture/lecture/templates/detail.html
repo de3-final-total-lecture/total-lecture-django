@@ -29,7 +29,7 @@
             <div class="logo-container">
                 <!-- 사이트 로고 -->
                 <a href="/main">
-                    <img src="https://github.com/user-attachments/assets/7c1bab45-252a-4764-868a-7e56e5370b2f" width="90" height="80"/>
+                    <img src="https://github.com/user-attachments/assets/a67118d5-5517-4f98-9da7-9cdcef93960b" width="90" height="80"/>
                 </a>
             </div>
             <div class="icon-container" id="iconContainer">
@@ -217,9 +217,12 @@
                             ({{ lecture.like_count |default:'0'}})
                         </div>
                     </div>
+                    <a class="info"> 강사명   </a> 
+                    <a>{{lecture.teacher|default:"-"}}</a>
+                    <br>
                     <a class="info"> 강의 레벨   </a> 
                     <a>{{lecture.level|default:"-"}}</a>
-                </br>
+                    <br>
                     <a class="info"> 총 강의 시간   </a>
                     <a>{{lecture.lecture_time|default:"-"}}</a>
                 </div>
