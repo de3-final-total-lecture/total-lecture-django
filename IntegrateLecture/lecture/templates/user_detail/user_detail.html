@@ -20,6 +20,22 @@
                 </form>
             {% else %}
                 <button><a href="{% url 'login' %}">Login</a></button>
+                <button id="modal">Modal</button>
+                <div class="black-bg">
+                    <div class="white-bg">
+                        <h4>로그인하세요</h4>
+                        <form action="success.html">
+                            <div class="my-3">
+                                <input type="text" class="form-control" id="ID">
+                            </div>
+                            <div class="my-3">
+                                <input type="password" class="form-control" id="PW">
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="send">전송</button>
+                            <button type="button" class="btn btn-danger" id="close">닫기</button>
+                        </form> 
+                    </div>
+                </div>
                 <button><a href="{% url 'signup' %}">Signup</a></button>
             {% endif %}
         </div>

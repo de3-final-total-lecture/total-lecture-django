@@ -7,6 +7,8 @@
     <title>메인 화면</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css" />
     <link rel="stylesheet" href="{% static 'css/all_lec_body.css' %}">
     <link rel="stylesheet" href="{% static 'css/base_header.css' %}">
 </head>
@@ -22,7 +24,7 @@
             <div class="logo-container">
                 <!-- 사이트 로고 -->
                 <a href="/main">
-                    <img src="https://github.com/user-attachments/assets/7c1bab45-252a-4764-868a-7e56e5370b2f" width="90" height="80"/>
+                    <img src="https://github.com/user-attachments/assets/a67118d5-5517-4f98-9da7-9cdcef93960b" width="90" height="80"/>
                 </a>
             </div>
             <div class="search-container" id="searchContainer">
@@ -48,7 +50,30 @@
     </header>
     <main>
         <div class="banner-container">
-            <p> 광고 비스무리한거 삽입 예정 </p>
+            <img class="info-img" src="{% static 'assets/배너1.jpg' %}">
+            <img class="info-img" src="{% static 'assets/배너2.jpg' %}">
+            {% if user.is_authenticated %}
+                {% for platform, lectures in recommendations.items %}
+                    {% for lecture in lectures %}
+                        {% comment %} <p>{{ lecture.lecture_name }}</p> {% endcomment %}
+                        <div class="recommend-banner">
+                            <a href="{% url 'lecture_detail' lecture.lecture_id %}">
+                                <div class="recommend-text">
+                                    <h3> 이런 강의는 어때요? {{ user.user_name }}</h3>
+                                    {% if platform == 'Coursera' %}
+                                        <img class='platform-logo' src="{% static 'assets/' %}{{ platform }}_logo.svg.png" height='20px' width=auto style='margin-top:15px'>
+                                    {% elif platform == 'Udemy' %}
+                                        <img class='platform-logo' src="{% static 'assets/' %}{{ platform }}_logo.svg.png" height='40px' width=auto>
+                                    {% elif platform == 'Inflearn' %}
+                                        <img class='platform-logo' src="{% static 'assets/' %}{{ platform }}_logo.svg.png" height='50px' width=auto style='margin-left:-20px'>
+                                    {% endif %}
+                                </div>
+                                <img class='recommend-img' src="{{ lecture.thumbnail_url }}" alt="{{ lecture.lecture_name }}">
+                            </a>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            {% endif %}
         </div>
         <div class="lec-container">
             <div class="filters-container">
@@ -120,5 +145,19 @@
         {% endif %}
     </script>
     <script src="{% static 'js/all_lec.js' %}"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    <script>
+        $('.banner-container').slick({
+            autoplay: true,
+            autoplaySpeed: 1500,
+            dots: true,
+            infinite: true,
+            speed: 500,
+            fade: true,
+            cssEase: 'linear',
+            adaptiveHeight: true
+        });
+    </script>
+   
 </body>
 </html>
