@@ -25,11 +25,10 @@
 }
 
 .recommend-banner{
-    background-color:#bdc2e8 ;
+    background-color:#f0f0f0 ;
     width: 100%;
     height: 290px;
     position: absolute;
-    text-align: end;
     z-index: 0;
 }
 
@@ -40,10 +39,53 @@
     position: relative;
     z-index: 0;
     padding: 20px 50px;
+    gap: 30px;
+    box-sizing: border-box; 
+}
+
+.recommend-header {
+    flex: 1;
+    top:20px;
+    left: 20px;
+    border-radius: 10px;
+    vertical-align: middle;  
+    width: 380px;
+    height: 270px;
+}
+
+.recommend-text {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+}
+
+.recommend-etc {
+    width: 100%; 
+    height: 180px;
+    font-size : 15px;
+}
+
+.recommend-etc p{
+    color:#393939;
+    margin-top: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* 두 줄까지만 표시, 비표준 속성이라서 발생하는 오류 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2em; /* 줄 간격 조절 */
+}
+
+.recommend-name {
+    font-size: 1.5em;
+    font-weight: 600;
+    margin-bottom: 20px;
 }
 
 .recommend-img {  
-    position: absolute;
+    flex: 1;
     top:20px;
     border-radius: 10px;
     vertical-align: middle;  
@@ -58,7 +100,7 @@
     width: 100%;
     align-items: center;
     justify-content: center; 
-    margin: 10px 50px;
+    margin: 10px 40px;
     padding: 10px 10px;
     box-sizing: border-box;
     flex-wrap: wrap;
@@ -68,7 +110,7 @@
     display: flex;
     width: 100%;
     gap: 10px;
-    margin: 20px;
+    margin: 0px 20px;
     justify-content: space-between;
 }
 
