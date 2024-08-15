@@ -53,15 +53,15 @@ class CustomSignUpForm(forms.ModelForm):
         
         language = self.cleaned_data.get('language')
         if language and language != "None":
-            skills[language] = [8, 1]
+            skills[language] = [50, 1]
 
         skill_1 = self.cleaned_data.get('skill_1')
         if skill_1 and skill_1 != "None":
-            skills[skill_1] = [4, 1]
+            skills[skill_1] = [35, 1]
         
         skill_2 = self.cleaned_data.get('skill_2')
         if skill_2 and skill_2 != "None":
-            skills[skill_2] = [4, 1]
+            skills[skill_2] = [35, 1]
         
         user.skills = skills
         if commit:
