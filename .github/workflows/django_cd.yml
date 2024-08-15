@@ -1,0 +1,85 @@
+name: Django CD
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS CLI
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Get django instance ID by Tag
+        id: get-instance
+        run: |
+          BASTION_HOST_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ vars.BASTION_HOST_NAME_TAG }}" --query 'Reservations[0].Instances[0].InstanceId' --output text)
+          DJANGO_ID=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ vars.DJANGO_NAME_TAG }}" --query 'Reservations[0].Instances[0].InstanceId' --output text)
+          echo "Bastion Host ID: $BASTION_HOST_ID"
+          echo "Django ID: $DJANGO_ID"
+          echo "bastion_host_id=$BASTION_HOST_ID" >> $GITHUB_OUTPUT
+          echo "django_id=$DJANGO_ID" >> $GITHUB_OUTPUT
+
+      - name: Check Instance Status
+        id: check-status
+        run: |
+          BASTION_HOST_STATUS=$(aws ec2 describe-instances --instance-ids ${{ steps.get-instance.outputs.bastion_host_id }} --query 'Reservations[0].Instances[0].State.Name' --output text)
+          DJANGO_STATUS=$(aws ec2 describe-instances --instance-ids ${{ steps.get-instance.outputs.django_id }} --query 'Reservations[0].Instances[0].State.Name' --output text)
+          echo "Bastion Host STATUS: $BASTION_HOST_STATUS"
+          echo "DJANGO STATUS: $DJANGO_STATUS"
+          echo "bastion_host_status=$BASTION_HOST_STATUS" >> $GITHUB_OUTPUT
+          echo "django_status=$DJANGO_STATUS" >> $GITHUB_OUTPUT
+
+  
+      - name: Start Bastion Host if stopped
+        if: steps.check-status.outputs.bastion_host_status != 'running'
+        run: |
+          aws ec2 start-instances --instance-ids ${{ steps.get-instance.outputs.bastion_host_id }}
+          aws ec2 wait instance-running --instance-ids ${{ steps.get-instance.outputs.bastion_host_id }}
+  
+          
+      - name: Start Django Server if stopped
+        if: steps.check-status.outputs.django_status != 'running'
+        run: |
+          aws ec2 start-instances --instance-ids ${{ steps.get-instance.outputs.django_id }}
+          aws ec2 wait instance-running --instance-ids ${{ steps.get-instance.outputs.django_id }}
+
+
+      - name: Get instance IPs
+        id: get-instance-ips
+        run: |
+          BASTION_HOST_IP=$(aws ec2 describe-instances --instance-ids ${{ steps.get-instance.outputs.bastion_host_id }} --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
+          DJANGO_IP=$(aws ec2 describe-instances --instance-ids ${{ steps.get-instance.outputs.django_id }} --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text)
+          echo "Bastion Host IP: $BASTION_HOST_IP"
+          echo "DJANGO IP: $DJANGO_IP"
+          echo "bastion_host_ip=$BASTION_HOST_IP" >> $GITHUB_OUTPUT
+          echo "django_ip=$DJANGO_IP" >> $GITHUB_OUTPUT
+
+    
+      - name: Create SSH key file
+        run: |
+          echo "${{ secrets.PRIVATE_KEY }}" > team_jun_1.pem
+          chmod 600 team_jun_1.pem
+          
+
+      - name: Git Pull on Django Server
+        run: |
+          sleep 10
+          ssh -f -N -M -S my-cicd-socket -o StrictHostKeyChecking=no -i team_jun_1.pem -L 2222:${{ steps.get-instance-ips.outputs.django_ip }}:22 ubuntu@${{ steps.get-instance-ips.outputs.bastion_host_ip}}
+          ssh -o StrictHostKeyChecking=no -i team_jun_1.pem -p 2222 ubuntu@localhost << 'EOF'
+            echo "Connected to Private Subnet Airflow SAeerver via SSH Tunneling"
+            source ~/django_env/bin/activate
+            cd ${{ vars.DJANGO_DIR }}
+            pip install -r requirements.txt
+            git config --global credential.helper store
+            echo "https://${{ secrets.GIT_AUTH_TOKEN }}:@github.com" > ~/.git-credentials
+            git pull origin main
+            rm ~/.git-credentials
+          EOF
+          ssh -S my-cicd-socket -O exit ubuntu@${{ steps.get-instance-ips.output.bastion_host_ip }}
+          

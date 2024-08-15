@@ -3,7 +3,6 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.validators import EmailValidator
 from django.utils.translation import gettext_lazy as _
 
-
 class Category(models.Model):
     category_id = models.AutoField(primary_key=True)
     main_category_name = models.CharField(max_length=255, blank=True, null=True)

@@ -19,7 +19,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 
-from rest_framework import generics
 from rest_framework import exceptions
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -295,6 +294,7 @@ class WishListCreateView(LoginRequiredMixin, View):
         )
 
 
+
 # @method_decorator(csrf_exempt, name="dispatch")
 class WishListRemoveView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
@@ -466,3 +466,4 @@ class ToggleAlarmView(LoginRequiredMixin, View):
             return JsonResponse(
                 {"success": False, "message": "Wishlist item not found."}, status=404
             )
+        
