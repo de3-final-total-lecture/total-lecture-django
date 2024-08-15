@@ -130,7 +130,7 @@ class LectureListPageView(TemplateView):
         if user.is_authenticated:
             user_skills = user.skills
             
-            top_skills = sorted(user_skills.items(), key=lambda x: x[1][0] * x[1][1], reverse=True)[:]
+            top_skills = sorted(user_skills.items(), key=lambda x: x[1][0] * x[1][1], reverse=True)[:3]
             top_keywords = [skill[0] for skill in top_skills]
             
             platforms = ["Inflearn", "Coursera", "Udemy"]
