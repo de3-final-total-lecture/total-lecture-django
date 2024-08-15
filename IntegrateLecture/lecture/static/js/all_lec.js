@@ -26,7 +26,6 @@ searchButton.addEventListener('click', () => {
     loadPage(1);
     searchInput.value = '';
 });
-
 searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         const searchValue = searchInput.value.trim();
