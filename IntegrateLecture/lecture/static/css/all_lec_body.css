@@ -288,7 +288,7 @@ p.teacher {
 p.price {
     position: absolute;
     bottom: 35px;
-    font-size: 1.0em;
+    font-size: 0.9em;
     font-weight: 450;
     color: #ca2b2b;
 }

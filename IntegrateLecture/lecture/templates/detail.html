@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ lecture.lecture_name }} - 강의 상세 정보</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'css/detail_body.css' %}">
+    <link rel="stylesheet" href="{% static 'css/detail_body2.css' %}">
     <link rel="stylesheet" href="{% static 'css/base_header.css' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -200,7 +200,14 @@
             </div>
             <div class="sticky-container">
                 <div class="sticky-title">
-                    <h3>{{lecture.platform_name}}</h3>
+                    {% if lecture.platform_name == 'Coursera' %}
+                        <img class='platform-logo' src="{% static 'assets/' %}{{ lecture.platform_name }}_logo.svg.png" height='18px' width=auto style='margin: 10px 0px 20px 0px '>
+                    {% elif lecture.platform_name == 'Udemy' %}
+                        <img class='platform-logo' src="{% static 'assets/' %}{{ lecture.platform_name }}_logo.svg.png" height='30px' width=auto style='margin: 4px 0px 8px 0px'>
+                    {% elif lecture.platform_name == 'Inflearn' %}
+                        <img class='platform-logo' src="{% static 'assets/' %}{{ lecture.platform_name }}_logo.svg.png" height='40px' width=auto style='margin-left:-20px'>
+                    {% endif %}
+                    {% comment %} <h3>{{lecture.platform_name}}</h3> {% endcomment %}
                 </div>
                 <div class="sticky-text">
                     <div class="info-discript">
