@@ -3,25 +3,21 @@
 {% block title %}Edit User Profile{% endblock %}
 
 {% block header %}
-<header>
+<header style="background: #e2e8f0; color: #000; padding: 20px 40px; display: block; justify-content: space-between; align-items: center; border:none; position: relative; z-index: 1;">
     <div class="header-container">
         <div class="logo-container">
-            <p>사이트 로고</p>
+            <!-- 사이트 로고 -->
+            <a href="/main">
+                <img src="https://github.com/user-attachments/assets/7c1bab45-252a-4764-868a-7e56e5370b2f" width="90" height="80"/>
+            </a>
         </div>
-        <div class="search-container" id="searchContainer">
-            <input class="searchInput" type="text" placeholder="원하는 강의를 검색해보세요." id="searchInput">
-            <button id="searchButton" onclick="toggleSearch()">
-                <i class="fa-solid fa-magnifying-glass"></i>
-            </button>
-        </div>
+        <h1>마이페이지</h1>
         <div class="icon-container" id="iconContainer">
-            {% comment %} <button><i id="heart-icon" class="fa-regular fa-heart"></i></button> {% endcomment %}
             {% if user.is_authenticated %}
-                <form method="post" action="{% url 'logout' %}?next={{ request.path }}">
+                <form method="post" action="{% url 'logout' %}?next={{ request.build_absolute_uri|urlencode }}">
                     {% csrf_token %}
-                    <button type="submit">Logout</button>
-                </form> 
-                <button><a href="{% url 'user_wishlist' pk=user.pk %}">찜목록</a></button>
+                    <button type="submit" class="pretty_button"><a>Logout</a></button>
+                </form>
             {% else %}
                 <button><a href="{% url 'login' %}">Login</a></button>
                 <button><a href="{% url 'signup' %}">Signup</a></button>
@@ -31,71 +27,18 @@
 </header>
 {% endblock %}
 
-{% block breadcrumb %}
-<li class="breadcrumb-item">User Profile</li>
-{% endblock %}
 
-{% block link_info %}
-<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-    <h6 class="mb-0">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
-            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" 
-            stroke-linecap="round" stroke-linejoin="round" 
-            class="feather feather-github mr-2 icon-inline">
-            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-        </svg><a href='' target="__blank">Github</a></h6>
-        {% if user.github_url %}
-            <span class="text-secondary">{{ user.github_url }}</span>
-        {% else %}
-            <span class="text-secondary">None</span>
-        {% endif %}
-</li>
-<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-    <h6 class="mb-0">
-        <img src='https://cdn-icons-png.flaticon.com/512/145/145807.png' width="24" height="24"
-            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round"
-            class="feather feather-facebook mr-2 icon-inline text-primary">
-            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z">
-            </path>
-        </img><a href='' target="__blank">LinkedIn</a></h6>
-        {% if user.linkedin_url %}
-            <span class="text-secondary">{{ user.linkedin_url }}</span>
-        {% else %}
-            <span class="text-secondary">None</span>
-        {% endif %}
-</li>
-{% endblock %}
 
 {% block content %}
-<div class="card mb-3">
-    <div class="card-body">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-sm-3">
-                    <h6 class="mb-0">Name</h6>
-                </div>
-                <div class="col-sm-9 text-secondary">{{ user.user_name}}</div>
-            </div>
-            <hr>
-            <div class="row mb-3">
-                <div class="col-sm-3">
-                    <h6 class="mb-0">Email</h6>
-                </div>
-                <div class="col-sm-9 text-secondary"><h6>{{ user.user_email }}</h6></div>
-            </div>
-            <hr>
-            <div class="row mb-3">
-                <div class="col-sm-3">
-                    <h6 class="mb-0">Phone</h6>
-                </div>
-                <div class="col-sm-9 text-secondary">(239) 816-9029</div>
-            </div>
-            <hr>
-            <div class="row">
-                <div class="col-sm-0"></div><a class="btn btn-info " href="{% url 'user_update' pk=user.pk %}">Edit</a>
-            </div>
-        </div>
+<div class="row">
+    <div class="col-sm-6 d-flex justify-content-start">
+        <a class="btn btn-info" href="{% url 'user_update' pk=user.pk %}">찜 삭제</a>
+    </div>
+    <div class="col-sm-6 d-flex justify-content-end">
+        <form method="post" action="{% url 'user_delete' pk=user.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger delete-btn">회원탈퇴</button>
+        </form>
     </div>
 </div>
 {% endblock %}
