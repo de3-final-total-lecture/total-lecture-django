@@ -217,9 +217,12 @@
                             ({{ lecture.like_count |default:'0'}})
                         </div>
                     </div>
+                    <a class="info"> 강사명   </a> 
+                    <a>{{lecture.teacher|default:"-"}}</a>
+                    <br>
                     <a class="info"> 강의 레벨   </a> 
                     <a>{{lecture.level|default:"-"}}</a>
-                </br>
+                    <br>
                     <a class="info"> 총 강의 시간   </a>
                     <a>{{lecture.lecture_time|default:"-"}}</a>
                 </div>
