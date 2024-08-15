@@ -1,21 +1,17 @@
-.banner-wrapper {
-    overflow: hidden; /* 하나의 이미지만 보이도록 설정 */
-    width: 100vw; /* 컨테이너 너비를 화면 너비로 설정 */
-    height: 300px
-}
 .banner-container {
     width: 100%;
-    height: 300px;
+    height: 330px;
     overflow: hidden; 
     position: relative;
     margin:0 auto;
 }
 
-.banner-container img{
+.info-img{
     vertical-align: top;
     object-fit: cover; 
     position: absolute;
-    height: 100%;
+    height: 290px;
+    z-index: 1;
 }
 
 .slick-dots {
@@ -28,6 +24,33 @@
     color: #666666;
 }
 
+.recommend-banner{
+    background-color:#bdc2e8 ;
+    width: 100%;
+    height: 290px;
+    position: absolute;
+    text-align: end;
+    z-index: 0;
+}
+
+.recommend-banner a{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    position: relative;
+    z-index: 0;
+    padding: 20px 50px;
+}
+
+.recommend-img {  
+    position: absolute;
+    top:20px;
+    border-radius: 10px;
+    vertical-align: middle;  
+    right: 50px;
+    width: 380px;
+    height: 250px;
+}
 /***************************************************************************/
 .lec-container {
     display: flex;
