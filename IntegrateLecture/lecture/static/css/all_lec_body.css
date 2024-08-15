@@ -193,6 +193,11 @@ p.lecture-name {
 }
 
 p.teacher {
+    display: -webkit-box;
+    -webkit-line-clamp: 1; 
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
     position: absolute;
     bottom: 60px;
     font-size: 0.9em;
