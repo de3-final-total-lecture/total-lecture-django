@@ -26,7 +26,7 @@ SKILL_CHOICES = [
     ("TDD", "TDD"), ("Embedded System", "Embedded System"), ("Computer Science", "Computer Science")
 ]
 
-ALL_CHOICES = ['Machine learning','Deep learning','Data science','Llm','Prompt engineering','Computer vision','Nlp','Pytorch','Tensorflow',
+ALL_CHOICES = ['MachineLearning','DeepLearning','Data science','Llm','Prompt engineering','Computer vision','Nlp','Pytorch','Tensorflow',
     'Data engineering','Kafka','Spark','Airflow','Hadoop','Bigdata','Mongodb','Crawling','Web development','Spring',
     'Node.js','React','Redis','Os','Network','Data structure','Algorithm','Dbms','Sql','Oracle',
     'Postgresql','Android','Ios','Flutter','React native','Devops','Ci/cd','Msa','Terraform','Docker',

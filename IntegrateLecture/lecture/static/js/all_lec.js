@@ -12,7 +12,6 @@ const searchInput2 = document.getElementById('searchInput2');
 const levelSelect = document.getElementById('levelSelect');
 const tagBoxes = document.querySelectorAll('.tag-box');
 
-
 mainCategorySelect.addEventListener('change', (e) => {
     populateMidCategories(e.target.value);
     loadPage(1);
@@ -59,6 +58,8 @@ searchInput2.addEventListener('keypress', (e) => {
 });currentPage = 1;
 let categories = {};
 let sQuery = '';
+
+
 
 
 tagBoxes.forEach(tagBox => {
