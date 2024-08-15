@@ -58,15 +58,22 @@
                         {% comment %} <p>{{ lecture.lecture_name }}</p> {% endcomment %}
                         <div class="recommend-banner">
                             <a href="{% url 'lecture_detail' lecture.lecture_id %}">
+                                <img class="recommend-header" src="{% static 'assets/추천배너 헤더.png' %}">
                                 <div class="recommend-text">
-                                    <h3> 이런 강의는 어때요? {{ user.user_name }}</h3>
+                                    <div class="logo">
                                     {% if platform == 'Coursera' %}
-                                        <img class='platform-logo' src="{% static 'assets/' %}{{ platform }}_logo.svg.png" height='20px' width=auto style='margin-top:15px'>
+                                        <img class='platform-logo' src="{% static 'assets/' %}{{ platform }}_logo.svg.png" height='20px' width=auto style='margin: 15px 0px '>
                                     {% elif platform == 'Udemy' %}
-                                        <img class='platform-logo' src="{% static 'assets/' %}{{ platform }}_logo.svg.png" height='40px' width=auto>
+                                        <img class='platform-logo' src="{% static 'assets/' %}{{ platform }}_logo.svg.png" height='40px' width=auto style='margin: 4px 0px 8px 0px'>
                                     {% elif platform == 'Inflearn' %}
                                         <img class='platform-logo' src="{% static 'assets/' %}{{ platform }}_logo.svg.png" height='50px' width=auto style='margin-left:-20px'>
                                     {% endif %}
+                                    </div>
+                                    <p class="recommend-name">{{lecture.lecture_name}}</p>
+                                    <div class="recommend-etc">
+                                        <p> 강사명 : {{lecture.teacher|default:'-'}}</p>
+                                        <p> {{lecture.description}}</p>
+                                    </div>
                                 </div>
                                 <img class='recommend-img' src="{{ lecture.thumbnail_url }}" alt="{{ lecture.lecture_name }}">
                             </a>
