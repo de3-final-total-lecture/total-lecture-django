@@ -376,8 +376,8 @@
 
 .horizontal-bar {
     height: 100%;
-    text-align: start;
-    padding-left: 15px;
+    text-align: end;
+    padding-right: 20px;
     line-height: 30px;
     color: white;
     font-weight: bold;
