@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['중립적', '부정적', '긍정적'],
+            labels: ['긍정적', '부정적', '중립적'],
             datasets: [{
                 data: [positivePercentage, negativePercentage, neutralPercentage],
                 backgroundColor: ['#4CAF50', '#F44336', '#FFC107'],
