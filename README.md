@@ -25,24 +25,57 @@
 
 
 ## 데이터 파이프라인
+![데이터 파이프라인](https://github.com/user-attachments/assets/f0b8b6ce-2d87-49d5-b23a-8fe43129e3a2)
 
-추후 추가 예정
+
+## Django 프로젝트 구조
+Project : IntegrateLecture
+- App1 : lecture
+<br/>
+
+## 개발환경 시작
+
+1. 실행 환경을 준비합니다.<br/>
+  (1) 본 레포지토리를 clone 합니다.<br/>
+  (2) python 3.11을 설치합니다.<br/>
+  (3) 프로젝트 최상위 경로(IntegrateLecture/)에서 requirements.txt의 라이브러리들을 설치합니다.<br/>
+2. 로컬 데이터베이스를 준비합니다.<br/>
+  (1) 로컬에 MySQL을 설치합니다.<br/>
+  (2) MySQL에 데이터베이스를 생성합니다.<br/>
+  (3) 프로젝트 최상위 경로(IntegrateLecture/)에서 .env 파일을 아래와 같이 생성합니다.<br/>
+```text
+DB_NAME=yourDBName
+DB_USER=yourUserName
+DB_PASSWORD=yourPassword
+DB_HOST=yourHost
+DB_PORT=3306
+```
+3. 데이터를 마이그레이션합니다. 프로젝트 최상위 경로(IntegrateLecture/)에서 다음의 명령어들을 차례대로 실행합니다.<br/>
+  (1) python manage.py makemigrations<br/>
+  (2) python manage.py migrate<br/>
+4. 서버를 실행합니다.<br/>
+  (1) 프로젝트 최상위 경로(IntegrateLecture/)에서 'python manage.py runserver'를 실행합니다.<br/>
+  (2) 'localhost:8000/main 접속<br/>
 
 
 ## 결과물
-
 ### 메인 페이지
-
+<img width="1350" alt="main" src="https://github.com/user-attachments/assets/3ffdcd9b-ba3f-4dca-81fc-7343e0bd6f75"/>
 ### 사용자 맞춤 추천 베너
 <img width="1350" alt="recommendbanenr" src="https://github.com/user-attachments/assets/1b9de65b-69de-41ad-b4d0-0ed5c5a1328d">
 
 ### 강의 세부 페이지
+<img width="1350" alt="detail" src="https://github.com/user-attachments/assets/ba6983a7-5ad1-4db3-81de-e1ed166d93ae"/>
 
-### 강의 리뷰 분석 페이지
+### 강의 리뷰 분석
+<img width="1350" alt="review-analysis" src="https://github.com/user-attachments/assets/e01223e5-24b8-4457-b760-46f34bb60b36"/>
 
-### 강의 가격 페이지
-추후 추가 예정
+### 강의 가격 히스토리 그래프
+- Udemy, Inflearn의 경우
+<img width="1350" alt="price-history" src="https://github.com/user-attachments/assets/05557cdc-108f-40e9-a341-997b4f87588d"/>
 
+- Coursera의 경우 (구독제)
+<img width="1350" alt="price-history-coursera" src="https://github.com/user-attachments/assets/6e9943ad-affc-48b3-858d-f58e7d388e0e"/>
 
 ## 팀원 및 역할
 * 김승훈: 인프런 DAG 작성 및 전체 DAG 통합
