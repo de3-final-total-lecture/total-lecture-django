@@ -4,7 +4,7 @@
 1. 프로젝트 개요
 
 온라인 강의 플랫폼이 증가함에 따라 교육 콘텐츠의 폭이 확장되었고, 이로 인해 강의 탐색을 위한 시간과 노력이 많이 소요되어, 여러 인터넷 강의 사이트의 정보를 한 곳에 모아 통합 검색 및 가격 히스토리 추척 기능을 제공하는 웹사이트 **OLLI**를 구축
-
+<br/>
 
 2. 프로젝트 목표
 - Udemy, Cousera, Inflean 주요 인터넷 
@@ -12,9 +12,13 @@
 - 크롤링한 데이터를 전처리해 규격화된 데이터로 일반화
 - 통합 검색을 위한 DJango를 통한 WebUI 구성
 - 사용자의 행동 기반 추천 시스템 구성
+<br/>
 
 ## 인프라 아키텍쳐
+
 <img width="1350" alt="infra-architecture" src="https://github.com/user-attachments/assets/6685d32e-6533-4031-8258-d9623802c79c"/>
+<br/>
+<br/>
 
 
 ## 기술 스택
@@ -23,12 +27,13 @@
 - Data Processing: <img src="https://img.shields.io/badge/Amazone%20Glue-937401?style=flat&logo=GLUE&logoColor=ffdd54"/> <img src="https://img.shields.io/badge/python-3670A0?style=flat&logo=python&logoColor=ffdd54"/> <img src="https://img.shields.io/badge/OpenAI-228877?style=flat&logo=openai&logoColor=White"/>
 - Web Programming: <img src="https://img.shields.io/badge/django-%23092E20.svg?style=flat&logo=django&logoColor=white"/>
 - CI/CD Tool: <img src="https://img.shields.io/badge/GitHub-181717?style=flat&logo=GitHub&logoColor=white"> <img src="https://img.shields.io/badge/Gather-2535A0?style=flat&logo=Gather&logoColor=white"> <img src="https://img.shields.io/badge/Slack-4A154B?style=flat&logo=Slack&logoColor=white"> <img src="https://img.shields.io/badge/Notion-000000?style=flat&logo=Notion&logoColor=white">
+<br/>
 
 
 
 ## 데이터 파이프라인
 ![데이터 파이프라인](https://github.com/user-attachments/assets/f0b8b6ce-2d87-49d5-b23a-8fe43129e3a2)
-
+<br/>
 
 ## Django 프로젝트 구조
 Project : IntegrateLecture
@@ -59,10 +64,12 @@ DB_PORT=3306
   (1) 프로젝트 최상위 경로(IntegrateLecture/)에서 'python manage.py runserver'를 실행합니다.<br/>
   (2) 'localhost:8000/main 접속<br/>
 
+<br/>
 
 ## 결과물
 ### 메인 페이지
 <img width="1350" alt="main" src="https://github.com/user-attachments/assets/3ffdcd9b-ba3f-4dca-81fc-7343e0bd6f75"/>
+
 ### 사용자 맞춤 추천 베너
 <img width="1350" alt="recommendbanenr" src="https://github.com/user-attachments/assets/1b9de65b-69de-41ad-b4d0-0ed5c5a1328d">
 
@@ -78,16 +85,14 @@ DB_PORT=3306
 
 - Coursera의 경우 (구독제)
 <img width="1350" alt="price-history-coursera" src="https://github.com/user-attachments/assets/6e9943ad-affc-48b3-858d-f58e7d388e0e"/>
+<br/>
 
 ## 팀원 및 역할
 * 김승훈: 인프런 DAG 작성 및 전체 DAG 통합
 * 김승현: Coursera DAG 작성, 프론트엔드 및 백엔드 개발
 * 김동기: Udemy DAG 작성, 백엔드 및 강의 추천 시스템 개발
 * 김유민: 인프라 구축 및 리뷰 분석 및 카테고리 DAG 작성
-
-
-
-
+<br/>
 
 ## 참여자 정보
 <table>
