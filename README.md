@@ -13,6 +13,8 @@
 - 통합 검색을 위한 DJango를 통한 WebUI 구성
 - 사용자의 행동 기반 추천 시스템 구성
 
+## 인프라 아키텍쳐
+<img width="1350" alt="infra-architecture" src="https://github.com/user-attachments/assets/6685d32e-6533-4031-8258-d9623802c79c"/>
 
 
 ## 기술 스택
